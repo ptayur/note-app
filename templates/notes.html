@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Notes - NoteApp{% endblock %}
+
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/notes.css' %}">
+<script src="{% static 'js/notes.js' %}" type="module"></script>
+{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <h1>Welcome to NoteApp</h1>
+        <p>Your notes:</p>
+    </div>
+    
+    <!-- Button to open modal -->
+    <button id="openModal">Add Note</button>
+
+    <!-- Modal -->
+    <div id="modalOverlay" class="modal">
+        <div class="modal-content">
+            <button id="closeModal">&times;</button>
+            <h2>Add a Note</h2>
+            <form id="noteForm">
+                <input type="text" name="title" placeholder="Title" required><br>
+                <textarea name="content" placeholder="Content" required></textarea><br>
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+     
+    <!-- Notes -->
+    <div id="notes">
+        
+    </div>
+{% endblock %}
