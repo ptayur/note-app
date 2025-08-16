@@ -1,55 +1,118 @@
-import { getCookie } from "./utils.js";
+//
+// Imports
+//
 
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('modalOverlay');
-    const openBtn = document.getElementById('openModal');
-    const closeBtn = document.getElementById('closeModal');
-    const form = document.getElementById('noteForm');
+import { apiFetch } from "./utils.js";
 
-    fetch('/notes/get/', {
-        method: 'GET'
-    })
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById('notes');
-            data.forEach(note => {
-                const div = document.createElement('div');
-                div.innerHTML = `<h3>${note.title}</h3><p>${note.content}</p>`;
-                container.appendChild(div);
-            });
+//
+// Global Variables & DOM Elements
+//
+
+const modal = document.getElementById('modalOverlay');
+const notesContainer = document.getElementById('notes');
+const openBtn = document.getElementById('openModal');
+const closeBtn = document.getElementById('closeModal');
+const noteForm = document.getElementById('noteForm');
+
+//
+// Rendering
+//
+
+function renderNote(note) {
+    const div = document.createElement('div');
+    div.className = 'note';
+    div.innerHTML = `
+        <h3>${note.title}</h3>
+        <p>${note.content}</p>
+    `;
+
+    notesContainer.appendChild(div);
+}
+
+async function loadNotes() {
+    apiFetch('/api/notes/', { method: 'GET' })
+        .then(notes => {
+            notes.forEach(renderNote);
         })
-
-    openBtn.addEventListener('click', () => {
-        modal.style.display = 'block';
-    })
-
-    closeBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    })
-
-    window.addEventListener('click', (e) => {
-        if (e.target == modal) {
-            modal.style.display = 'none';
-        }
-    })
-
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const data = new FormData(form);
-        modal.style.display = 'none';
-        form.reset();
-
-        fetch('/notes/add/', {
-            method: 'POST',
-            headers: {'X-CSRFToken': getCookie('csrftoken')},
-            body: data
+        .catch(error => {
+            console.error('Failed to load notes:', error);
         })
-            .then(res => res.json())
-            .then(note => {
-                const container = document.getElementById('notes');
-                const div = document.createElement('div');
-                div.innerHTML = `<h3>${note.title}</h3><p>${note.content}</p>`;
-                container.appendChild(div);
-            })
+    
+}
+
+//
+// CRUD Actions
+//
+
+function createNote(data) {
+    apiFetch('/api/notes/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
     })
+    .then(note => renderNote(note))
+    .catch(error => {
+        console.error('Failed to create note:', error);
+    });
+}
+
+function updateNote(id, data) {
+    apiFetch(`/api/notes/${id}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(() => loadNotes())
+    .catch(error => {
+        console.error('Failde to update note:', error);
+    });
+}
+
+function deleteNote(id, noteElement) {
+    apiFetch(`/api/notes/${id}/`, {
+        method: 'DELETE'
+    })
+    .then(() => noteElement.remove())
+    .catch(error => {
+        console.error('Failed to delete note:', error);
+    });
+}
+
+//
+// Modal Handling
+//
+
+openBtn.addEventListener('click', () => {
+    modal.style.display = 'flex';
 })
+
+closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+})
+
+window.addEventListener('click', (e) => {
+    if (e.target == modal) {
+        modal.style.display = 'none';
+    }
+})
+
+//
+// Event Listeners
+//
+
+noteForm.addEventListener('submit', event => {
+    event.preventDefault();
+    const data = {
+        title: noteForm.title.value,
+        content: noteForm.content.value
+    };
+    createNote(data);
+    modal.style.display = 'none';
+    noteForm.reset();
+})
+
+//
+// Initialize App
+//
+
+loadNotes();

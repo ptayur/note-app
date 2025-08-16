@@ -12,3 +12,25 @@ export function getCookie(name) {
     }
     return cookieValue;
 }
+
+export async function apiFetch(url, options) {
+    try {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                ...(options.headers || {})
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`)
+        }
+
+        const text = await response.text();
+        return text ? JSON.parse(text) : null;  
+
+    } catch (error) {
+        throw error;
+    }
+}

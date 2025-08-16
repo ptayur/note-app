@@ -22,4 +22,5 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("accounts/", include("accounts.urls")),
     path("notes/", include("notes.urls")),
+    path("api/", include("api.urls")),
 ]
