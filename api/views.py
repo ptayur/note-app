@@ -1,17 +1,72 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework import permissions
-from notes.models import Note
-from .serializers import NoteSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions, status
+from rest_framework_simplejwt.tokens import RefreshToken
+from note_app.models import Note
+from .serializers import NoteSerializer, RegisterSerializer
 
 # Create your views here.
 
 
-class NoteViewSet(ModelViewSet):
-    serializer_class = NoteSerializer
+class NoteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        return Note.objects.filter(user=self.request.user)
+    def get(self, request):
+        """List all notes"""
+        notes = Note.objects.filter(user=request.user)
+        serializer = NoteSerializer(notes, many=True)
+        return Response(serializer.data)
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def post(self, request):
+        """Create a new note"""
+        serializer = NoteSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        """Update a `pk` note"""
+        try:
+            note = Note.objects.get(pk=pk, user=request.user)
+        except Note.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = NoteSerializer(note, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        """Delete a `pk` note"""
+        try:
+            note = Note.objects.get(pk=pk, user=request.user)
+        except Note.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        note.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"user": serializer.data}, status=status.HTTP_201_CREATED
+        )

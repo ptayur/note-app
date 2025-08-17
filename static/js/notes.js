@@ -29,14 +29,14 @@ function renderNote(note) {
     notesContainer.appendChild(div);
 }
 
-async function loadNotes() {
-    apiFetch('/api/notes/', { method: 'GET' })
-        .then(notes => {
-            notes.forEach(renderNote);
-        })
-        .catch(error => {
-            console.error('Failed to load notes:', error);
-        })
+function loadNotes() {
+    apiFetch('/api/notes/')
+    .then(notes => {
+        notes.forEach(renderNote);
+    })
+    .catch(error => {
+        console.error('Failed to load notes:', error);
+    })
     
 }
 
@@ -58,7 +58,7 @@ function createNote(data) {
 
 function updateNote(id, data) {
     apiFetch(`/api/notes/${id}/`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     })
