@@ -1,9 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions, status
-from rest_framework_simplejwt.tokens import RefreshToken
 from note_app.models import Note
-from .serializers import NoteSerializer, RegisterSerializer
+from .serializers import NoteSerializer
 
 # Create your views here.
 
@@ -47,26 +46,3 @@ class NoteView(APIView):
 
         note.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class LogoutView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request):
-        try:
-            refresh_token = request.data["refresh"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
-        except Exception:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-class RegisterView(APIView):
-    def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            {"user": serializer.data}, status=status.HTTP_201_CREATED
-        )
