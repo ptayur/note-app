@@ -1,36 +1,21 @@
-export function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
+//
+// API Requests
+//
 
 export async function apiFetch(url, options) {
     try {
-        const response = await fetch(url, {
-            ...options,
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                ...(options.headers || {})
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`)
-        }
+        const response = await fetch(url, options || {});
 
         const text = await response.text();
-        return text ? JSON.parse(text) : null;  
+        const data = text ? JSON.parse(text) : null;  
+
+        return {
+            ok: response.ok,
+            status: response.status,
+            data
+        };
 
     } catch (error) {
-        throw error;
+        return {ok: false, status: 0, data: {error: error.message}}
     }
 }
