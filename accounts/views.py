@@ -20,7 +20,8 @@ class LoginView(APIView):
         refresh_token = str(refresh)
 
         response = Response(
-            {"access_token": access_token}, status=status.HTTP_200_OK
+            {"access_token": access_token, "refresh_token": refresh_token},
+            status=status.HTTP_200_OK,
         )
         response.set_cookie(
             key="refresh_token",
@@ -29,7 +30,7 @@ class LoginView(APIView):
             secure=True,
             samesite="Strict",
             max_age=7 * 24 * 60 * 60,
-            path="/auth/refresh",
+            path="/auth/refresh/",
         )
         return response
 
@@ -37,10 +38,11 @@ class LoginView(APIView):
 class RefreshView(APIView):
 
     def post(self, request):
-        refresh_token = request.COOKIES.get("refresh_token")
+        refresh_token = request.COOKIES.get("refresh_token") or request.data.get("refresh_token")
+
         if refresh_token is None:
             return Response(
-                {"message": "No refresh token found."},
+                {"message": "No refresh token found"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -53,33 +55,35 @@ class RefreshView(APIView):
             )
         access_token = str(refresh.access_token)
 
+        data = {"access_token": access_token, "refresh_token": refresh_token}
         new_refresh_token = None
         if hasattr(refresh, "rotate"):
             new_refresh_token = str(refresh)
+            data["refresh_token"] = new_refresh_token
 
-        response = Response(
-            {"access_token": access_token}, status=status.HTTP_200_OK
-        )
+        response = Response(data, status=status.HTTP_200_OK)
         if new_refresh_token:
             response.set_cookie(
                 key="refresh_token",
-                value=refresh_token,
+                value=new_refresh_token,
                 httponly=True,
                 secure=True,
                 samesite="Strict",
                 max_age=7 * 24 * 60 * 60,
-                path="/auth/refresh",
+                path="/auth/refresh/",
             )
+
         return response
 
 
 class LogoutView(APIView):
 
     def post(self, request):
-        refresh_token = request.COOKIES.get("refresh_token")
+        refresh_token = request.COOKIES.get("refresh_token") or request.data.get("refresh_token")
+
         if refresh_token is None:
             return Response(
-                {"message": "No refresh token found."},
+                {"message": "No refresh token found"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         response = Response(status=status.HTTP_205_RESET_CONTENT)
