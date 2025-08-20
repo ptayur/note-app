@@ -29,6 +29,7 @@ class LoginView(APIView):
             secure=True,
             samesite="Strict",
             max_age=7 * 24 * 60 * 60,
+            path="/auth/refresh",
         )
         return response
 
@@ -67,6 +68,7 @@ class RefreshView(APIView):
                 secure=True,
                 samesite="Strict",
                 max_age=7 * 24 * 60 * 60,
+                path="/auth/refresh",
             )
         return response
 
