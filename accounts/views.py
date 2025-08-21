@@ -1,18 +1,22 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions, serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
+from django.contrib.auth.models import User
+from django.conf import settings
 from .serializers import RegisterSerializer, LoginSerializer
-
-# Create your views here.
 
 
 class LoginView(APIView):
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except serializers.ValidationError as error:
+            return Response({"detail": error.get_full_details}, status=status.HTTP_400_BAD_REQUEST)
         user = serializer.validated_data["user"]
 
         refresh = RefreshToken.for_user(user)
@@ -36,13 +40,14 @@ class LoginView(APIView):
 
 
 class RefreshView(APIView):
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token") or request.data.get("refresh_token")
 
         if refresh_token is None:
             return Response(
-                {"message": "No refresh token found"},
+                {"detail": "No refresh token found"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -50,28 +55,36 @@ class RefreshView(APIView):
             refresh = RefreshToken(refresh_token)
         except TokenError:
             return Response(
-                {"message": "Invalid refresh token"},
+                {"detail": "Invalid refresh token"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        access_token = str(refresh.access_token)
+
+        if settings.SIMPLE_JWT.get("ROTATE_REFRESH_TOKENS", True):
+            try:
+                user = User.objects.get(id=refresh["user_id"])
+            except User.DoesNotExist:
+                return Response({"detail": "User not found"}, status=status.HTTP_401_UNAUTHORIZED)
+            new_refresh = RefreshToken.for_user(user)
+
+            if settings.SIMPLE_JWT.get("BLACKLIST_AFTER_ROTATION", True):
+                refresh.blacklist()
+
+            access_token = str(new_refresh.access_token)
+            refresh_token = str(new_refresh)
+        else:
+            access_token = str(refresh.access_token)
 
         data = {"access_token": access_token, "refresh_token": refresh_token}
-        new_refresh_token = None
-        if hasattr(refresh, "rotate"):
-            new_refresh_token = str(refresh)
-            data["refresh_token"] = new_refresh_token
-
         response = Response(data, status=status.HTTP_200_OK)
-        if new_refresh_token:
-            response.set_cookie(
-                key="refresh_token",
-                value=new_refresh_token,
-                httponly=True,
-                secure=True,
-                samesite="Strict",
-                max_age=7 * 24 * 60 * 60,
-                path="/auth/refresh/",
-            )
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="Strict",
+            max_age=7 * 24 * 60 * 60,
+            path="/auth/refresh/",
+        )
 
         return response
 
@@ -83,25 +96,32 @@ class LogoutView(APIView):
 
         if refresh_token is None:
             return Response(
-                {"message": "No refresh token found"},
+                {"detail": "No refresh token found"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        response = Response(status=status.HTTP_205_RESET_CONTENT)
 
         try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
+            refresh = RefreshToken(refresh_token)
+            refresh.blacklist()
         except TokenError:
             pass
 
+        response = Response(status=status.HTTP_205_RESET_CONTENT)
         response.delete_cookie("refresh_token")
         return response
 
 
 class RegisterView(APIView):
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except serializers.ValidationError as error:
+            return Response({"detail": error.get_full_details}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            {"username": serializer.data["username"], "email": serializer.data["email"]},
+            status=status.HTTP_201_CREATED,
+        )
