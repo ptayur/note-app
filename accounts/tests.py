@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
-from django.contrib.auth.models import User
 from django.conf import settings
+from .models import CustomUser
 
 
 class LoginViewTests(APITestCase):
@@ -16,13 +16,13 @@ class LoginViewTests(APITestCase):
             "email": "test@email.com",
             "password": "testuser",
         }
-        User.objects.create_user(**self.user_data)
+        CustomUser.objects.create_user(**self.user_data)
 
     def test_login_sucess(self):
         """Test success routine and return values"""
         response = self.client.post(
             self.login_url,
-            {"username": self.user_data["username"], "password": self.user_data["password"]},
+            {"email": self.user_data["email"], "password": self.user_data["password"]},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -34,23 +34,23 @@ class LoginViewTests(APITestCase):
         )
 
     def test_login_invalid_credentials(self):
-        """Test when username or password is invalid"""
-        # Test invalid username
-        with self.subTest("Username"):
-            invalid_username = "invalid"
+        """Test when email or password is invalid"""
+        # Test invalid email
+        with self.subTest("Email"):
+            invalid_email = "invalid"
             response = self.client.post(
                 self.login_url,
-                {"username": invalid_username, "password": "testuser"},
+                {"email": invalid_email, "password": "testuser"},
                 format="json",
             )
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertFalse(User.objects.filter(username=invalid_username).exists())
+            self.assertFalse(CustomUser.objects.filter(email=invalid_email).exists())
 
         # Test invalid password
         with self.subTest("Password"):
             response = self.client.post(
                 self.login_url,
-                {"username": self.user_data["username"], "password": "wrong"},
+                {"email": self.user_data["email"], "password": "wrong"},
                 format="json",
             )
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -69,13 +69,13 @@ class RefreshViewTests(APITestCase):
             "email": "test@email.com",
             "password": "testuser",
         }
-        self.user = User.objects.create_user(**self.user_data)
+        self.user = CustomUser.objects.create_user(**self.user_data)
 
     def test_refresh_success(self):
         """Test success routine and return values"""
         login_response = self.client.post(
             self.login_url,
-            {"username": self.user_data["username"], "password": self.user_data["password"]},
+            {"email": self.user_data["email"], "password": self.user_data["password"]},
             format="json",
         )
         old_refresh_token = login_response.data["refresh_token"]
@@ -123,7 +123,7 @@ class RefreshViewTests(APITestCase):
         """Test when user for refresh_token was deleted"""
         login_response = self.client.post(
             self.login_url,
-            {"username": self.user_data["username"], "password": self.user_data["password"]},
+            {"email": self.user_data["email"], "password": self.user_data["password"]},
             format="json",
         )
         self.user.delete()
@@ -133,7 +133,7 @@ class RefreshViewTests(APITestCase):
             data={"refresh_token": login_response.data["refresh_token"]},
             format="json",
         )
-        self.user = User.objects.create_user(**self.user_data)
+        self.user = CustomUser.objects.create_user(**self.user_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -150,13 +150,13 @@ class LogoutViewTests(APITestCase):
             "email": "test@email.com",
             "password": "testuser",
         }
-        User.objects.create_user(**self.user_data)
+        CustomUser.objects.create_user(**self.user_data)
 
     def test_logout_success(self):
         """Test success routine"""
         login_response = self.client.post(
             self.login_url,
-            {"username": self.user_data["username"], "password": self.user_data["password"]},
+            {"email": self.user_data["email"], "password": self.user_data["password"]},
             format="json",
         )
         refresh_token = login_response.data["refresh_token"]
@@ -189,16 +189,16 @@ class RegisterViewTests(APITestCase):
         self.register_url = "/auth/register/"
 
         self.user_data = {
-            "username": "newuser",
-            "email": "new@email.com",
-            "password": "newuser",
+            "username": "testuser",
+            "email": "testuser@email.com",
+            "password": "testuser",
         }
         self.duplicate_data = {
             "username": "duplicateuser",
             "email": "duplicate@email.com",
             "password": "duplicateuser",
         }
-        User.objects.create_user(**self.duplicate_data)
+        CustomUser.objects.create_user(**self.duplicate_data)
 
     def test_register_success(self):
         """Test success routine and return values"""
@@ -207,19 +207,18 @@ class RegisterViewTests(APITestCase):
         user_data.pop("password")  # Delete 'password' entry as API shouldn't return password
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, user_data)
-        self.assertTrue(User.objects.filter(username=user_data["username"]).exists())
+        self.assertTrue(CustomUser.objects.filter(email=user_data["email"]).exists())
 
     def test_register_duplicate_data(self):
         """Test when username or email is already used"""
-        user_data = self.duplicate_data
-        user_data["password"] = "newpassword"
+        user_data = self.duplicate_data.copy()
 
         # Test username duplication
         with self.subTest("Username"):
             user_data["email"] = "different@email.com"
             response = self.client.post(self.register_url, data=user_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertTrue(User.objects.filter(username=user_data["username"]).count == 1)
+            self.assertEqual(CustomUser.objects.filter(username=user_data["username"]).count(), 1)
             user_data["email"] = self.duplicate_data["email"]  # Set duplicated email back
 
         # Test email
@@ -227,4 +226,4 @@ class RegisterViewTests(APITestCase):
             user_data["username"] = "differentuser"
             response = self.client.post(self.register_url, data=user_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertTrue(User.objects.filter(username=user_data["email"]).count == 1)
+            self.assertEqual(CustomUser.objects.filter(email=user_data["email"]).count(), 1)

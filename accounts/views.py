@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status, permissions, serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-from django.contrib.auth.models import User
 from django.conf import settings
-from .serializers import RegisterSerializer, LoginSerializer
+from .models import CustomUser
+from .serializers import CustomUserModelSerializer, LoginSerializer
 
 
 class LoginView(APIView):
@@ -13,10 +13,7 @@ class LoginView(APIView):
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-        except serializers.ValidationError as error:
-            return Response({"detail": error.get_full_details}, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
 
         refresh = RefreshToken.for_user(user)
@@ -61,8 +58,8 @@ class RefreshView(APIView):
 
         if settings.SIMPLE_JWT.get("ROTATE_REFRESH_TOKENS", True):
             try:
-                user = User.objects.get(id=refresh["user_id"])
-            except User.DoesNotExist:
+                user = CustomUser.objects.get(id=refresh["user_id"])
+            except CustomUser.DoesNotExist:
                 return Response({"detail": "User not found"}, status=status.HTTP_401_UNAUTHORIZED)
             new_refresh = RefreshToken.for_user(user)
 
@@ -90,6 +87,7 @@ class RefreshView(APIView):
 
 
 class LogoutView(APIView):
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token") or request.data.get("refresh_token")
@@ -115,11 +113,8 @@ class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-        except serializers.ValidationError as error:
-            return Response({"detail": error.get_full_details}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = CustomUserModelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(
             {"username": serializer.data["username"], "email": serializer.data["email"]},
