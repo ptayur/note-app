@@ -2,7 +2,7 @@
 // Imports
 //
 
-import { apiFetch } from "./utils.js";
+import { jwtRequest } from "./utils.js";
 
 //
 // Global Variables & DOM Elements
@@ -10,13 +10,19 @@ import { apiFetch } from "./utils.js";
 
 const signInForm = document.getElementById('sign-in');
 const signUpForm = document.getElementById('sign-up');
+const card = document.getElementById('auth-card');
+
+const emailFieldBack = document.getElementById("email-back");
+const emailError = document.getElementById("email-error");
+const passwordField = document.getElementById("password-back");
+const passwordError = document.getElementById("password-error");
 
 //
 // Authentication Functions
 //
 
 async function login(data) {
-    const result = await apiFetch('api/login/', {
+    const result = await jwtRequest('/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -26,15 +32,10 @@ async function login(data) {
         console.error('Login failed:', result.data);
         return;
     }
-
-    const accessToken = result.data.access;
-    const refreshToken = result.data.refresh;
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
 }
 
 async function register(data) {
-    const result = await apiFetch('api/register/', {
+    const result = await jwtRequest('/auth/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -43,6 +44,60 @@ async function register(data) {
     if (!result.ok) {
         console.error('Register failed:', result.data);
         return;
+    }
+}
+
+//
+// Helper Functions
+//
+
+function debounce(func, delay = 300) {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func(...args);
+        }, delay);
+    }
+}
+
+//
+// Validation Functions
+//
+
+async function validateEmail() {
+    const email = emailFieldBack.value;
+
+    const response = await jwtRequest("/auth/validation/email/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ "email": email })
+    })
+
+    if (!response.ok) {
+        const errorMessage = response.data["error"];
+        emailError.innerHTML = `<p>${errorMessage}</p>`;
+    } else {
+        emailError.innerHTML = ""
+    }
+    
+    
+}
+
+async function validatePassword() {
+    const password = passwordField.value;
+
+    const response = await jwtRequest("/auth/validation/password/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ "password": password })
+    })
+
+    if (!response.ok) {
+        const errorMessage = response.data["error"];
+        passwordError.innerHTML = `<p>${errorMessage}</p>`;
+    } else {
+        passwordError.innerHTML = ""
     }
 }
 
@@ -74,3 +129,15 @@ signUpForm.addEventListener('submit', async event => {
         password: data.password
     })
 })
+
+document.getElementById('flip-to-signup').addEventListener('click', () => {
+    card.classList.add('flipped');
+})
+
+document.getElementById('flip-to-signin').addEventListener('click', () => {
+    card.classList.remove('flipped');
+})
+
+emailFieldBack.addEventListener("input", debounce(validateEmail))
+
+passwordField.addEventListener("input", debounce(validatePassword))
