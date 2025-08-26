@@ -1,11 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions, serializers
+from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from django.conf import settings
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 from .models import CustomUser
 from .serializers import CustomUserModelSerializer, LoginSerializer
+
+##
+## Authentication views
+##
 
 
 class LoginView(APIView):
@@ -120,3 +127,68 @@ class RegisterView(APIView):
             {"username": serializer.data["username"], "email": serializer.data["email"]},
             status=status.HTTP_201_CREATED,
         )
+
+
+##
+## Validation views
+##
+
+
+class UsernameValidationView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        username = request.query_params.get("username")
+        if not username:
+            return Response({"error": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if CustomUser.objects.filter(username=username).exists():
+                return Response(
+                    {"error": "Username is already associated with an account"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        return Response({}, status=status.HTTP_200_OK)
+
+
+class EmailValidationView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        email = request.data.get("email").lower()
+
+        if not email:
+            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                validate_email(email)
+            except ValidationError as error:
+                return Response({"error": error.messages}, status=status.HTTP_400_BAD_REQUEST)
+
+            if CustomUser.objects.filter(email=email).exists():
+                return Response(
+                    {"error": "Email is already associated with an account"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        return Response({}, status=status.HTTP_200_OK)
+
+
+class PasswordValidationView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        password = request.data.get("password")
+
+        if not password:
+            return Response({"error": "Password is required"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                validate_password(password=password)
+            except ValidationError as error:
+                return Response({"error": error.messages}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({}, status=status.HTTP_200_OK)
