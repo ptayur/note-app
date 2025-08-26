@@ -3,6 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}NoteApp{% endblock %}</title>
+
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'css/variables.css' %}">
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+        
         {% block head %}
         {% endblock %}
     </head>
