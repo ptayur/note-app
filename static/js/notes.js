@@ -2,7 +2,7 @@
 // Imports
 //
 
-import { apiFetch } from "./utils.js";
+import { jwtRequest } from "./utils.js";
 
 //
 // Global Variables & DOM Elements
@@ -30,7 +30,7 @@ function renderNote(note) {
 }
 
 function loadNotes() {
-    apiFetch('/api/notes/')
+    jwtRequest('/api/notes/')
     .then(notes => {
         notes.forEach(renderNote);
     })
@@ -45,7 +45,7 @@ function loadNotes() {
 //
 
 function createNote(data) {
-    apiFetch('/api/notes/', {
+    jwtRequest('/api/notes/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -57,7 +57,7 @@ function createNote(data) {
 }
 
 function updateNote(id, data) {
-    apiFetch(`/api/notes/${id}/`, {
+    jwtRequest(`/api/notes/${id}/`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -69,7 +69,7 @@ function updateNote(id, data) {
 }
 
 function deleteNote(id, noteElement) {
-    apiFetch(`/api/notes/${id}/`, {
+    jwtRequest(`/api/notes/${id}/`, {
         method: 'DELETE'
     })
     .then(() => noteElement.remove())
