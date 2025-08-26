@@ -1,0 +1,28 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;    
+}
+
+header {
+    background: var(--paynes-gray);
+}
+
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+footer {
+    background: var(--paynes-gray);
+    color: #fff;
+    text-align: center;
+}
