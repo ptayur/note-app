@@ -17,6 +17,7 @@ from .serializers import CustomUserModelSerializer, LoginSerializer
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
