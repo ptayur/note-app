@@ -21,7 +21,8 @@ class LoginView(APIView):
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         user = serializer.validated_data["user"]
 
         refresh = RefreshToken.for_user(user)
@@ -41,6 +42,7 @@ class LoginView(APIView):
             max_age=7 * 24 * 60 * 60,
             path="/auth/refresh/",
         )
+
         return response
 
 
@@ -52,7 +54,7 @@ class RefreshView(APIView):
 
         if refresh_token is None:
             return Response(
-                {"detail": "No refresh token found"},
+                {"errors": "No refresh token found"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -60,7 +62,7 @@ class RefreshView(APIView):
             refresh = RefreshToken(refresh_token)
         except TokenError:
             return Response(
-                {"detail": "Invalid refresh token"},
+                {"errors": "Invalid refresh token"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
@@ -68,7 +70,7 @@ class RefreshView(APIView):
             try:
                 user = CustomUser.objects.get(id=refresh["user_id"])
             except CustomUser.DoesNotExist:
-                return Response({"detail": "User not found"}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({"errors": "User not found"}, status=status.HTTP_401_UNAUTHORIZED)
             new_refresh = RefreshToken.for_user(user)
 
             if settings.SIMPLE_JWT.get("BLACKLIST_AFTER_ROTATION", True):
@@ -102,7 +104,7 @@ class LogoutView(APIView):
 
         if refresh_token is None:
             return Response(
-                {"detail": "No refresh token found"},
+                {"errors": "No refresh token found"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -119,10 +121,12 @@ class LogoutView(APIView):
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         serializer = CustomUserModelSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(
             {"username": serializer.data["username"], "email": serializer.data["email"]},
@@ -142,15 +146,15 @@ class UsernameValidationView(APIView):
     def get(self, request):
         username = request.query_params.get("username")
         if not username:
-            return Response({"error": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"errors": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             if CustomUser.objects.filter(username=username).exists():
                 return Response(
-                    {"error": "Username is already associated with an account"},
+                    {"errors": "Username is already associated with an account"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        return Response({}, status=status.HTTP_200_OK)
+        return Response({"data": ""}, status=status.HTTP_200_OK)
 
 
 class EmailValidationView(APIView):
@@ -161,20 +165,20 @@ class EmailValidationView(APIView):
         email = request.data.get("email").lower()
 
         if not email:
-            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"errors": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             try:
                 validate_email(email)
             except ValidationError as error:
-                return Response({"error": error.messages}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"errors": error.messages}, status=status.HTTP_400_BAD_REQUEST)
 
             if CustomUser.objects.filter(email=email).exists():
                 return Response(
-                    {"error": "Email is already associated with an account"},
+                    {"errors": "Email is already associated with an account"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        return Response({}, status=status.HTTP_200_OK)
+        return Response({"data": ""}, status=status.HTTP_200_OK)
 
 
 class PasswordValidationView(APIView):
@@ -185,11 +189,11 @@ class PasswordValidationView(APIView):
         password = request.data.get("password")
 
         if not password:
-            return Response({"error": "Password is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"errors": "Password is required"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             try:
                 validate_password(password=password)
             except ValidationError as error:
-                return Response({"error": error.messages}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"errors": error.messages}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({}, status=status.HTTP_200_OK)
+        return Response({"data": ""}, status=status.HTTP_200_OK)
