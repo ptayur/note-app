@@ -40,7 +40,12 @@ const debouncedValidateUsername = debounce(async () => {
         paramName: "username"
 
     })
-    showFieldError(usernameError, result);
+    if (!result.ok) {
+        showFieldError(usernameError, result.errors);
+    } else {
+        showFieldError(usernameError, "");
+    }
+    
 
 })
 
@@ -50,7 +55,12 @@ const debouncedValidateEmail = debounce(async () => {
         url: "/api/validation/email/",
         paramName: "email"
     })
-    showFieldError(emailError, result);
+    if (!result.ok) {
+        showFieldError(emailError, result.errors);
+    } else {
+        showFieldError(emailError, "");
+
+    }
 })
 
 const debouncedValidatePassword = debounce(async () => {
@@ -59,7 +69,11 @@ const debouncedValidatePassword = debounce(async () => {
         url: "/api/validation/password/",
         paramName: "password"
     })
-    showFieldError(passwordError, result);
+    if (!result.ok) {
+        showFieldError(passwordError, result.errors);
+    } else {
+        showFieldError(passwordError, "");
+    }
 })
 
 //
@@ -75,7 +89,6 @@ signInForm.addEventListener('submit', async event => {
 
     const result = await login(credentials);
     if (!result.ok) {
-        console.log(result);
         showFieldError(loginError, result.data);
     } else {
         localStorage.setItem("access_token", result.data.tokens.access_token);
@@ -119,7 +132,7 @@ passwordField.addEventListener("input", () => {
         passwordField: passwordField,
         repeatField: passwordRepeatField
     });
-    const errorMessage = result ? "" : "Passwords do not match.";
+    const errorMessage = result ? "" : ["Passwords do not match."];
     showFieldError(passwordRepeatError, errorMessage);
 })
 
@@ -128,7 +141,7 @@ passwordRepeatField.addEventListener("input", () => {
         passwordField: passwordField,
         repeatField: passwordRepeatField
     });
-    const errorMessage = result ? "" : "Passwords do not match.";
+    const errorMessage = result ? "" : ["Passwords do not match."];
     showFieldError(passwordRepeatError, errorMessage);
 })
 
