@@ -35,7 +35,7 @@ const loginError = document.getElementById("login-error");
 const debouncedValidateUsername = debounce(async () => {
     const result = await validateField({
         field: usernameField,
-        url: "/auth/validation/username/",
+        url: "/api/validation/username/",
         method: "GET",
         paramName: "username"
 
@@ -47,7 +47,7 @@ const debouncedValidateUsername = debounce(async () => {
 const debouncedValidateEmail = debounce(async () => {
     const result = await validateField({
         field: emailFieldBack,
-        url: "/auth/validation/email/",
+        url: "/api/validation/email/",
         paramName: "email"
     })
     showFieldError(emailError, result);
@@ -56,7 +56,7 @@ const debouncedValidateEmail = debounce(async () => {
 const debouncedValidatePassword = debounce(async () => {
     const result = await validateField({
         field: passwordField,
-        url: "/auth/validation/password/",
+        url: "/api/validation/password/",
         paramName: "password"
     })
     showFieldError(passwordError, result);
@@ -78,7 +78,7 @@ signInForm.addEventListener('submit', async event => {
         console.log(result);
         showFieldError(loginError, result.data);
     } else {
-        localStorage.setItem("access_token", result.data["access_token"]);
+        localStorage.setItem("access_token", result.data.tokens.access_token);
         window.location.replace("/notes/");
     }
 })

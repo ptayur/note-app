@@ -51,7 +51,7 @@ noteForm.addEventListener('submit', event => {
 
 document.addEventListener("DOMContentLoaded", async () => {
     const result = await readNotes();
-    result.data["data"].forEach(note => {
+    result.data.forEach(note => {
         renderNote(notesContainer, note);
     });
 })

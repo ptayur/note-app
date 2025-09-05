@@ -20,7 +20,7 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
         });
 
         if (auth && response.status === 401) {
-            const refreshResponse = await fetch("/auth/refresh/", {
+            const refreshResponse = await fetch("/api/refresh/", {
                 method: "POST",
             });
 
@@ -35,7 +35,7 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
                     }
                 });
             } else {
-                window.location.replace("/auth/login/");
+                window.location.replace("/auth/");
             }
         }
 
@@ -47,7 +47,7 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
         return {
             ok: response.ok,
             status: response.status,
-            data,
+            ...data,
         };
 
     } catch (error) {

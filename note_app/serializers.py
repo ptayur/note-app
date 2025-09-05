@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from note_app.models import Note
+from .models import Note
 
 
 class NoteSerializer(serializers.ModelSerializer):

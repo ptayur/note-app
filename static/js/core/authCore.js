@@ -40,7 +40,7 @@ export function validateRepeatPassword({ passwordField, repeatField}) {
 //
 
 export async function login(credentials) {
-    return await jwtRequest('/auth/login/', {
+    return await jwtRequest('/api/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
@@ -48,7 +48,7 @@ export async function login(credentials) {
 }
 
 export async function register(credentials) {
-    return await jwtRequest('/auth/register/', {
+    return await jwtRequest('/api/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)

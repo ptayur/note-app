@@ -20,5 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path("", include("note_app.urls")),
     path("api/", include("api.urls")),
-    path("auth/", include("accounts.urls")),
+    path("__reload__/", include("django_browser_reload.urls")),
 ]
