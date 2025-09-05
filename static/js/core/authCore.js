@@ -8,54 +8,31 @@ import { jwtRequest } from "./utils.js";
 // Validation Functions
 //
 
-export async function validatePassword(passwordField) {
+export async function validateField({ field, url, method = "POST", paramName }) {
+    const value = field.value;
+
+    let options = { method, headers: { "Content-Type": "application/json" } };
+    let fetchURL = url;
+
+    if (method.toUpperCase() === "POST") {
+        options.body = JSON.stringify({ [paramName]: value });
+    } else if (method.toUpperCase() === "GET" && paramName) {
+        const params = new URLSearchParams({ [paramName]: value });
+        fetchURL += `?${params}`;
+    }
+
+    return await jwtRequest(fetchURL, options);
+}
+
+export function validateRepeatPassword({ passwordField, repeatField}) {
     const password = passwordField.value;
+    const repeat = repeatField.value;
 
-    const response = await jwtRequest("/auth/validation/password/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ "password": password })
-    })
-
-    if (!response.ok) {
-        return response.data["error"];
+    if (repeat && password !== repeat) {
+        return false;
     }
 
-    return null;
-}
-
-export async function validateEmail(emailField) {
-    const email = emailField.value;
-
-    const response = await jwtRequest("/auth/validation/email/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ "email": email })
-    })
-
-    if (!response.ok) {
-        return response.data["error"];
-
-    }
-
-    return null;
-}
-
-export async function validateUsername(usernameField) {
-    const username = usernameField.value;
-    const validationURL = `/auth/validation/username/?username=${encodeURIComponent(username)}`;
-
-    const response = await jwtRequest(validationURL, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-    })
-
-    if (!response.ok) {
-        return response.data["error"];
-
-    }
-
-    return null;
+    return true;
 }
 
 //
@@ -63,29 +40,17 @@ export async function validateUsername(usernameField) {
 //
 
 export async function login(credentials) {
-    const result = await jwtRequest('/auth/login/', {
+    return await jwtRequest('/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
     });
-
-    if (!result.ok) {
-        return result.data["error"];
-    }
-
-    return null;
 }
 
 export async function register(credentials) {
-    const result = await jwtRequest('/auth/register/', {
+    return await jwtRequest('/auth/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
     });
-
-    if (!result.ok) {
-        return result.data["error"];
-    }
-
-    return result.data;
 }

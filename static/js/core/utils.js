@@ -19,7 +19,7 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
             headers,
         });
 
-        if (auth && response.status === 403) {
+        if (auth && response.status === 401) {
             const refreshResponse = await fetch("/auth/refresh/", {
                 method: "POST",
             });
@@ -37,6 +37,10 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
             } else {
                 window.location.replace("/auth/login/");
             }
+        }
+
+        if (response.status === 204) {
+            return { ok: response.ok, status: response.status, data: null }
         }
 
         const data = await response.json();

@@ -2,7 +2,8 @@
 // Imports
 //
 
-import { jwtRequest } from "./utils.js";
+import { createNote, readNotes, updateNote, deleteNote } from "../core/notesCore.js";
+import { renderNote } from "../ui/notesUI.js";
 
 //
 // Global Variables & DOM Elements
@@ -13,70 +14,6 @@ const notesContainer = document.getElementById('notes');
 const openBtn = document.getElementById('openModal');
 const closeBtn = document.getElementById('closeModal');
 const noteForm = document.getElementById('noteForm');
-
-//
-// Rendering
-//
-
-function renderNote(note) {
-    const div = document.createElement('div');
-    div.className = 'note';
-    div.innerHTML = `
-        <h3>${note.title}</h3>
-        <p>${note.content}</p>
-    `;
-
-    notesContainer.appendChild(div);
-}
-
-function loadNotes() {
-    jwtRequest('/api/notes/')
-    .then(notes => {
-        notes.forEach(renderNote);
-    })
-    .catch(error => {
-        console.error('Failed to load notes:', error);
-    })
-    
-}
-
-//
-// CRUD Actions
-//
-
-function createNote(data) {
-    jwtRequest('/api/notes/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(note => renderNote(note))
-    .catch(error => {
-        console.error('Failed to create note:', error);
-    });
-}
-
-function updateNote(id, data) {
-    jwtRequest(`/api/notes/${id}/`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(() => loadNotes())
-    .catch(error => {
-        console.error('Failde to update note:', error);
-    });
-}
-
-function deleteNote(id, noteElement) {
-    jwtRequest(`/api/notes/${id}/`, {
-        method: 'DELETE'
-    })
-    .then(() => noteElement.remove())
-    .catch(error => {
-        console.error('Failed to delete note:', error);
-    });
-}
 
 //
 // Modal Handling
@@ -109,10 +46,27 @@ noteForm.addEventListener('submit', event => {
     createNote(data);
     modal.style.display = 'none';
     noteForm.reset();
+    renderNote(notesContainer, data);
 })
 
-//
-// Initialize App
-//
+document.addEventListener("DOMContentLoaded", async () => {
+    const result = await readNotes();
+    result.data["data"].forEach(note => {
+        renderNote(notesContainer, note);
+    });
+})
 
-loadNotes();
+notesContainer.addEventListener("click", async (event) => {
+    const deleteBtn = event.target.closest(".delete-button");
+    if (deleteBtn) {
+        const noteDiv = deleteBtn.closest(".note");
+        const noteId = noteDiv.dataset.id;
+
+        const result = await deleteNote(noteId);
+        if (result.ok) {
+            noteDiv.remove();
+        } else {
+            alert("Note hasn't been deleted.");
+        }
+    }
+})

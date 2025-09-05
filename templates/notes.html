@@ -6,19 +6,28 @@
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/notes.css' %}">
-<script src="{% static 'js/notes.js' %}" type="module"></script>
+<script src="{% static 'js/pages/notes.js' %}" type="module"></script>
 {% endblock %}
 
 
 {% block content %}
     <div class="container">
-        <h1>Welcome to NoteApp</h1>
-        <p>Your notes:</p>
+        <!-- Controls -->
+        <div id="controls">
+            <button id="openModal">Add Note</button>
+        </div>
+
+        <!-- Notes -->
+        <div id="notes">
+
+        </div>
+
+        <!-- Shared Notes -->
+        <div id="shared-notes">
+
+        </div>
     </div>
     
-    <!-- Button to open modal -->
-    <button id="openModal">Add Note</button>
-
     <!-- Modal rework into js-->
     <div id="modalOverlay" class="modal">
         <div class="modal-content">
@@ -31,7 +40,4 @@
             </form>
         </div>
     </div>
-     
-    <!-- Notes -->
-    <div id="notes"></div>
 {% endblock %}

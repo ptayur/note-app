@@ -1,3 +1,49 @@
+.container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#notes,
+#shared-notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.note {
+    background-color: var(--rose-quartz);
+    margin: 15px;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.note-actions {
+    display: flex;
+}
+
+.note-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.note-actions button:hover {
+    background: #f0f0f0;
+    color: #000;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -20,19 +66,4 @@
     border-radius: 10px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     position: relative;
-}
-
-#notes {
-    display: inline-block;
-    top: 20;
-    left: 20;
-    width: 100%;
-    background-color: rgba(108, 151, 236, 0.6);
-}
-
-.note {
-    background-color: aquamarine;
-    margin: 15px;
-    padding: 15px;
-    border-radius: 15px;
 }
