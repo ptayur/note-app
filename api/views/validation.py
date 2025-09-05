@@ -63,12 +63,14 @@ class PasswordValidationView(APIView):
 
         if not password:
             return APIResponse.error(
-                "Password is required.", status_code=status.HTTP_204_NO_CONTENT
+                "Password is required.", status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
         else:
             try:
                 validate_password(password=password)
             except ValidationError as error:
-                return APIResponse.error(error.messages, status_code=status.HTTP_204_NO_CONTENT)
+                return APIResponse.error(
+                    error.messages, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+                )
 
         return APIResponse.success(status_code=status.HTTP_204_NO_CONTENT)
