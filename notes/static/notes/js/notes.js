@@ -3,7 +3,7 @@
 //
 
 import { createNote, readNotes, updateNote, deleteNote } from "../core/notesCore.js";
-import { renderNote } from "../ui/notesUI.js";
+import { renderNote } from "./notesUI.js";
 
 //
 // Global Variables & DOM Elements

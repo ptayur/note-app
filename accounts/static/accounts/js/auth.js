@@ -3,8 +3,8 @@
 //
 
 import { login, register, validateField, validateRepeatPassword } from "../core/authCore.js";
-import { debounce } from "../core/utils.js";
-import { showFieldError } from "../ui/errors.js"
+import { debounce } from "./utils.js";
+import { showFieldError } from "./errors.js"
 
 //
 // Global Variables & DOM Elements
@@ -89,7 +89,7 @@ signInForm.addEventListener('submit', async event => {
 
     const result = await login(credentials);
     if (!result.ok) {
-        showFieldError(loginError, result.data);
+        showFieldError(loginError, result.errors);
     } else {
         localStorage.setItem("access_token", result.data.tokens.access_token);
         window.location.replace("/notes/");

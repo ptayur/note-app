@@ -4,7 +4,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from accounts.models import CustomUser
-from .api_responses import APIResponse
+from config.utils.api_responses import APIResponse
 
 
 class UsernameValidationView(APIView):

@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework import permissions, status
-from note_app.models import Note
-from note_app.serializers import NoteSerializer
-from .api_responses import APIResponse
+from notes.models import Note
+from notes.serializers import NoteSerializer
+from config.utils.api_responses import APIResponse
 
 
 class NoteView(APIView):

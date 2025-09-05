@@ -1,5 +1,5 @@
 from django.urls import path
-from .views.note import NoteView
+from django.views.generic import TemplateView
 from .views.auth import (
     LogoutView,
     RegisterView,
@@ -13,9 +13,8 @@ from .views.validation import (
 )
 
 urlpatterns = [
-    # Notes
-    path("notes/", NoteView.as_view()),
-    path("notes/<int:pk>/", NoteView.as_view()),
+    # Render
+    path("", TemplateView.as_view(template_name="accounts/auth.html")),
     # Auth
     path("login/", LoginView.as_view(), name="login"),
     path("refresh/", RefreshView.as_view(), name="refresh"),

@@ -5,7 +5,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from django.conf import settings
 from accounts.models import CustomUser
 from accounts.serializers import CustomUserModelSerializer, LoginSerializer
-from .api_responses import APIResponse
+from config.utils.api_responses import APIResponse
 
 
 class LoginView(APIView):
@@ -15,7 +15,7 @@ class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if not serializer.is_valid():
-            return APIResponse.error(serializer.errors)
+            return APIResponse.error("Invalid credentials.")
         user = serializer.validated_data["user"]
 
         refresh = RefreshToken.for_user(user)

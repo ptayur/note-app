@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.conf import settings
-from ...accounts.models import CustomUser
+from ..models import CustomUser
 
 
 class LoginViewTests(APITestCase):
