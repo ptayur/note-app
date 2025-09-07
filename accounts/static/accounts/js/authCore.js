@@ -40,17 +40,46 @@ export function validateRepeatPassword({ passwordField, repeatField}) {
 //
 
 export async function login(credentials) {
-    return await jwtRequest('/api/users/login/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+    const result = await jwtRequest("/api/users/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials)
+    });
+
+    if (result.ok) {
+        localStorage.setItem("access_token", result.data.access_token);
+        localStorage.setItem("IsLoggedIn", true);
+    }
+
+    return result;
+}
+
+export async function register(credentials) {
+    return await jwtRequest("/api/users/register/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials)
     });
 }
 
-export async function register(credentials) {
-    return await jwtRequest('/api/users/register/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials)
+export async function logout() {
+    const result = await jwtRequest("/api/users/logout/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+    });
+
+    if (result.ok) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("IsLoggedIn");
+        window.location.href = "/auth/";
+    }
+
+    return result;
+}
+
+export async function getCurrentUser() {
+    return await jwtRequest("/api/users/me/", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
     });
 }

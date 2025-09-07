@@ -82,7 +82,7 @@ export function renderRightSideLogged(rightSide, username) {
             }
         },
         { 
-            href: "", 
+            href: "/logout", 
             label: "Logout",
             icon: {
                 svgAttrs: {

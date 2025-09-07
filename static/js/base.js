@@ -2,8 +2,8 @@
 // Imports
 //
 
-import { jwtRequest } from "./utils.js";
 import { renderLeftSide, renderRightSideLogged, renderRightSide } from "./baseUI.js";
+import { logout, getCurrentUser } from "/static/accounts/js/authCore.js";
 
 //
 // Global Variables & DOM Elements
@@ -21,13 +21,11 @@ const protectedPages = ["/notes/"];
 document.addEventListener("DOMContentLoaded", async () => {
     renderLeftSide(leftSide);
 
-    const result = await jwtRequest("/api/users/me/", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-    });
-
-    if (result.ok) {
-        renderRightSideLogged(rightSide, result.data.user.username);
+    if (localStorage.getItem("IsLoggedIn")) {
+        const result = await getCurrentUser();
+        if (result.ok) {
+            renderRightSideLogged(rightSide, result.data.user.username);
+        }
     } else {
         renderRightSide(rightSide);
 
@@ -40,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 document.addEventListener("click", async (event) => {
     const menu = rightSide.querySelector(".has-dropdown");
-    const logout = rightSide.querySelector("#logout");
+    const logoutBtn = rightSide.querySelector("#logout");
     
     if (menu) {
        const dropdown = menu.querySelector(".dropdown");
@@ -52,16 +50,8 @@ document.addEventListener("click", async (event) => {
         } 
     }
 
-    if (logout && logout.contains(event.target)) {
+    if (logoutBtn && logoutBtn.contains(event.target)) {
         event.preventDefault();
-        const result = await jwtRequest("/api/users/logout/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" }
-        });
-        console.log(result);
-        if (result.ok) {
-            localStorage.removeItem("access_token");
-            window.location.href = "/auth/";
-        }
+        await logout();
     }
 })
