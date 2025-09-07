@@ -8,33 +8,44 @@ export function debounce(func, delay = 300) {
     }
 }
 
+// Hold in-progress refresh request
+let refreshTokenPromise;
+
 export async function jwtRequest(url, options = {}, { auth = true } = {}) {
     try {
-        let headers = { ...options.headers };
-        if (auth) {
-            headers["Authorization"] = "Bearer " + localStorage.getItem("access_token");
+        // Initial request
+        const makeRequest = async () => {
+            const headers = { ...options.headers };
+            if (auth) {
+                headers["Authorization"] = "Bearer " + localStorage.getItem("access_token");
+            }
+
+            const response = await fetch(url, { ...options, headers});
+            return response;
         }
-        let response = await fetch(url, {
-            ...options,
-            headers,
-        });
+
+        let response = await makeRequest();
 
         if (auth && response.status === 401) {
-            const refreshResponse = await fetch("/api/users/refresh/", {
-                method: "POST",
-            });
+            // If no refresh request in-progress, start one
+            if (!refreshTokenPromise) {
+                refreshTokenPromise = (async () => {
+                    const res = await fetch("/api/users/refresh/", { method: "POST" });
+                    if (!res.ok) throw new Error("Refresh token expired");
 
-            if (refreshResponse.ok) {
-                const refreshData = await refreshResponse.json();
-                localStorage.setItem("access_token", refreshData.data.access_token)
-
-                response = await fetch(url, {
-                    ...options,
-                    headers: {...options.headers,
-                        "Authorization": "Bearer " + localStorage.getItem("access_token")
-                    }
-                });
+                    const resJson = await res.json();
+                    localStorage.setItem("access_token", resJson.data.access_token);
+                    return resJson.data.access_token;
+                })();
             }
+
+            try {
+                await refreshTokenPromise; // Wait for refresh request to complete
+            } finally {
+                refreshTokenPromise = null; // Clear shared promise
+            }
+
+            response = await makeRequest(); // retry original request with new token
         }
 
         if (response.status === 204) {
@@ -42,11 +53,7 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
         }
 
         const data = await response.json();
-        return {
-            ok: response.ok,
-            status: response.status,
-            ...data,
-        };
+        return { ok: response.ok, status: response.status, ...data };
 
     } catch (error) {
         return {ok: false, status: 0, data: {error: error.message}}
