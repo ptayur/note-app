@@ -2,7 +2,7 @@
 // Imports
 //
 
-import { jwtRequest } from "../../../../accounts/static/accounts/js/utils.js";
+import { jwtRequest } from "../../../../static/js/utils.js";
 
 //
 // CRUD Functions

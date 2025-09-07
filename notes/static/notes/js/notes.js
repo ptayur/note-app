@@ -2,7 +2,7 @@
 // Imports
 //
 
-import { createNote, readNotes, updateNote, deleteNote } from "../core/notesCore.js";
+import { createNote, readNotes, updateNote, deleteNote } from "./notesCore.js";
 import { renderNote } from "./notesUI.js";
 
 //
@@ -27,7 +27,7 @@ closeBtn.addEventListener('click', () => {
     modal.style.display = 'none';
 })
 
-window.addEventListener('click', (e) => {
+document.addEventListener('click', (e) => {
     if (e.target == modal) {
         modal.style.display = 'none';
     }
@@ -37,16 +37,16 @@ window.addEventListener('click', (e) => {
 // Event Listeners
 //
 
-noteForm.addEventListener('submit', event => {
+noteForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const data = {
         title: noteForm.title.value,
         content: noteForm.content.value
     };
-    createNote(data);
+    const result = await createNote(data);
     modal.style.display = 'none';
     noteForm.reset();
-    renderNote(notesContainer, data);
+    renderNote(notesContainer, result.data);
 })
 
 document.addEventListener("DOMContentLoaded", async () => {
