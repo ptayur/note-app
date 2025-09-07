@@ -23,11 +23,8 @@ class LoginView(APIView):
         refresh_token = str(refresh)
 
         data = {
-            "tokens": {
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-            },
-            "user": CustomUserModelSerializer(user).data,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
         }
 
         response = APIResponse.success(data)
@@ -38,7 +35,7 @@ class LoginView(APIView):
             secure=True,
             samesite="Strict",
             max_age=7 * 24 * 60 * 60,
-            path="/auth/refresh/",
+            path="/api/users/",
         )
 
         return response
@@ -86,7 +83,7 @@ class RefreshView(APIView):
             secure=True,
             samesite="Strict",
             max_age=7 * 24 * 60 * 60,
-            path="/auth/refresh/",
+            path="/api/users/",
         )
 
         return response
@@ -124,3 +121,12 @@ class RegisterView(APIView):
 
         data = {"user": CustomUserModelSerializer(user).data}
         return APIResponse.success(data, status_code=status.HTTP_201_CREATED)
+
+
+class MeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        data = {"user": CustomUserModelSerializer(user).data}
+        return APIResponse.success(data, status_code=status.HTTP_200_OK)

@@ -2,8 +2,8 @@
 // Imports
 //
 
-import { login, register, validateField, validateRepeatPassword } from "../core/authCore.js";
-import { debounce } from "./utils.js";
+import { login, register, validateField, validateRepeatPassword } from "./authCore.js";
+import { debounce } from "../../../../static/js/utils.js";
 import { showFieldError } from "./errors.js"
 
 //
@@ -35,7 +35,7 @@ const loginError = document.getElementById("login-error");
 const debouncedValidateUsername = debounce(async () => {
     const result = await validateField({
         field: usernameField,
-        url: "/api/validation/username/",
+        url: "/api/users/validation/username/",
         method: "GET",
         paramName: "username"
 
@@ -52,7 +52,7 @@ const debouncedValidateUsername = debounce(async () => {
 const debouncedValidateEmail = debounce(async () => {
     const result = await validateField({
         field: emailFieldBack,
-        url: "/api/validation/email/",
+        url: "/api/users/validation/email/",
         paramName: "email"
     })
     if (!result.ok) {
@@ -66,7 +66,7 @@ const debouncedValidateEmail = debounce(async () => {
 const debouncedValidatePassword = debounce(async () => {
     const result = await validateField({
         field: passwordField,
-        url: "/api/validation/password/",
+        url: "/api/users/validation/password/",
         paramName: "password"
     })
     if (!result.ok) {
@@ -91,7 +91,7 @@ signInForm.addEventListener('submit', async event => {
     if (!result.ok) {
         showFieldError(loginError, result.errors);
     } else {
-        localStorage.setItem("access_token", result.data.tokens.access_token);
+        localStorage.setItem("access_token", result.data.access_token);
         window.location.replace("/notes/");
     }
 })

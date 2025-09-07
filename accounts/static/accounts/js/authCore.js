@@ -2,7 +2,7 @@
 // Imports
 //
 
-import { jwtRequest } from "./utils.js";
+import { jwtRequest } from "../../../../static/js/utils.js";
 
 //
 // Validation Functions
@@ -40,7 +40,7 @@ export function validateRepeatPassword({ passwordField, repeatField}) {
 //
 
 export async function login(credentials) {
-    return await jwtRequest('/api/login/', {
+    return await jwtRequest('/api/users/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
@@ -48,7 +48,7 @@ export async function login(credentials) {
 }
 
 export async function register(credentials) {
-    return await jwtRequest('/api/register/', {
+    return await jwtRequest('/api/users/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
