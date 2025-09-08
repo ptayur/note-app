@@ -21,15 +21,15 @@ nav {
     padding: 15px;
 }
 
-#nav-left-side ul,
-#nav-right-side ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+#nav-left-side > button,
+#nav-right-side > button {
+    border: none;
+    background: none;
+    color: var(--snow);
 }
 
-#nav-left-side > ul > li > a,
-#nav-right-side > ul > li > a {
+#nav-left-side > button > a,
+#nav-right-side > button > a {
     text-decoration: none;
     color: var(--snow);
 }
@@ -39,38 +39,68 @@ nav {
     justify-content: center;
 }
 
-.has-dropdown {
+.dropdown {
     position: relative;
-    display: inline-block;
-    cursor: pointer;
-    padding: 5px;
-    min-width: 75px;
-}
-
-.has-dropdown > a {
-    text-decoration: none;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 6px;
-    transition: background-color 0.3s ease-in-out;
-    transition: transform 0.3s ease;
+    cursor: pointer;
+    min-width: 75px;
     border-radius: 2px;
 }
 
-.has-dropdown > a:hover {
-    background-color: var(--paynes-gray);
-    filter: brightness(95%);
-    transform: scale(1.05);
+#menu-button {
+    align-items: center;
+    background: none;
+    border: none;
+    border-left: 1px solid transparent;
+    color: var(--snow);
+    cursor: pointer;
+
+    transition: border-left-color 0.3s ease;
 }
 
-.menu-icon {
-    width: 15px;
-    height: 15px;
+#menu-button:hover {
+    border-left-color: var(--snow);
+
+}
+
+#menu-button > span,
+#menu-button > svg {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+#menu-button:hover > span,
+#menu-button:hover > svg {
+    transform: translateX(3px);
+}
+
+.icon {
+    width: 13px;
+    height: 13px;
     vertical-align: middle;
 }
 
-.dropdown {
+#menu-button .arrow {
+    transition: transform 0.3s ease;
+    transform-origin: center;
+}
+
+#menu-button:hover .arrow {
+    transform: translateX(3px) rotate(0deg);
+}
+
+#menu-button[aria-expanded="true"] .arrow {
+    transform: translateX(0) rotate(180deg);
+}
+
+#menu-button[aria-expanded="true"]:hover .arrow {
+    transform: translateX(3px) rotate(180deg);
+}
+
+#menu-list {
     opacity: 0;
     visibility: hidden;
     position: absolute;
@@ -78,37 +108,47 @@ nav {
     margin: 5px;
     padding: 0;
     top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
     background: var(--french-gray);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
     z-index: 1000;
     transition: opacity 0.3s ease-in-out;
 }
 
-.dropdown.active {
+#menu-list.active {
     opacity: 1;
     visibility: visible;
 }
 
-.dropdown > li {
+#menu-list li {
     margin: 5px;
 }
 
-.dropdown > li > a {
+#menu-list li > a,
+#menu-list li > button {
     display: flex;
-    justify-content: left;
     align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0px 8px;
     gap: 6px;
-    padding-left: 3px;
-    padding-right: 3px;
-    text-decoration: none;
+
     color: black;
+    background: transparent;
+    cursor: pointer;
+
     transition: background-color 0.3s ease-in-out;
-    border-radius: 2px;
+
+    /* <a> style */
+    text-decoration: none;
+
+    /* <button> style */
+    border: none;
+    box-sizing: border-box;
+    text-align: left;
 }
 
-.dropdown li a:hover {
+#menu-list li > a:hover,
+#menu-list li > button:hover {
     background-color: var(--snow);
 }
 

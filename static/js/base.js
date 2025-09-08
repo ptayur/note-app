@@ -24,7 +24,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (localStorage.getItem("IsLoggedIn")) {
         const result = await getCurrentUser();
         if (result.ok) {
-            renderRightSideLogged(rightSide, result.data.user.username);
+            const dropdown = renderRightSideLogged(rightSide);
+
+            // Set username as menu title
+            const usernameSpan = dropdown.querySelector("#username");
+            usernameSpan.textContent = result.data.user.username;
         }
     } else {
         renderRightSide(rightSide);
@@ -37,21 +41,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 })
 
 document.addEventListener("click", async (event) => {
-    const menu = rightSide.querySelector(".has-dropdown");
-    const logoutBtn = rightSide.querySelector("#logout");
+    const dropdown = rightSide.querySelector(".dropdown");
+    const logoutBtn = rightSide.querySelector("#logout-button");
     
-    if (menu) {
-       const dropdown = menu.querySelector(".dropdown");
-    
-        if (menu.contains(event.target)) {
-            dropdown.classList.toggle("active");
+    // Dropdown object logic
+    if (dropdown) {
+        const menuBtn = dropdown.querySelector("#menu-button");
+        const menuList = dropdown.querySelector("#menu-list");
+
+        if (dropdown.contains(event.target)) {
+            const isOpen = menuList.classList.contains("active");
+
+            menuList.classList.toggle("active");
+            menuBtn.setAttribute("aria-expanded", String(!isOpen));
         } else {
-            dropdown.classList.remove("active");
+            menuList.classList.remove("active");
+            menuBtn.setAttribute("aria-expanded", "false");
         } 
     }
 
+    // Logout button logic
     if (logoutBtn && logoutBtn.contains(event.target)) {
-        event.preventDefault();
         await logout();
     }
 })
