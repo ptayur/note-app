@@ -40,28 +40,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 })
 
-document.addEventListener("click", async (event) => {
-    const dropdown = rightSide.querySelector(".dropdown");
-    const logoutBtn = rightSide.querySelector("#logout-button");
+// Dropdowns handler
+document.addEventListener("click", event => {
+    const dropdowns = document.querySelectorAll(".dropdown");
     
     // Dropdown object logic
-    if (dropdown) {
-        const menuBtn = dropdown.querySelector("#menu-button");
-        const menuList = dropdown.querySelector("#menu-list");
+    dropdowns.forEach((dropdown) => {
+        const dropdownBtn = dropdown.querySelector(".dropdown-button");
+        const dropdownList = dropdown.querySelector(".dropdown-list");
 
         if (dropdown.contains(event.target)) {
-            const isOpen = menuList.classList.contains("active");
+            // Clicked inside this dropdown
+            const isOpen = !dropdownList.classList.contains("dropdown-list--hidden");
 
-            menuList.classList.toggle("active");
-            menuBtn.setAttribute("aria-expanded", String(!isOpen));
+            // Close all dropdowns first
+            dropdowns.forEach((d) => {
+                d.querySelector(".dropdown-list").classList.add("dropdown-list--hidden");
+                d.querySelector(".dropdown-button").setAttribute("aria-expanded", "false");
+            })
+            
+            // Then open this dropdown
+            if (!isOpen) {
+                dropdownList.classList.toggle("dropdown-list--hidden");
+                dropdownBtn.setAttribute("aria-expanded", String(!isOpen));
+            }
         } else {
-            menuList.classList.remove("active");
-            menuBtn.setAttribute("aria-expanded", "false");
-        } 
-    }
+            // close this dropdown
+            dropdownList.classList.add("dropdown-list--hidden");
+            dropdownBtn.setAttribute("aria-expanded", "false");
+        }
+    })
+})
 
-    // Logout button logic
-    if (logoutBtn && logoutBtn.contains(event.target)) {
+// Logout handler
+rightSide.addEventListener("click", async (event) => {
+    const logoutBtn = rightSide.querySelector("#logout-button");
+
+    if (logoutBtn.contains(event.target)) {
         await logout();
     }
 })
