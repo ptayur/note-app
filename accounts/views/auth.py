@@ -22,10 +22,7 @@ class LoginView(APIView):
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
 
-        data = {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-        }
+        data = {"access_token": access_token}
 
         response = APIResponse.success(data)
         response.set_cookie(
@@ -74,7 +71,7 @@ class RefreshView(APIView):
         else:
             access_token = str(refresh.access_token)
 
-        data = {"access_token": access_token, "refresh_token": refresh_token}
+        data = {"access_token": access_token}
         response = APIResponse.success(data)
         response.set_cookie(
             key="refresh_token",

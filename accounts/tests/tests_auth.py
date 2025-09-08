@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.conf import settings
-from ..models import CustomUser
+from accounts.models import CustomUser
 
 
 class LoginViewTests(APITestCase):
@@ -9,7 +9,7 @@ class LoginViewTests(APITestCase):
 
     def setUp(self) -> None:
         self.client = APIClient()
-        self.login_url = "/auth/login/"
+        self.login_url = "/api/users/login/"
 
         self.user_data = {
             "username": "testuser",
@@ -26,12 +26,8 @@ class LoginViewTests(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("access_token", response.data)
-        self.assertIn("refresh_token", response.data)
+        self.assertIn("access_token", response.data["data"])
         self.assertIn("refresh_token", response.cookies)
-        self.assertEqual(
-            response.data["refresh_token"], response.cookies.get("refresh_token").value
-        )
 
     def test_login_invalid_credentials(self):
         """Test when email or password is invalid"""
@@ -61,8 +57,8 @@ class RefreshViewTests(APITestCase):
 
     def setUp(self) -> None:
         self.client = APIClient()
-        self.login_url = "/auth/login/"
-        self.refresh_url = "/auth/refresh/"
+        self.login_url = "/api/users/login/"
+        self.refresh_url = "/api/users/refresh/"
 
         self.user_data = {
             "username": "testuser",
@@ -78,19 +74,16 @@ class RefreshViewTests(APITestCase):
             {"email": self.user_data["email"], "password": self.user_data["password"]},
             format="json",
         )
-        old_refresh_token = login_response.data["refresh_token"]
-        old_access_token = login_response.data["access_token"]
+        old_refresh_token = login_response.cookies["refresh_token"]
+        old_access_token = login_response.data["data"]
 
         response = self.client.post(self.refresh_url, data={}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Test values in HTTP body
         with self.subTest("Body"):
-            self.assertIn("access_token", response.data)
-            self.assertIn("refresh_token", response.data)
-            self.assertNotEqual(old_access_token, response.data["access_token"])
-            if settings.SIMPLE_JWT.get("ROTATE_REFRESH_TOKENS", True):
-                self.assertNotEqual(old_refresh_token, response.data["refresh_token"])
+            self.assertIn("access_token", response.data["data"])
+            self.assertNotEqual(old_access_token, response.data["data"]["access_token"])
 
         # Test values in HTTP cookie
         with self.subTest("Cookie"):
@@ -130,7 +123,7 @@ class RefreshViewTests(APITestCase):
 
         response = self.client.post(
             self.refresh_url,
-            data={"refresh_token": login_response.data["refresh_token"]},
+            data={"refresh_token": login_response.cookies["refresh_token"]},
             format="json",
         )
         self.user = CustomUser.objects.create_user(**self.user_data)
@@ -142,8 +135,8 @@ class LogoutViewTests(APITestCase):
 
     def setUp(self) -> None:
         self.client = APIClient()
-        self.logout_url = "/auth/logout/"
-        self.login_url = "/auth/login/"
+        self.logout_url = "/api/users/logout/"
+        self.login_url = "/api/users/login/"
 
         self.user_data = {
             "username": "testuser",
@@ -159,7 +152,7 @@ class LogoutViewTests(APITestCase):
             {"email": self.user_data["email"], "password": self.user_data["password"]},
             format="json",
         )
-        refresh_token = login_response.data["refresh_token"]
+        refresh_token = login_response.cookies["refresh_token"]
 
         # Test logout using HTTP body
         with self.subTest("Body"):
@@ -167,13 +160,13 @@ class LogoutViewTests(APITestCase):
             response = self.client.post(
                 self.logout_url, data={"refresh_token": refresh_token}, format="json"
             )
-            self.assertEqual(response.status_code, status.HTTP_205_RESET_CONTENT)
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # Test logout using HTTP cookie
         with self.subTest("Cookie"):
             self.client.cookies["refresh_token"] = refresh_token  # Set refresh_token in cookie
             response = self.client.post(self.logout_url, data={}, format="json")
-            self.assertEqual(response.status_code, status.HTTP_205_RESET_CONTENT)
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_logout_no_token(self):
         """Test when refresh_token is missing in HTTP body and cookie"""
@@ -186,7 +179,7 @@ class RegisterViewTests(APITestCase):
 
     def setUp(self) -> None:
         self.client = APIClient()
-        self.register_url = "/auth/register/"
+        self.register_url = "/api/users/register/"
 
         self.user_data = {
             "username": "testuser",
@@ -206,7 +199,7 @@ class RegisterViewTests(APITestCase):
         response = self.client.post(self.register_url, data=user_data, format="json")
         user_data.pop("password")  # Delete 'password' entry as API shouldn't return password
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data, user_data)
+        self.assertEqual(response.data["data"]["user"], user_data)
         self.assertTrue(CustomUser.objects.filter(email=user_data["email"]).exists())
 
     def test_register_duplicate_data(self):
