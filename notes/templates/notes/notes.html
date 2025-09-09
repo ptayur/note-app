@@ -15,17 +15,75 @@
         <!-- Controls -->
         <div id="controls">
             <button id="openModal">Add Note</button>
+            <!-- Filtering Section -->
+            <div id="filter">
+                <!-- Filter Controls -->
+                <div id="filter-controls">
+                    <input type="text" name="search" placeholder="Search">
+                    <div class="dropdown" data-dropdown="notes">
+                        <button class="dropdown-button dropdown-button--filter">
+                            <span>Notes</span>
+                        </button>
+                        <ul class="dropdown-list dropdown-list--filter dropdown-list--hidden">
+                            <li>
+                                <label>
+                                    <input type="checkbox" value="all">
+                                    <span>All</span>
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" value="owned">
+                                    <span>Owned</span>
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" value="myShares">
+                                    <span>My Shares</span>
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" value="fromOthers">
+                                    <span>From Others</span>
+                                </label>
+                            </li> 
+                        </ul>
+                    </div>
+                    <div class="dropdown" data-dropdown="permissions">
+                        <button class="dropdown-button dropdown-button--filter">
+                            <span>Permissions</span>
+                        </button>
+                        <ul class="dropdown-list dropdown-list--filter dropdown-list--hidden">
+                            <li>
+                                <label>
+                                    <input type="checkbox" value="all">
+                                    <span>All</span>
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" value="readOnly">
+                                    <span>Read-Only</span>
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" value="canModify">
+                                    <span>Can Modify</span>
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Selected Filters -->
+                <div id="selected-filters"></div>
+            </div>
         </div>
 
         <!-- Notes -->
-        <div id="notes">
-
-        </div>
-
-        <!-- Shared Notes -->
-        <div id="shared-notes">
-
-        </div>
+        <div id="notes"></div>
     </div>
     
     <!-- Modal rework into js-->
