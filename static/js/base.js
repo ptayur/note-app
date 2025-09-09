@@ -49,7 +49,7 @@ document.addEventListener("click", event => {
         const dropdownBtn = dropdown.querySelector(".dropdown-button");
         const dropdownList = dropdown.querySelector(".dropdown-list");
 
-        if (dropdown.contains(event.target)) {
+        if (dropdownBtn.contains(event.target)) {
             // Clicked inside this dropdown
             const isOpen = !dropdownList.classList.contains("dropdown-list--hidden");
 
@@ -64,8 +64,8 @@ document.addEventListener("click", event => {
                 dropdownList.classList.toggle("dropdown-list--hidden");
                 dropdownBtn.setAttribute("aria-expanded", String(!isOpen));
             }
-        } else {
-            // close this dropdown
+        } else if (!dropdownList.contains(event.target)) {
+            // close this dropdown if clicked outside
             dropdownList.classList.add("dropdown-list--hidden");
             dropdownBtn.setAttribute("aria-expanded", "false");
         }
