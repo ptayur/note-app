@@ -21,7 +21,15 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
             }
 
             const response = await fetch(url, { ...options, headers});
-            return response;
+
+            let data;
+            if (response.status === 204) {
+                data = null;
+            } else {
+                data = await response.json();
+            }
+
+            return { ok: response.ok, status: response.status, data: data };
         }
 
         let response = await makeRequest();
@@ -33,9 +41,9 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
                     const res = await fetch("/api/users/refresh/", { method: "POST" });
                     if (!res.ok) throw new Error("Refresh token expired");
 
-                    const resJson = await res.json();
-                    localStorage.setItem("access_token", resJson.data.access_token);
-                    return resJson.data.access_token;
+                    const data = await res.json();
+                    localStorage.setItem("access_token", data.access_token);
+                    return data.access_token;
                 })();
             }
 
@@ -48,12 +56,7 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
             response = await makeRequest(); // retry original request with new token
         }
 
-        if (response.status === 204) {
-            return { ok: response.ok, status: response.status, data: null }
-        }
-
-        const data = await response.json();
-        return { ok: response.ok, status: response.status, ...data };
+        return response;
 
     } catch (error) {
         return {ok: false, status: 0, data: {error: error.message}}
