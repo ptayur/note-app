@@ -67,6 +67,8 @@ nav {
     visibility: visible;
     opacity: 1;
     z-index: 1000;
+    width: max-content;
+    min-width: 100%;
 
     list-style: none;
     background: var(--french-gray);
