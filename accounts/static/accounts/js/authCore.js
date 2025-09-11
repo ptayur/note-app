@@ -47,7 +47,7 @@ export async function login(credentials) {
     });
 
     if (result.ok) {
-        localStorage.setItem("access_token", result.data.access_token);
+        localStorage.setItem("access_token", result.access_token);
         localStorage.setItem("IsLoggedIn", true);
     }
 

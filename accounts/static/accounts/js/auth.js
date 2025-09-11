@@ -91,7 +91,7 @@ signInForm.addEventListener('submit', async event => {
     if (!result.ok) {
         showFieldError(loginError, result.errors);
     } else {
-        localStorage.setItem("access_token", result.data.access_token);
+        localStorage.setItem("access_token", result.access_token);
         window.location.replace("/notes/");
     }
 })
