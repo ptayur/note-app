@@ -9,69 +9,20 @@ import { renderNote, addChip, removeChip } from "./notesUI.js";
 // Global Variables & DOM Elements
 //
 
-const modal = document.getElementById('modalOverlay');
 const notesContainer = document.getElementById('notes');
-const openBtn = document.getElementById('openModal');
-const closeBtn = document.getElementById('closeModal');
-const noteForm = document.getElementById('noteForm');
 
 const checkboxes = document.querySelectorAll(".dropdown input[type='checkbox']");
-const selectedCheckboxes = document.querySelector("#selected-filters");
-
-//
-// Modal Handling
-//
-
-openBtn.addEventListener('click', () => {
-    modal.style.display = 'flex';
-})
-
-closeBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-})
-
-document.addEventListener('click', (e) => {
-    if (e.target == modal) {
-        modal.style.display = 'none';
-    }
-})
+const selectedCheckboxes = document.querySelector(".selected-controls");
 
 //
 // Event Listeners
 //
-
-noteForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const data = {
-        title: noteForm.title.value,
-        content: noteForm.content.value
-    };
-    const result = await createNote(data);
-    modal.style.display = 'none';
-    noteForm.reset();
-    renderNote(notesContainer, result.data);
-})
 
 document.addEventListener("DOMContentLoaded", async () => {
     const result = await readNotes();
     result.data.forEach(note => {
         renderNote(notesContainer, note);
     });
-})
-
-notesContainer.addEventListener("click", async (event) => {
-    const deleteBtn = event.target.closest(".delete-button");
-    if (deleteBtn) {
-        const noteDiv = deleteBtn.closest(".note");
-        const noteId = noteDiv.dataset.id;
-
-        const result = await deleteNote(noteId);
-        if (result.ok) {
-            noteDiv.remove();
-        } else {
-            alert("Note hasn't been deleted.");
-        }
-    }
 })
 
 // Checkbox handler
@@ -102,20 +53,22 @@ checkboxes.forEach(cb => {
                 removeChip(dropdown, cb, selectedCheckboxes);
             }
         } else {
-            // Remove "All" chip if options changes
-            removeChip(dropdown, allCheckbox, selectedCheckboxes);
-            allCheckbox.checked = false;
-
             if (cb.checked) {
                 addChip(dropdown, cb, selectedCheckboxes);
             } else {
-                removeChip(dropdown, cb, selectedCheckboxes);
-                // Bug there!!! Creates duplicate chip
-                otherCheckboxes.forEach(oCb => {
-                    if (oCb.checked) {
-                        addChip(dropdown, oCb, selectedCheckboxes);
-                    }
-                })
+                if (allCheckbox.checked) {
+                    // Display checked checkboxes
+                    otherCheckboxes.forEach(oCb => {
+                        if (oCb.checked) {
+                            addChip(dropdown, oCb, selectedCheckboxes);
+                        }
+                    });
+                    // Remove "All" chip
+                    removeChip(dropdown, allCheckbox, selectedCheckboxes);
+                    allCheckbox.checked = false;
+                } else {
+                    removeChip(dropdown, cb, selectedCheckboxes);
+                }
             }
 
             // Check if all other checkboxes selected
