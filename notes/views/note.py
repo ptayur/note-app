@@ -1,52 +1,53 @@
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework import permissions, status
+from rest_framework.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from notes.models import Note
 from notes.serializers import NoteSerializer
-from config.utils.api_responses import APIResponse
 
 
 class NoteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_object(self, pk):
+        return get_object_or_404(Note, pk=pk)
+
     def get(self, request):
         """List all notes"""
-        notes = Note.objects.filter(user=request.user)
+        notes = Note.objects.filter(Q(user=request.user) | Q(shares__user=request.user))
         serializer = NoteSerializer(notes, many=True)
-        return APIResponse.success(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         """Create a new note"""
         serializer = NoteSerializer(data=request.data)
-        if not serializer.is_valid():
-            return APIResponse.error(serializer.errors)
-
+        serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
-        return APIResponse.success(serializer.data, status_code=status.HTTP_201_CREATED)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, pk):
         """Update a `pk` note"""
-        try:
-            note = Note.objects.get(pk=pk, user=request.user)
-        except Note.DoesNotExist:
-            return APIResponse.error(
-                f"Note object with id={pk} not found.", status_code=status.HTTP_404_NOT_FOUND
-            )
+        note = self.get_object(pk)
+
+        if note.user != request.user:
+            raise PermissionDenied("Only note owner can modify it.")
 
         serializer = NoteSerializer(note, data=request.data, partial=True)
-        if not serializer.is_valid():
-            return APIResponse.error(serializer.errors)
-
+        serializer.is_valid(raise_exception=True)
         serializer.save()
-        return APIResponse.success(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, pk):
         """Delete a `pk` note"""
-        try:
-            note = Note.objects.get(pk=pk, user=request.user)
-        except Note.DoesNotExist:
-            return APIResponse.error(
-                f"Note object with id={pk} not found.", status_code=status.HTTP_404_NOT_FOUND
-            )
+        note = self.get_object(pk)
+
+        if note.user != request.user:
+            raise PermissionDenied("Only note owner can delete it.")
 
         note.delete()
-        return APIResponse.success(status_code=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
