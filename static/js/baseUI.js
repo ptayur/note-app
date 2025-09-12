@@ -26,7 +26,7 @@ export function renderRightSideLogged(rightSide) {
             </svg>
         </button>
 
-        <ul class="dropdown-list dropdown-list--nav dropdown-list--hidden">
+        <ul class="dropdown-list dropdown-list--nav">
             <li>
                 <a href="/profile">
                     <svg class="dropdown-list__icon" xmlns="http://www.w3.org/2000/svg" width="200" height="200" 

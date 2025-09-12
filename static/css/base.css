@@ -1,3 +1,8 @@
+@import "dropdown.css";
+@import "modal.css";
+@import "variables.css";
+@import "button.css";
+
 html, body {
     height: 100%;
     margin: 0;
@@ -11,7 +16,9 @@ body {
 }
 
 header {
-    background: var(--paynes-gray);
+    z-index: 1000;
+    background: var(--eerie-black);
+    box-shadow: 0px 1px 25px var(--slate-gray);
 }
 
 /* Navigation layout and style */
@@ -27,13 +34,13 @@ nav {
 #nav-right-side > button {
     border: none;
     background: none;
-    color: var(--snow);
+    color: var(--french-light-gray);
 }
 
 #nav-left-side > button > a,
 #nav-right-side > button > a {
     text-decoration: none;
-    color: var(--snow);
+    color: var(--french-light-gray);
 }
 
 #nav-right-side {
@@ -41,60 +48,19 @@ nav {
     justify-content: center;
 }
 
-/* Basic dropdown style */
-
-.dropdown {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.dropdown-button {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    background: transparent;
-    border: none;
-}
-
-.dropdown-list {
-    position: absolute;
-    top: 100%;
-    padding: 0;
-    margin: 0;
-    visibility: visible;
-    opacity: 1;
-    z-index: 1000;
-    width: max-content;
-    min-width: 100%;
-
-    list-style: none;
-    background: var(--french-gray);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-
-    transition: opacity 0.3s ease-in-out;
-}
-
-.dropdown-list--hidden {
-    opacity: 0;
-    visibility: hidden;
-}
-
 /* Navigation dropdown style */
 /* Navigation button */
 
 .dropdown-button--nav {
     border-left: 1px solid transparent;
-    color: var(--snow);
+    color: var(--french-light-gray);
     gap: 5px;
 
     transition: border-left-color 0.3s ease;
 }
 
 .dropdown-button--nav:hover {
-    border-left-color: var(--snow);
+    border-left-color: var(--french-light-gray);
 }
 
 .dropdown-button--nav > span,
@@ -165,7 +131,7 @@ nav {
 
 .dropdown-list--nav li > a:hover,
 .dropdown-list--nav li > button:hover {
-    background-color: var(--snow);
+    background-color: var(--anti-flash-white);
 }
 
 .dropdown-list__icon {
@@ -182,7 +148,10 @@ main {
 }
 
 footer {
-    background: var(--paynes-gray);
+    background: var(--eerie-black);
     color: #fff;
     text-align: center;
+    z-index: 1000;
+
+    box-shadow: 1px 0 25px var(--slate-gray);
 }

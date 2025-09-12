@@ -51,22 +51,22 @@ document.addEventListener("click", event => {
 
         if (dropdownBtn.contains(event.target)) {
             // Clicked inside this dropdown
-            const isOpen = !dropdownList.classList.contains("dropdown-list--hidden");
+            const isOpen = dropdownList.classList.contains("dropdown-list--open");
 
             // Close all dropdowns first
             dropdowns.forEach((d) => {
-                d.querySelector(".dropdown-list").classList.add("dropdown-list--hidden");
+                d.querySelector(".dropdown-list").classList.remove("dropdown-list--open");
                 d.querySelector(".dropdown-button").setAttribute("aria-expanded", "false");
             })
             
             // Then open this dropdown
             if (!isOpen) {
-                dropdownList.classList.toggle("dropdown-list--hidden");
+                dropdownList.classList.add("dropdown-list--open");
                 dropdownBtn.setAttribute("aria-expanded", String(!isOpen));
             }
         } else if (!dropdownList.contains(event.target)) {
             // close this dropdown if clicked outside
-            dropdownList.classList.add("dropdown-list--hidden");
+            dropdownList.classList.remove("dropdown-list--open");
             dropdownBtn.setAttribute("aria-expanded", "false");
         }
     })

@@ -1,7 +1,11 @@
 :root {
-    --snow: rgba(252, 247, 248, 1);
-    --french-gray: rgba(206, 211, 220, 1);
-    --rose-quartz: rgba(171, 169, 195, 1);
-    --denim: rgba(39, 93, 173, 1);
-    --paynes-gray: rgba(91, 97, 106, 1);
+    --eerie-black: #212529;
+    --onyx: #343A40;
+    --outer-space: #495057;
+    --slate-gray: #6C757D;
+    --french-gray: #ADB5BD;
+    --french-light-gray: #CED4DA;
+    --platinum: #DEE2E6;
+    --anti-flash-white: #E9ECEF;
+    --seasalt: #F8F9FA;
 }
