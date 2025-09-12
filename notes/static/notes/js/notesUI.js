@@ -2,8 +2,8 @@
 // Imports
 //
 
-import { openModalBox } from "./modalBox.js";
-import { updateNote } from "./notesCore.js";
+import { closeModalBox, openModalBox } from "./modalBox.js";
+import { deleteNote, updateNote } from "./notesCore.js";
 
 export function renderNote(notesContainer, data) {
     // Get note template
@@ -15,29 +15,8 @@ export function renderNote(notesContainer, data) {
     note.dataset.id = data.id;
 
     // Set note title
-    const title = note.querySelector(".note-header h3");
+    const title = note.querySelector(".note h3");
     title.textContent = data.title;
-
-    // Set note content
-    const content = note.querySelector("p");
-    content.textContent = data.content;
-
-    // Set note event listeners
-    // Edit button
-    note.querySelector("#edit-button")
-        .addEventListener("click", () => {
-             openModalBox("#edit-note-template", async (data) => {
-                updateNote(note, data);
-             })
-        });
-
-    // Delete button
-    note.querySelector("#delete-button")
-        .addEventListener("click", () => openModalBox("#delete-note-template"));
-
-    // Share button
-    note.querySelector("#share-button")
-        .addEventListener("click", () => openModalBox("#share-note-template"));
 
     // Append note to container
     notesContainer.appendChild(noteClone);

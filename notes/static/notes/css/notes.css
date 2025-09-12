@@ -2,108 +2,49 @@
 .container {
     height: 100%;
     width: 100%;
+    display: grid;
+    grid-template-columns: minmax(200px, 250px) 1fr;
+    grid-template-rows: 1fr;
+}
+
+.sidebar {
+    grid-column: 1;
+    position: relative;
     display: flex;
     flex-direction: column;
-}
-
-.container > hr {
-    width: 100%;
-    margin: 0;
-}
-
-.notes {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-}
-
-.note {
-    background-color: var(--rose-quartz);
-    margin: 15px;
-    padding: 15px;
-    border-radius: 15px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-}
-
-.note-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.note-actions {
-    display: flex;
-}
-
-.note-actions button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #666;
-    border-radius: 6px;
-    transition: background 0.2s;
-}
-
-.note-actions button:hover {
-    background: #f0f0f0;
-    color: #000;
-}
-
-
-
-/* Controls layout style */
-
-.controls {
-    display: grid;
-    grid-template-columns: auto;
-    grid-template-rows: auto auto;
     padding: 5px;
+    gap: 10px;
+    background-color: var(--onyx);
+    box-shadow: 2px 0 25px var(--french-gray);
 }
 
-.notes-controls{
+.note-view {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 50px 1fr;
+}
+
+/* Filters style */
+
+.filters {
     display: flex;
-    justify-content: center;
-    grid-row: 1;
+    flex-direction: column;
+    border-bottom: 2px solid var(--slate-gray);
 }
 
-.selected-controls {
-    grid-row: 2;
+.filters__header {
     display: flex;
     flex-direction: row;
-    gap: 5px;
+    justify-content: space-between;
 }
 
-.selected-controls:not(:empty) {
-    margin-top: 5px;
+.filters__header h3 {
+    color: var(--french-light-gray);
+    padding-left: 15px;
 }
 
-/* Filter controls style */
-
-.filters-controls {
-    display: flex;
-    flex-direction: row;
-    justify-content: end;
-    padding-right: 5px;
-    gap: 5px;
-
-    border-right: 2px solid var(--denim);
-}
-
-/* Filter dropdown style */
-
-.dropdown-button--filter {
-    background-color: var(--paynes-gray);
-    border-radius: 5px;
-    color: var(--snow);
-
-    transition: transform 0.3s ease-in-out,
-                background-color 0.3s ease-in-out;
-}
-
-.dropdown-button--filter:hover {
-    transform: translateY(-1px);
-    background-color: var(--denim);
-}
+/* Filters dropdown style */
 
 .dropdown-button--filter[aria-expanded="true"] {
     background-color: var(--denim);
@@ -132,99 +73,105 @@
     cursor: pointer;
 }
 
-/* Actions controls style */
+/* Notes style */
 
-.actions-controls {
+.notes {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 10px;
+}
+
+.notes__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notes__header h3 {
+    color: var(--french-light-gray);
+    padding-left: 15px;
+}
+
+.notes__list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 10px;
+    padding: 15px;
+    border: 2px solid var(--slate-gray);
+    border-radius: 30px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Note style */
+
+.note {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 5px;
+    background-color: var(--eerie-black);
+    border-radius: 15px;
+    border: 2px solid var(--slate-gray);
+    color: var(--french-gray);
+    box-shadow: 2px 2px 0 var(--french-gray);
+    cursor: pointer;
+
+    transition: transform 0.3s ease;
+}
+
+.note:hover {
+    transform: translateX(-5px);
+    z-index: 1000;
+}
+
+.note-title {
+    margin: 0;
+}
+
+/* Note view style */
+
+.note-view__controls {
+    grid-row: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--slate-gray);
+    padding: 5px;
+
+    border-bottom: 2px solid var(--seasalt);
+}
+
+.note-view__name {
     display: flex;
     flex-direction: row;
     padding-left: 5px;
 }
 
-.actions-controls__button {
-    background: none;
-    border: 2px solid var(--paynes-gray);
-    border-radius: 5px;
-
-    transition: border-color 0.3s ease,
-                color 0.3s ease,
-                transform 0.3s ease;
-}
-.actions-controls__button:hover {
-    border-color: var(--denim);
-    color: var(--denim);
-    transform: scale(1.05);
-}
-
-.actions-controls__button svg {
-    width: 15px;
-    height: 15px;
-    vertical-align: middle;
-}
-
-/* Filter selected style */
-
-.filter-chip {
+.note-view__actions {
     display: flex;
     flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    border: 2px solid var(--paynes-gray);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-    border-radius: 25px;
-    background-color: var(--rose-quartz);
-    color: black;
-    padding: 5px;
-    font-size: 12px;
-
-    transition: border-color 0.3s ease,
-                transform 0.3s ease;
 }
 
-.filter-chip:hover {
-    border-color: var(--denim);
-    transform: translateY(-1px);
-}
-
-.filter-chip button {
-    border-radius: 25px;
-    background: none;
+.note-view textarea {
+    padding: 15px;
+    grid-row: 2;
+    background-color: var(--slate-gray);
+    color: var(--eerie-black);
+    outline: none;
     border: none;
-
-    transition: background-color 0.3s ease,
-                color 0.3s ease;
+    resize: none;
 }
 
-.filter-chip button:hover {
-    background-color: var(--paynes-gray);
-    color: var(--snow);
+.note-view textarea::placeholder {
+    color: var(--eerie-black);
 }
 
-/* Modal box style */
-.modal {
-    display: block;
-    position: fixed;
-    z-index: 1000;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-
-    justify-content: center;
-    align-items: center;
-}
-
-.modal--hidden {
-    display: none;
-}
-
-.modal__content {
-    background: #fff;
-    padding: 20px;
-    width: 400px;
-    max-width: 90%;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-    position: relative;
+.note-view textarea:focus {
+    border: none;
+    outline: none;
 }

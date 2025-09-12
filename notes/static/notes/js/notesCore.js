@@ -57,10 +57,17 @@ export async function updateNote(note, data) {
     }
 }
 
-export async function deleteNote(id) {
-    return await jwtRequest(`/api/notes/${id}/`, {
+export async function deleteNote(note) {
+    const noteId = note.dataset.id;
+
+    const response = await jwtRequest(`/api/notes/${noteId}/`, {
         method: "DELETE"
     });
+    if (response.ok) {
+        note.remove();
+    } else {
+        console.log("Delete response not ok");
+    }
 }
 
 export async function shareNote(data) {

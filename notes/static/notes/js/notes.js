@@ -9,7 +9,7 @@ import { renderNote, addChip, removeChip } from "./notesUI.js";
 // Global Variables & DOM Elements
 //
 
-const notesContainer = document.getElementById('notes');
+const notesContainer = document.querySelector('.notes__list');
 
 const checkboxes = document.querySelectorAll(".dropdown input[type='checkbox']");
 const selectedCheckboxes = document.querySelector(".selected-controls");
