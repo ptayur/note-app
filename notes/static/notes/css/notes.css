@@ -37,6 +37,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
 }
 
 .filters__header h3 {
@@ -46,15 +47,16 @@
 
 /* Filters dropdown style */
 
-.dropdown-button--filter[aria-expanded="true"] {
+.dropdown__button--filter[aria-expanded="true"] {
     background-color: var(--denim);
 }
 
-.dropdown-list--filter {
+.dropdown__menu--filter {
     border-radius: 5px;
+    top: 160%;
 }
 
-.dropdown-list--filter > li {
+.dropdown__menu--filter > li {
     border-radius: 5px;
     padding: 3px;
     margin: 5px;
@@ -62,11 +64,11 @@
     transition: background-color 0.3s ease;
 }
 
-.dropdown-list--filter > li:hover {
+.dropdown__menu--filter > li:hover {
     background-color: var(--snow);
 }
 
-.dropdown-list--filter > li > label {
+.dropdown__menu--filter > li > label {
     display: flex;
     align-items: center;
     width: 100%;

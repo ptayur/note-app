@@ -1,4 +1,4 @@
-@import "dropdown.css";
+@import "../components/dropdown/dropdown.css";
 @import "modal.css";
 @import "variables.css";
 @import "button.css";
@@ -51,7 +51,7 @@ nav {
 /* Navigation dropdown style */
 /* Navigation button */
 
-.dropdown-button--nav {
+.dropdown__button--nav {
     border-left: 1px solid transparent;
     color: var(--french-light-gray);
     gap: 5px;
@@ -59,22 +59,22 @@ nav {
     transition: border-left-color 0.3s ease;
 }
 
-.dropdown-button--nav:hover {
+.dropdown__button--nav:hover {
     border-left-color: var(--french-light-gray);
 }
 
-.dropdown-button--nav > span,
-.dropdown-button--nav > svg {
+.dropdown__button--nav > span,
+.dropdown__button--nav > svg {
     display: inline-block;
     transition: transform 0.3s ease;
 }
 
-.dropdown-button--nav:hover > span,
-.dropdown-button--nav:hover > svg {
+.dropdown__button--nav:hover > span,
+.dropdown__button--nav:hover > svg {
     transform: translateX(3px);
 }
 
-.dropdown-button__arrow {
+.dropdown__button__arrow {
     width: 13px;
     height: 13px;
     vertical-align: middle;
@@ -83,30 +83,30 @@ nav {
     transform-origin: center;
 }
 
-.dropdown-button--nav:hover .dropdown-button__arrow {
+.dropdown__button--nav:hover .dropdown__button__arrow {
     transform: translateX(3px) rotate(0deg);
 }
 
-.dropdown-button--nav[aria-expanded="true"] .dropdown-button__arrow {
+.dropdown__button--nav[aria-expanded="true"] .dropdown__button__arrow {
     transform: translateX(0) rotate(180deg);
 }
 
-.dropdown-button--nav[aria-expanded="true"]:hover .dropdown-button__arrow {
+.dropdown__button--nav[aria-expanded="true"]:hover .dropdown__button__arrow {
     transform: translateX(3px) rotate(180deg);
 }
 
-/* Navigation list */
+/* Navigation menu */
 
-.dropdown-list--nav {
+.dropdown__menu--nav {
+    background-color: var(--slate-gray);
+}
+
+.dropdown__menu--nav li {
     margin: 5px;
 }
 
-.dropdown-list--nav li {
-    margin: 5px;
-}
-
-.dropdown-list--nav li > a,
-.dropdown-list--nav li > button {
+.dropdown__menu--nav li > a,
+.dropdown__menu--nav li > button {
     display: flex;
     align-items: center;
     width: 100%;
@@ -129,12 +129,12 @@ nav {
     text-align: left;
 }
 
-.dropdown-list--nav li > a:hover,
-.dropdown-list--nav li > button:hover {
+.dropdown__menu--nav li > a:hover,
+.dropdown__menu--nav li > button:hover {
     background-color: var(--anti-flash-white);
 }
 
-.dropdown-list__icon {
+.dropdown__menu__icon {
     width: 13px;
     height: 13px;
     vertical-align: middle;
