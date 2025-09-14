@@ -2,82 +2,88 @@
 // Imports
 //
 
-import { createNote, readNotes, updateNote, deleteNote } from "./notesCore.js";
-import { renderNote, addChip, removeChip } from "./notesUI.js";
+import { deleteNote, getNoteDetails, getNoteList, updateNote } from "./notesCore.js";
+import { renderNote, unselectNote, selectNote } from "./notesUI.js";
 
 //
 // Global Variables & DOM Elements
 //
 
-const notesContainer = document.querySelector('.notes__list');
+const notesList = document.querySelector(".notes__list");
+const noteView = document.querySelector(".note-view");
 
-const checkboxes = document.querySelectorAll(".dropdown input[type='checkbox']");
-const selectedCheckboxes = document.querySelector(".selected-controls");
+// Get note actions
+const saveBtn = noteView.querySelector("#save-button");
+const infoBtn = noteView.querySelector("#info-button");
+const deleteBtn = noteView.querySelector("#delete-button");
+const shareBtn = noteView.querySelector("#share-button");
 
 //
 // Event Listeners
 //
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const result = await readNotes();
-    result.data.forEach(note => {
-        renderNote(notesContainer, note);
-    });
+    // Load note list
+    try {
+        const data = await getNoteList();
+        data.forEach(note => {
+            renderNote(notesList, note);
+        });
+    } catch (error) {
+        // TODO: display modal with error
+        console.log(error);
+    }
 })
 
-// Checkbox handler
-checkboxes.forEach(cb => {
-    cb.addEventListener("change", () => {
-        const dropdown = cb.closest(".dropdown");
-        const dropdownName = dropdown.dataset.dropdown;
-        const allCheckbox = dropdown.querySelector("input[value='all']");
-        const otherCheckboxes = Array.from(dropdown.querySelectorAll("input:not([value='all'])"));
-
-        if (cb.value === "all") {
-            // if clicked "All" checkbox
-            if (cb.checked) {
-                // Remove other chips
-                otherCheckboxes.forEach(oCb => {
-                    oCb.checked = true;
-                    
-                    const chip = selectedCheckboxes.querySelector(`[data-filter="${dropdownName}:${oCb.value}"]`);
-                    if (chip) chip.remove();
-                });
-                // Add "All" chip
-                addChip(dropdown, cb, selectedCheckboxes);
-            } else {
-                // Remove "All" chip
-                otherCheckboxes.forEach(oCb => {
-                    oCb.checked = false;
-                });
-                removeChip(dropdown, cb, selectedCheckboxes);
-            }
+notesList.addEventListener("click", async (event) => {
+    // Note selecting
+    const note = event.target.closest(".note");
+    if (!note) return;
+    if (note.contains(event.target)) {
+        if (note.classList.contains("note--selected")) {
+            unselectNote(note, noteView);
         } else {
-            if (cb.checked) {
-                addChip(dropdown, cb, selectedCheckboxes);
-            } else {
-                if (allCheckbox.checked) {
-                    // Display checked checkboxes
-                    otherCheckboxes.forEach(oCb => {
-                        if (oCb.checked) {
-                            addChip(dropdown, oCb, selectedCheckboxes);
-                        }
-                    });
-                    // Remove "All" chip
-                    removeChip(dropdown, allCheckbox, selectedCheckboxes);
-                    allCheckbox.checked = false;
-                } else {
-                    removeChip(dropdown, cb, selectedCheckboxes);
-                }
-            }
-
-            // Check if all other checkboxes selected
-            if (otherCheckboxes.every(oCb => oCb.checked)) {
-                // Select "All" chip and remove other chips from selected
-                allCheckbox.checked = true;
-                otherCheckboxes.forEach(oCb => removeChip(dropdown, oCb, selectedCheckboxes));
-                addChip(dropdown, allCheckbox, selectedCheckboxes);
+            try {
+                const data = await getNoteDetails(note.dataset.id);
+                selectNote(note, notesList, noteView, data);
+            } catch (error) {
+                // TODO: display modal with error
+                console.log(error);
             }
         }
-    })
+    }
+})
+
+// Save button logic
+saveBtn.addEventListener("click", async () => {
+    const content = noteView.querySelector("textarea").value;
+    const note = notesList.querySelector(".note--selected");
+
+    try {
+        await updateNote(note.dataset.id, { content: content });
+    } catch (error) {
+        // TODO: display modal with error
+        console.log(error);
+    }
+    
+})
+
+//Info button logic
+infoBtn.addEventListener("click", async () => {
+    // TODO: display modal with info
+})
+
+// Delete button logic
+deleteBtn.addEventListener("click", async () => {
+    const note = notesList.querySelector(".note--selected");
+    const noteId = note.dataset.id;
+
+    try {
+        await deleteNote(noteId);
+        unselectNote(note, noteView);
+        note.remove();
+    } catch {error} {
+        // TODO: display modal with error
+        console.log(error);
+    }
 })

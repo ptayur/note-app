@@ -14,6 +14,7 @@
     flex-direction: column;
     padding: 5px;
     gap: 10px;
+    z-index: 200;
     background-color: var(--onyx);
     box-shadow: 2px 0 25px var(--french-gray);
 }
@@ -129,12 +130,19 @@
     box-shadow: 2px 2px 0 var(--french-gray);
     cursor: pointer;
 
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease,
+                background-color 0.3s ease,
+                color 0.3s ease;
 }
 
 .note:hover {
     transform: translateX(-5px);
     z-index: 1000;
+}
+
+.note--selected {
+    background-color: var(--platinum);
+    color: var(--eerie-black);
 }
 
 .note-title {
@@ -151,19 +159,35 @@
     align-items: center;
     background-color: var(--slate-gray);
     padding: 5px;
+    z-index: 100;
 
     border-bottom: 2px solid var(--seasalt);
+    box-shadow: 2px 2px 5px var(--eerie-black);
 }
 
 .note-view__name {
     display: flex;
     flex-direction: row;
+    gap: 10px;
+    align-items: center;
     padding-left: 5px;
+}
+
+.note-view__title {
+    background: transparent;
+    color: var(--eerie-black);
+    border: none;
+    outline: none;
+}
+
+.note-view__title:focus {
+    border-bottom: 2px solid var(--eerie-black);
 }
 
 .note-view__actions {
     display: flex;
     flex-direction: row;
+    gap: 5px;
 }
 
 .note-view textarea {
