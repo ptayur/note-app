@@ -65,6 +65,13 @@
                 box-shadow 0.3s ease-in-out;
 }
 
+.generic-button:disabled {
+    filter: brightness(50%);
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 2px 0 var(--french-gray) !important;
+}
+
 .generic-button:active {
     transform: translateY(2px);
     box-shadow: none;

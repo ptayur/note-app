@@ -85,6 +85,15 @@
                     <template id="note-template">
                         <div class="note">
                             <h3 class="note-title"></h3>
+                            <button class="generic-button" id="delete-note" title="Delete note">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+                                    class="lucide lucide-trash-icon lucide-trash">
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                                    <path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
                         </div>
                     </template>
                 </div>
@@ -103,13 +112,13 @@
                     </button>
                 </div>
                 <div class="note-view__actions">
-                    <button class="generic-button" id="share-note" type="button" title="Share note">
+                    <button class="generic-button" id="share-note" type="button" title="Share note" disabled>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
                             viewBox="0 0 1025 1024" fill="currentColor">
                             <path fill="currentColor" d="M896.428 1024h-768q-53 0-90.5-37.5T.428 896V128q0-53 37.5-90.5t90.5-37.5h448v128h-384q-27 0-45.5 19t-18.5 45v640q0 27 18.5 45.5t45.5 18.5h640q27 0 45.5-18.5t18.5-45.5V530l128-107v473q0 53-37.5 90.5t-90.5 37.5zm-200-457q-13 13-34.5 8t-21.5-19V384q-224 0-384 320v-64q0-116 30-204t83-140t121-78t150-26V22q0-14 21.5-19.5t34.5 7.5l314 246q13 13 13 32t-13 33z"/>
                         </svg>
                     </button>
-                    <button class="generic-button" id="delete-button" type="button" title="Delete note">
+                    <button class="generic-button" id="delete-button" type="button" title="Delete note" disabled>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" 
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
@@ -118,13 +127,13 @@
                             <path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                         </svg>
                     </button>
-                    <button class="generic-button" id="info-button" type="button" title="Note information">
+                    <button class="generic-button" id="info-button" type="button" title="Note information" disabled>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
                             viewBox="0 0 1024 1024">
                             <path fill="currentColor" d="m576 736l-32-.001v-286c0-.336-.096-.656-.096-1.008s.096-.655.096-.991c0-17.664-14.336-32-32-32h-64c-17.664 0-32 14.336-32 32s14.336 32 32 32h32v256h-32c-17.664 0-32 14.336-32 32s14.336 32 32 32h128c17.664 0 32-14.336 32-32s-14.336-32-32-32zm-64-384.001c35.344 0 64-28.656 64-64s-28.656-64-64-64s-64 28.656-64 64s28.656 64 64 64zm0-352c-282.768 0-512 229.232-512 512c0 282.784 229.232 512 512 512c282.784 0 512-229.216 512-512c0-282.768-229.216-512-512-512zm0 961.008c-247.024 0-448-201.984-448-449.01c0-247.024 200.976-448 448-448s448 200.977 448 448s-200.976 449.01-448 449.01z"/>
                         </svg>
                     </button>
-                    <button class="generic-button" id="save-button" type="button" title="Save note">
+                    <button class="generic-button" id="save-button" type="button" title="Save note" disabled>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
                             viewBox="0 0 480 496">
                             <path fill="currentColor" d="M69 5Q42 5 23.5 23.5T5 69v342q0 27 18.5 45.5T69 475h342q27 0 45.5-18.5T475 411V170L357 5H69zm150 43v64h42V48h22v85H133V48h86zm-86 384V304h214v128H133zm299-21q0 9-6 15t-15 6h-22V304q0-17-12.5-30T347 261H133q-17 0-29.5 13T91 304v128H69q-9 0-15-6t-6-15V69q0-9 6-15t15-6h22v85q0 18 12.5 30.5T133 176h150q17 0 29.5-12.5T325 133V48h11l96 134v229z"/>
@@ -157,27 +166,6 @@
             <div class="modal__footer">
                 <button class="modal__button modal__button--cancel" type="button">Cancel</button>
                 <button type="submit" form="create-note-form">Create</button>
-            </div>
-        </div>
-    </template>
-    
-    <!-- Edit note template -->
-    <template id="edit-note-template">
-        <div class="modal__window">
-            <div class="modal__header">
-                <h2>Edit note</h2>
-                <button type="button">&times;</button>
-            </div>
-            <hr>
-            <div class="modal__main">
-                <form id="edit-note-form">
-                    <input type="text" name="title" placeholder="Title" required><br>
-                    <textarea name="content" placeholder="Note content"></textarea><br>
-                </form>
-            </div>
-            <div class="modal__footer">
-                <button class="modal__button modal__button--cancel" type="button">Cancel</button>
-                <button type="submit" form="edit-note-form">Save</button>
             </div>
         </div>
     </template>
