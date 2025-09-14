@@ -16,6 +16,7 @@
 .dropdown__menu {
     position: absolute;
     top: 100%;
+    z-index: 2000;
 
     width: max-content;
     min-width: 100%;

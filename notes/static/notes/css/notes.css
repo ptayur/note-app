@@ -52,8 +52,11 @@
 }
 
 .dropdown__menu--filter {
-    border-radius: 5px;
+    border-radius: 8px;
     top: 160%;
+
+    background-color: var(--platinum);
+    box-shadow: 2px 2px 5px var(--eerie-black);
 }
 
 .dropdown__menu--filter > li {
@@ -61,18 +64,22 @@
     padding: 3px;
     margin: 5px;
 
-    transition: background-color 0.3s ease;
+    background-color: var(--eerie-black);
+    color: var(--seasalt);
 }
 
-.dropdown__menu--filter > li:hover {
-    background-color: var(--snow);
-}
 
 .dropdown__menu--filter > li > label {
     display: flex;
     align-items: center;
     width: 100%;
-    cursor: pointer;
+}
+
+.dropdown__menu--filter > li > input[type="text"] {
+    background-color: var(--platinum);
+    border-radius: 5px;
+    outline: none;
+    border: none;
 }
 
 /* Notes style */
