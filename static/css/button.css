@@ -1,5 +1,56 @@
-/* Base button style */
+/* Buttons styles */
 
+/* Navigation button */
+
+.nav-button {
+    background-color: var(--eerie-black);
+    border: none;
+    border-left: 2px solid transparent;
+    color: var(--platinum);
+
+    transition: border-left 0.3s ease;
+}
+
+.nav-button:hover {
+    border-left: 2px solid var(--platinum);
+}
+
+.nav-button > * {
+    transition: transform 0.3s ease;
+}
+
+.nav-button:hover > * {
+    transform: translateX(3px);
+}
+
+/* Link as a button style */
+
+.nav-link {
+    background-color: var(--eerie-black);
+    color: var(--platinum);
+    text-decoration: none;
+    border: none;
+    border-left: 2px solid transparent;
+
+    padding: 1px 6px;
+
+    transition: border-left 0.3s ease;
+}
+
+.nav-link:hover {
+    border-left: 2px solid var(--platinum);
+}
+
+.nav-link > * {
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.nav-link:hover > * {
+    transform: translateX(3px);
+}
+
+/* Generic button */
 .generic-button {
     display: flex;
     align-items: center;
@@ -14,7 +65,8 @@
                 box-shadow 0.3s ease-in-out;
 }
 
-.generic-button:hover {
+.generic-button:active {
     transform: translateY(2px);
     box-shadow: none;
+    transition: none;
 }
