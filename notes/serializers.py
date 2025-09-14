@@ -24,9 +24,19 @@ class SharesNestedSerializer(serializers.ModelSerializer):
 
 
 class NoteSerializer(serializers.ModelSerializer):
+    """Note serializer for detailed note view"""
+
     user = serializers.SlugRelatedField(read_only=True, slug_field="username")
     shared_with = SharesNestedSerializer(source="shares", many=True, read_only=True)
 
     class Meta:
         model = Note
         fields = "__all__"
+
+
+class NoteListSerializer(serializers.ModelSerializer):
+    """Note serializer for list note view"""
+
+    class Meta:
+        model = Note
+        fields = ["id", "title"]

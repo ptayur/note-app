@@ -5,7 +5,17 @@ from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from notes.models import Note
-from notes.serializers import NoteSerializer
+from notes.serializers import NoteSerializer, NoteListSerializer
+
+
+class NoteListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        notes = Note.objects.filter(Q(user=request.user) | Q(shares__user=request.user))
+        serializer = NoteListSerializer(notes, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class NoteView(APIView):
@@ -14,10 +24,10 @@ class NoteView(APIView):
     def get_object(self, pk):
         return get_object_or_404(Note, pk=pk)
 
-    def get(self, request):
-        """List all notes"""
-        notes = Note.objects.filter(Q(user=request.user) | Q(shares__user=request.user))
-        serializer = NoteSerializer(notes, many=True)
+    def get(self, request, pk):
+        """Get info about `pk` note"""
+        note = self.get_object(pk)
+        serializer = NoteSerializer(note)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
