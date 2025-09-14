@@ -8,38 +8,59 @@ import { jwtRequest } from "../../../../static/js/utils.js";
 // CRUD Functions
 //
 
+// Save full info about currently selected note
+let currentNoteInfo;
+
+async function checkResponse(response) {
+    if (!response.ok) {
+        throw new Error(response.data?.error || `HTTP error: ${response.status}`);
+    }
+    return response.data;
+}
+
 export async function createNote(data) {
-    return await jwtRequest("/api/notes/", {
+    const response = await jwtRequest("/api/notes/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
     });
+
+    return checkResponse(response);
 }
 
-export async function readNotes() {
-    return await jwtRequest("/api/notes/", {
+export async function getNoteList() {
+    const response = await jwtRequest("/api/notes/", {
         method: "GET",
         headers: { "Content-Type": "application/json" }
     });
+
+    return await checkResponse(response);
 }
 
-export async function updateNote(note, data) {
-    const noteId = note.dataset.id;
-    const noteTitle = note.querySelector(".note-title");
-    const noteContent = note.querySelector(".note-content");
+export async function getNoteDetails(noteId) {
+    const response = await jwtRequest(`/api/notes/${noteId}/`, {
+        method: "GET"
+    });
 
+    const data = await checkResponse(response);
+    currentNoteInfo = data;
+
+    return data;
+}
+
+export async function updateNote(noteId, updatedData) {
     // Build payload with only changed field
     const payload = {};
-    if (data.title !== noteTitle.textContent) {
-        payload.title = data.title;
+    if ((updatedData.title !== currentNoteInfo.title) && updatedData.title) {
+        payload.title = updatedData.title;
     }
-    if (data.content !== noteContent.textContent) {
-        payload.content = data.content;
+    if ((updatedData.content !== currentNoteInfo.content) && updatedData.content) {
+        payload.content = updatedData.content;
     }
 
     // Return early if nothing changed
     if (Object.keys(payload).length === 0) {
-        return { ok: false, status: 0, data: {"detail": "No changes provided."} };
+        throw new Error("No changes provided.");
     }
 
     const response = await jwtRequest(`/api/notes/${noteId}/`, {
@@ -47,33 +68,27 @@ export async function updateNote(note, data) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
     });
-    if (response.ok) {
-        // Change note title and content on success
-        noteTitle.textContent = response.data.title;
-        noteContent.textContent = response.data.content;
-    } else {
-        // Display error modal box
-        console.log("Edit response not ok");
-    }
+
+    const data = await checkResponse(response);
+    currentNoteInfo = data;
+
+    return data;
 }
 
-export async function deleteNote(note) {
-    const noteId = note.dataset.id;
-
+export async function deleteNote(noteId) {
     const response = await jwtRequest(`/api/notes/${noteId}/`, {
         method: "DELETE"
     });
-    if (response.ok) {
-        note.remove();
-    } else {
-        console.log("Delete response not ok");
-    }
+
+    return await checkResponse(response);
 }
 
 export async function shareNote(data) {
-    return await jwtRequest("/api/notes/shares", {
+    const response = await jwtRequest("/api/notes/shares", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
     });
+
+    return await checkResponse(response);
 }
