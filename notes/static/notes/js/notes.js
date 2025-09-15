@@ -2,8 +2,9 @@
 // Imports
 //
 
-import { deleteNote, getNoteDetails, getNoteList, updateNote } from "./notesCore.js";
-import { renderNote, unselectNote, selectNote } from "./notesUI.js";
+import { deleteNote, getNoteDetails, getNoteList, updateNote } from "./notesAPI.js";
+import { renderNote } from "./notesUI.js";
+import { NoteController } from "./noteController.js";
 
 //
 // Global Variables & DOM Elements
@@ -11,6 +12,10 @@ import { renderNote, unselectNote, selectNote } from "./notesUI.js";
 
 const notesList = document.querySelector(".notes__list");
 const noteView = document.querySelector(".note-view");
+const noteController = new NoteController({
+    noteView: noteView,
+    notesList: notesList
+});
 
 // Get note actions
 const saveBtn = noteView.querySelector("#save-button");
@@ -41,11 +46,11 @@ notesList.addEventListener("click", async (event) => {
     if (!note) return;
     if (note.contains(event.target)) {
         if (note.classList.contains("note--selected")) {
-            unselectNote(note, noteView);
+            noteController.unselect();
         } else {
             try {
                 const data = await getNoteDetails(note.dataset.id);
-                selectNote(note, notesList, noteView, data);
+                noteController.select(note, data);
             } catch (error) {
                 // TODO: display modal with error
                 console.log(error);
@@ -56,16 +61,7 @@ notesList.addEventListener("click", async (event) => {
 
 // Save button logic
 saveBtn.addEventListener("click", async () => {
-    const content = noteView.querySelector("textarea").value;
-    const note = notesList.querySelector(".note--selected");
-
-    try {
-        await updateNote(note.dataset.id, { content: content });
-    } catch (error) {
-        // TODO: display modal with error
-        console.log(error);
-    }
-    
+    noteController.update();
 })
 
 //Info button logic
@@ -75,15 +71,5 @@ infoBtn.addEventListener("click", async () => {
 
 // Delete button logic
 deleteBtn.addEventListener("click", async () => {
-    const note = notesList.querySelector(".note--selected");
-    const noteId = note.dataset.id;
-
-    try {
-        await deleteNote(noteId);
-        unselectNote(note, noteView);
-        note.remove();
-    } catch {error} {
-        // TODO: display modal with error
-        console.log(error);
-    }
+    noteController.delete();
 })
