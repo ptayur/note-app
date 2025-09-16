@@ -49,6 +49,18 @@ export class ModalManager {
         return ModalManager.#instance;
     }
 
+    #toNodeArray(value) {
+        if (Array.isArray(value)) {
+            return value;
+        }
+        
+        if (value) {
+            return [value];
+        }
+        
+        return [];
+    }
+
     show() {
         this.#modal.classList.add("modal--open");
     }
@@ -58,8 +70,24 @@ export class ModalManager {
     }
 
     setContent({ header, main, footer }) {
-        this.#modalHeader.replaceChildren(header || null);
-        this.#modalMain.replaceChildren(main || null);
-        this.#modalFooter.replaceChildren(footer || null);
+        this.#modalHeader.replaceChildren(...this.#toNodeArray(header));
+        this.#modalMain.replaceChildren(...this.#toNodeArray(main));
+        this.#modalFooter.replaceChildren(...this.#toNodeArray(footer));
+    }
+
+    setClass({ modal, modalWindow, header, main, footer }) {
+        this.#modal.classList.add(...this.#toNodeArray(modal));
+        this.#modalWindow.classList.add(...this.#toNodeArray(modalWindow));
+        this.#modalHeader.classList.add(...this.#toNodeArray(header));
+        this.#modalMain.classList.add(...this.#toNodeArray(main));
+        this.#modalFooter.classList.add(...this.#toNodeArray(footer));
+    }
+
+    removeClass({ modal, modalWindow, header, main, footer }) {
+        this.#modal.classList.remove(...this.#toNodeArray(modal));
+        this.#modalWindow.classList.remove(...this.#toNodeArray(modalWindow));
+        this.#modalHeader.classList.remove(...this.#toNodeArray(header));
+        this.#modalMain.classList.remove(...this.#toNodeArray(main));
+        this.#modalFooter.classList.remove(...this.#toNodeArray(footer));
     }
 }
