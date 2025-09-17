@@ -1,6 +1,6 @@
 export class ModalManager {
     static #instance = null;
-    
+
     #modal;
     #modalWindow;
     #modalHeader;
@@ -10,6 +10,7 @@ export class ModalManager {
     constructor() {
         // Prevent new instance from init
         if (ModalManager.#instance) {
+            ModalManager.#instance.close();
             return ModalManager.#instance;
         }
 
@@ -50,15 +51,8 @@ export class ModalManager {
     }
 
     #toNodeArray(value) {
-        if (Array.isArray(value)) {
-            return value;
-        }
-        
-        if (value) {
-            return [value];
-        }
-        
-        return [];
+        if (Array.isArray(value)) return value;
+        return value ? [value] : [];
     }
 
     show() {
@@ -66,7 +60,11 @@ export class ModalManager {
     }
 
     close() {
-        this.#modal.classList.remove("modal--open");
+        this.#modal.classList = "modal";
+        this.#modalWindow.classList = "modal__window";
+        this.#modalHeader.classList = "modal__header";
+        this.#modalMain.classList = "modal__main";
+        this.#modalFooter.classList = "modal__footer";
     }
 
     setContent({ header, main, footer }) {
