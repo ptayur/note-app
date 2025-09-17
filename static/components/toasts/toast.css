@@ -1,0 +1,120 @@
+/* Toast container style */
+.toast-container {
+    display: flex;
+    position: fixed;
+    z-index: 3000;
+    height: 100%;
+    width: 50%;
+    pointer-events: none;
+
+    transition: opacity 0.3s ease;
+}
+
+.toast-container.bottom-right {
+    bottom: 0;
+    right: 0;;
+    flex-direction: column-reverse;
+    align-items: end;
+}
+
+/* Base toast style */
+.toast__window {
+    margin: 20px;
+    width: 250px;
+    border-top-left-radius: 15px;
+    pointer-events: all;
+
+    box-shadow: 2px -2px 1px var(--platinum);
+    border: 2px solid var(--french-gray);
+    background-color: var(--seasalt);
+
+    animation: SlideInToLeft 0.3s linear;
+}
+
+@keyframes SlideInToLeft {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(0); }
+}
+
+.toast__window.toast--closing {
+    animation: SlideOutToRight 0.3s linear;
+}
+
+@keyframes SlideOutToRight {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+}
+
+.toast__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: unset;
+    align-items: stretch;
+    gap: 2px;
+    padding: 10px 10px 0px 10px;
+}
+
+.toast__header > p {
+    flex: 1;
+    padding-left: 10px;
+    margin: 0;
+
+    border-top-left-radius: 5px;
+    background-color: var(--onyx);
+    color: var(--anti-flash-white);
+}
+
+.toast__main {
+    margin: 0px 10px 0px 10px;
+    padding: 0px 10px 0px 10px;
+    border: 2px solid var(--onyx);
+}
+
+.toast__main > p {
+    color: var(--eerie-black);
+}
+
+.toast__button--close {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    cursor: pointer;
+
+    background: var(--onyx);
+    color: var(--anti-flash-white);
+}
+
+.toast__timer {
+    height: 4px;
+    background: var(--slate-gray);
+    width: 100%;
+    animation: shrink var(--duration, 5s) linear forwards;
+}
+
+@keyframes shrink {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* Error toast style */
+
+.toast__window--error {
+    border-color: var(--osewood);
+    box-shadow: 2px -2px 1px var(--falu-red);
+}
+
+.toast__footer--error .toast__timer {
+    background: var(--auburn);
+}
+
+/* Success toast style */
+
+.toast__window--success {
+    border-color: var(--dartmouth-green);
+    box-shadow: 2px -2px 1px var(--mint);
+}
+
+.toast__footer--success .toast__timer {
+    background: var(--celadon);
+}
