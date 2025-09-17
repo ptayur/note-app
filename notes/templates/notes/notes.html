@@ -85,15 +85,6 @@
                     <template id="note-template">
                         <div class="note">
                             <h3 class="note-title"></h3>
-                            <button class="generic-button" id="delete-note" title="Delete note">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-                                    class="lucide lucide-trash-icon lucide-trash">
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
-                                    <path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                </svg>
-                            </button>
                         </div>
                     </template>
                 </div>
@@ -144,61 +135,4 @@
             <textarea placeholder="Write your note here..."></textarea>
         </div>
     </div>
-    
-    <!-- Modal box -->
-    <div class="modal"></div>
-
-    <!-- Modal templates -->
-    <!-- Create note template -->
-    <template id="create-note-template">
-        <div class="modal__window">
-            <div class="modal__header">
-                <h2>Create new note</h2>
-                <button type="button">&times;</button>
-            </div>
-            <hr>
-            <div class="modal__main">
-                <form id="create-note-form">
-                    <input type="text" name="title" placeholder="Title" required><br>
-                    <textarea name="content" placeholder="Note content"></textarea><br>
-                </form>
-            </div>
-            <div class="modal__footer">
-                <button class="modal__button modal__button--cancel" type="button">Cancel</button>
-                <button type="submit" form="create-note-form">Create</button>
-            </div>
-        </div>
-    </template>
-
-    <!-- Delete note template -->
-    <template id="delete-note-template">
-        <div class="modal__window">
-            <div class="modal__header">
-                <h2>Confirm delete</h2>
-                <button type="button">&times;</button>
-            </div>
-            <hr>
-            <div class="modal__main">
-                <p>Are you sure you want to delete following note:</p>
-                <p id="note-name"></p>
-            </div>
-            <div class="modal__footer">
-                <button class="modal__button modal__button--cancel" type="button">Cancel</button>
-                <button type="submit">Delete</button>
-            </div>
-        </div>
-    </template>
-
-    <!-- Share note template -->
-    <template id="share-note-template">
-        <div class="modal__window">
-            <h2>Share note</h2>
-            <button type="button" class="close-modal">&times;</button>
-            <form id="share-note-form">
-                <input type="text" name="user" placeholder="Username or Email" required><br>
-                <button type="submit">Share</button>
-            </form>
-        </div>
-    </template> 
-
 {% endblock %}
