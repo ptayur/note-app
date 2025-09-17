@@ -78,9 +78,7 @@ export class NoteController {
 
         // Return early if nothing changed
         if (Object.keys(payload).length === 0) {
-            // TODO: modal display
-            console.log("No changes provided.");
-            return;
+            throw new Error("No changes provided");
         }
 
         try {
@@ -88,8 +86,11 @@ export class NoteController {
             this.#noteElement.querySelector(".note-title").textContent = data.title;
             this.#noteData = data;
         } catch (error) {
-            // TODO: modal display
-            console.log(error);
+            throw new Error(error);
         }
+    }
+
+    getData() {
+        return this.#noteData;
     }
 }

@@ -2,9 +2,12 @@
 // Imports
 //
 
-import { deleteNote, getNoteDetails, getNoteList, updateNote } from "./notesAPI.js";
+import { getNoteDetails, getNoteList } from "./notesAPI.js";
 import { renderNote } from "./notesUI.js";
 import { NoteController } from "./noteController.js";
+import { showCreateModal, showDetailsModal } from "./notesModal.js";
+
+import { ToastContainer } from "/static/components/toasts/toastContainer.js";
 
 //
 // Global Variables & DOM Elements
@@ -16,6 +19,11 @@ const noteController = new NoteController({
     noteView: noteView,
     notesList: notesList
 });
+
+const toastContainer = new ToastContainer();
+
+// Get note list actions
+const createBtn = document.querySelector("#create-button");
 
 // Get note actions
 const saveBtn = noteView.querySelector("#save-button");
@@ -32,7 +40,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         const data = await getNoteList();
         data.forEach(note => {
-            renderNote(notesList, note);
+            const noteTemplate = notesList.querySelector("#note-template");
+            const noteClone = noteTemplate.content.cloneNode(true);
+
+            const note = noteClone.querySelector(".note");
+            note.dataset.id = data.id;
+
+            const title = note.querySelector(".note h3");
+            title.textContent = data.title;
+
+            notesList.appendChild(noteClone);
         });
     } catch (error) {
         // TODO: display modal with error
@@ -59,14 +76,25 @@ notesList.addEventListener("click", async (event) => {
     }
 })
 
+// Create note button logic
+createBtn.addEventListener("click", async() => {
+    showCreateModal();
+})
+
 // Save button logic
 saveBtn.addEventListener("click", async () => {
-    noteController.update();
+    try {
+        await noteController.update();
+        toastContainer.addSuccessToast("Note update", "Note was successfully updated!");
+    } catch (error) {
+        toastContainer.addErrorToast("Update error", error);
+    }
 })
 
 //Info button logic
 infoBtn.addEventListener("click", async () => {
-    // TODO: display modal with info
+    const noteData = noteController.getData();
+    showDetailsModal(noteData);
 })
 
 // Delete button logic
