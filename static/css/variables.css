@@ -1,4 +1,5 @@
 :root {
+    /* Main palette */
     --eerie-black: #212529;
     --onyx: #343A40;
     --outer-space: #495057;
@@ -8,4 +9,22 @@
     --platinum: #DEE2E6;
     --anti-flash-white: #E9ECEF;
     --seasalt: #F8F9FA;
+
+    /* Error palette */
+    --black-bean: #250902;
+    --black-bean-light: #38040E;
+    --osewood: #640D14;
+    --falu-red: #800E13;
+    --auburn: #AD2831;
+
+    /* Success palette */
+    --nyanza: #D8F3DC;
+    --celadon-light: #B7E4C7;
+    --celadon: #95D5B2;
+    --mint-light: #74C69D;
+    --mint: #52B788;
+    --sea-green: #40916C;
+    --dartmouth-green: #2D6A4F;
+    --brunswick-green: #1B4332;
+    --dark-green: #081C15;
 }
