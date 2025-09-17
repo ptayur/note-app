@@ -3,7 +3,6 @@
 //
 
 import { getNoteDetails, getNoteList } from "./notesAPI.js";
-import { renderNote } from "./notesUI.js";
 import { NoteController } from "./noteController.js";
 import { showCreateModal, showDetailsModal } from "./notesModal.js";
 
@@ -38,8 +37,8 @@ const shareBtn = noteView.querySelector("#share-button");
 document.addEventListener("DOMContentLoaded", async () => {
     // Load note list
     try {
-        const data = await getNoteList();
-        data.forEach(note => {
+        const notes = await getNoteList();
+        notes.forEach(data => {
             const noteTemplate = notesList.querySelector("#note-template");
             const noteClone = noteTemplate.content.cloneNode(true);
 

@@ -1,3 +1,6 @@
+@import "notesModal.css";
+@import "/static/components/toasts/toast.css";
+
 /* Global layout */
 .container {
     height: 100%;

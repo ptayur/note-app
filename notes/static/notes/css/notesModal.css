@@ -1,0 +1,42 @@
+@import "/static/components/modal/modal.css";
+
+.modal--generic {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(3px);
+
+    transition: display 0.3s ease;
+}
+
+.modal__window--generic {
+    background-color: var(--anti-flash-white);
+}
+
+.modal__list {
+    list-style: none;
+    padding: 10px;
+    background-color: var(--onyx);
+    border-radius: 15px;
+}
+
+.modal__list > li {
+    display: grid;
+    grid-template-columns: 0.35fr 0.65fr;
+    padding: 5px;
+    gap: 10px;
+}
+
+.list__label {
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
+    padding-left: 10px;
+    background-color: var(--outer-space);
+    color: var(--platinum);
+}
+
+.list__key {
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+    padding-left: 10px;
+    background-color: var(--french-light-gray);
+    color: var(--eerie-black);
+}
