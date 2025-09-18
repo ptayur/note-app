@@ -17,6 +17,14 @@ class NoteListView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def post(self, request):
+        """Create a new note"""
+        serializer = NoteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class NoteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -30,14 +38,6 @@ class NoteView(APIView):
         serializer = NoteSerializer(note)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        """Create a new note"""
-        serializer = NoteSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, pk):
         """Update a `pk` note"""
