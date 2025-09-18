@@ -22,7 +22,7 @@
     box-shadow: 2px 0 25px var(--french-gray);
 }
 
-.note-view {
+.note-panel {
     grid-column: 2;
     display: grid;
     grid-template-columns: 1fr;
@@ -154,7 +154,7 @@
 
 /* Note view style */
 
-.note-view__controls {
+.note-panel__controls {
     grid-row: 1;
     display: flex;
     flex-direction: row;
@@ -168,32 +168,35 @@
     box-shadow: 2px 2px 5px var(--eerie-black);
 }
 
-.note-view__name {
+.note-panel__name {
     display: flex;
     flex-direction: row;
     gap: 10px;
     align-items: center;
-    padding-left: 5px;
+    padding: 10px 10px 10px 20px;
+    border: 2px solid var(--onyx);
+    border-radius: 10px;
+    box-shadow: 1px 1px 1px var(--french-light-gray);
 }
 
-.note-view__title {
+.note-panel__title {
     background: transparent;
     color: var(--eerie-black);
     border: none;
     outline: none;
 }
 
-.note-view__title:focus {
+.note-panel__title:focus {
     border-bottom: 2px solid var(--eerie-black);
 }
 
-.note-view__actions {
+.note-panel__actions {
     display: flex;
     flex-direction: row;
     gap: 5px;
 }
 
-.note-view textarea {
+.note-panel textarea {
     padding: 15px;
     grid-row: 2;
     background-color: var(--slate-gray);
@@ -203,11 +206,11 @@
     resize: none;
 }
 
-.note-view textarea::placeholder {
+.note-panel textarea::placeholder {
     color: var(--eerie-black);
 }
 
-.note-view textarea:focus {
+.note-panel textarea:focus {
     border: none;
     outline: none;
 }
