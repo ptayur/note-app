@@ -4,7 +4,7 @@
 
 import { getNoteDetails, getNoteList } from "./notesAPI.js";
 import { NoteController } from "./noteController.js";
-import { showCreateModal, showDetailsModal } from "./notesModal.js";
+import { confirmDeleteModal, noteDetailsModal } from "./notesModal.js";
 
 import { ToastContainer } from "/static/components/toasts/toastContainer.js";
 
@@ -13,9 +13,9 @@ import { ToastContainer } from "/static/components/toasts/toastContainer.js";
 //
 
 const notesList = document.querySelector(".notes__list");
-const noteView = document.querySelector(".note-view");
+const notePanel = document.querySelector(".note-panel");
 const noteController = new NoteController({
-    noteView: noteView,
+    notePanel: notePanel,
     notesList: notesList
 });
 
@@ -25,10 +25,12 @@ const toastContainer = new ToastContainer();
 const createBtn = document.querySelector("#create-button");
 
 // Get note actions
-const saveBtn = noteView.querySelector("#save-button");
-const infoBtn = noteView.querySelector("#info-button");
-const deleteBtn = noteView.querySelector("#delete-button");
-const shareBtn = noteView.querySelector("#share-button");
+const titleInput = notePanel.querySelector("#note-title");
+const renameBtn = notePanel.querySelector("#rename-button");
+const saveBtn = notePanel.querySelector("#save-button");
+const infoBtn = notePanel.querySelector("#info-button");
+const deleteBtn = notePanel.querySelector("#delete-button");
+const shareBtn = notePanel.querySelector("#share-button");
 
 //
 // Event Listeners
@@ -39,20 +41,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         const notes = await getNoteList();
         notes.forEach(data => {
-            const noteTemplate = notesList.querySelector("#note-template");
-            const noteClone = noteTemplate.content.cloneNode(true);
-
-            const note = noteClone.querySelector(".note");
-            note.dataset.id = data.id;
-
-            const title = note.querySelector(".note h3");
-            title.textContent = data.title;
-
-            notesList.appendChild(noteClone);
+            noteController.appendToList(data.id, data.title);
         });
     } catch (error) {
-        // TODO: display modal with error
-        console.log(error);
+        toastContainer.addErrorToast("Notes loading error", error);
     }
 })
 
@@ -68,16 +60,29 @@ notesList.addEventListener("click", async (event) => {
                 const data = await getNoteDetails(note.dataset.id);
                 noteController.select(note, data);
             } catch (error) {
-                // TODO: display modal with error
-                console.log(error);
+                toastContainer.addErrorToast("Note selecting error", error);
             }
         }
     }
 })
 
+renameBtn.addEventListener("click", () => {
+    if (!renameBtn.classList.contains("renaming")) {
+        // Prevent double call
+        noteController.rename();
+    }
+})
+
 // Create note button logic
 createBtn.addEventListener("click", async() => {
-    showCreateModal();
+    try {
+        const result = await noteController.create();
+        if (result) {
+            toastContainer.addSuccessToast("Note creation", "Note was successfully created!");
+        }
+    } catch (error) {
+        toastContainer.addErrorToast("Note creation", error);
+    }
 })
 
 // Save button logic
@@ -93,10 +98,20 @@ saveBtn.addEventListener("click", async () => {
 //Info button logic
 infoBtn.addEventListener("click", async () => {
     const noteData = noteController.getData();
-    showDetailsModal(noteData);
+    noteDetailsModal(noteData);
 })
 
 // Delete button logic
 deleteBtn.addEventListener("click", async () => {
-    noteController.delete();
+    const noteData = noteController.getData();
+    const confirmed = await confirmDeleteModal(noteData.title);
+    if (confirmed) {
+        try {
+            noteController.delete();
+            toastContainer.addSuccessToast("Delete success", "Note has been deleted!");
+        } catch (error) {
+            toastContainer.addErrorToast("Delete error", error);
+        }
+    }
+    
 })
