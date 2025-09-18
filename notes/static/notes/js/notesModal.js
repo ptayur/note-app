@@ -4,7 +4,7 @@
 
 import { ModalManager } from "/static/components/modal/modalManager.js";
 
-export function showDetailsModal(noteData) {
+export function noteDetailsModal(noteData) {
     const modal = new ModalManager();
 
     // Header structure
@@ -74,42 +74,57 @@ export function showDetailsModal(noteData) {
     modal.show();
 }
 
-export function showCreateModal() {
+export function confirmDeleteModal(noteTitle) {
     const modal = new ModalManager();
 
     // Header structure
-    const h5 = document.createElement("h5");
-    h5.textContent = "Create new note"
+    const pTitle = document.createElement("p");
+    pTitle.textContent = "Confirm deletion";
+
     const closeBtn = document.createElement("button");
     closeBtn.textContent = "Close";
     closeBtn.classList.add("generic-button");
-
-    closeBtn.addEventListener("click", () => modal.close());
-
     // Main structure
     
+    const pMessage = document.createElement("p");
+    pMessage.textContent = `Are you sure you want to delete note "${noteTitle}"?`;
 
     // Footer structure
+
     const cancelBtn = document.createElement("button");
     cancelBtn.textContent = "Cancel";
     cancelBtn.classList.add("generic-button");
 
-    const createBtn = document.createElement("button");
-    createBtn.textContent = "Create";
-    createBtn.classList.add("generic-button");
-
-    createBtn.addEventListener("click", () => modal.close());
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Delete";
+    deleteBtn.classList.add("modal__button--delete");
 
     //Modal setup
     modal.setContent({
-        header: [h5, closeBtn],
-        footer: [cancelBtn, createBtn]
+        header: [pTitle, closeBtn],
+        main: pMessage,
+        footer: [cancelBtn, deleteBtn]
     });
 
     modal.setClass({
-        modal: "modal--generic",
-        modalWindow: "modal__window--generic"
+        modal: "modal--confirm",
+        modalWindow: "modal__window--confirm"
     });
 
     modal.show();
+
+    return new Promise(resolve => {
+        closeBtn.addEventListener("click", () => {
+            modal.close();
+            resolve(false);
+        });
+        cancelBtn.addEventListener("click", () => {
+            modal.close();
+            resolve(false);
+        });
+        deleteBtn.addEventListener("click", () => {
+            modal.close();
+            resolve(true);
+        });
+    })
 }
