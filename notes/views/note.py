@@ -8,14 +8,51 @@ from notes.models import Note
 from notes.serializers import NoteSerializer, NoteListSerializer
 
 
-class NoteListView(APIView):
+class NoteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request):
-        notes = Note.objects.filter(Q(user=request.user) | Q(shares__user=request.user))
-        serializer = NoteListSerializer(notes, many=True)
+    def get_object(self, pk):
+        return get_object_or_404(Note, pk=pk)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request, pk=None):
+        """Get info about `pk` note"""
+        if pk is None:
+            # Get filtering params
+            search = request.query_params.get("search", None)
+            ownership_type = request.query_params.get("ownership", None)
+            shared_permissions = request.query_params.get("permissions", None)
+            date = request.query_params.get("date", None)
+
+            # Get all user's notes first
+            notes = Note.objects.filter(Q(user=request.user) | Q(shares__user=request.user))
+
+            # Apply filters
+            if search:
+                notes = notes.filter(Q(title__icontains=search) | Q(content__icontains=search))
+
+            if ownership_type == "private":
+                notes = notes.filter(shared_with__isnull=True)
+            if ownership_type == "with_shares":
+                notes = notes.filter(shared_with__isnull=False)
+            if ownership_type == "shared":
+                notes = notes.filter(shares__user=request.user)
+
+            if shared_permissions == "read":
+                notes = notes.filter(shared_with__can_modify=False)
+            if shared_permissions == "write":
+                notes = notes.filter(shared_with__can_modify=True)
+
+            if date:
+                notes = notes.filter(created_at=date)
+
+            serializer = NoteListSerializer(notes, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            note = self.get_object(pk)
+            serializer = NoteSerializer(note)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         """Create a new note"""
@@ -24,20 +61,6 @@ class NoteListView(APIView):
         serializer.save(user=request.user)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class NoteView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_object(self, pk):
-        return get_object_or_404(Note, pk=pk)
-
-    def get(self, request, pk):
-        """Get info about `pk` note"""
-        note = self.get_object(pk)
-        serializer = NoteSerializer(note)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, pk):
         """Update a `pk` note"""
