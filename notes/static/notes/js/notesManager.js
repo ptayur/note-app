@@ -2,15 +2,15 @@
 // Imports
 //
 
-import { createNote, deleteNote, updateNote } from "./notesAPI.js";
+import { createNote, deleteNote, updateNote, getNoteList } from "./notesAPI.js";
 
 
 // Note controller object
-export class NoteController {
+export class NotesManager {
     #notePanel;
     #notesList;
-    #noteElement = null;
-    #noteData = null;
+    #selectedElement = null;
+    #selectedData = null;
 
     constructor({ notePanel, notesList }) {
         this.#notePanel = notePanel;
@@ -38,26 +38,26 @@ export class NoteController {
         this.unselect();
 
         noteElement.classList.add("note--selected");
-        this.#noteElement = noteElement;
-        this.#noteData = noteData;
+        this.#selectedElement = noteElement;
+        this.#selectedData = noteData;
 
         this.#render(noteData);
     }
 
     unselect() {
-        if (!this.#noteElement) return;
-        this.#noteElement.classList.remove("note--selected");
-        this.#noteElement = null;
-        this.#noteData = null;
+        if (!this.#selectedElement) return;
+        this.#selectedElement.classList.remove("note--selected");
+        this.#selectedElement = null;
+        this.#selectedData = null;
 
         this.#clear();
     }
 
     async delete() {
-        if (!this.#noteData) return;
+        if (!this.#selectedData) return;
         try {
-            await deleteNote(this.#noteData.id);
-            this.#noteElement.remove();
+            await deleteNote(this.#selectedData.id);
+            this.#selectedElement.remove();
             this.unselect();
         } catch (error) {
             throw error;
@@ -65,15 +65,15 @@ export class NoteController {
     }
 
     async update() {
-        if (!this.#noteData) return;
+        if (!this.#selectedData) return;
         // Get fields current value
         const content = this.#notePanel.querySelector("textarea").value;
         const title = this.#notePanel.querySelector(".note-panel__title").value;
 
         // Build payload with only changed fields
         const payload = {};
-        if (title !== this.#noteData.title) payload.title = title;
-        if (content !== this.#noteData.content) payload.content = content;
+        if (title !== this.#selectedData.title) payload.title = title;
+        if (content !== this.#selectedData.content) payload.content = content;
 
         // Return early if nothing changed
         if (Object.keys(payload).length === 0) {
@@ -81,9 +81,9 @@ export class NoteController {
         }
 
         try {
-            const data = await updateNote(this.#noteData.id, payload);
-            this.#noteElement.querySelector(".note-title").textContent = data.title;
-            this.#noteData = data;
+            const data = await updateNote(this.#selectedData.id, payload);
+            this.#selectedElement.querySelector(".note-title").textContent = data.title;
+            this.#selectedData = data;
         } catch (error) {
             throw error;
         }
@@ -96,11 +96,11 @@ export class NoteController {
         try {
             const result = await this.rename();
             if (!result) {
-                this.#noteElement.remove();
+                this.#selectedElement.remove();
                 this.unselect();
             } else {
-                this.#noteElement.querySelector(".note-title").textContent = this.#noteData.title;
-                this.#noteElement.dataset.id = this.#noteData.id;
+                this.#selectedElement.querySelector(".note-title").textContent = this.#selectedData.title;
+                this.#selectedElement.dataset.id = this.#selectedData.id;
             }
         } catch (error) {
             throw error;
@@ -152,7 +152,7 @@ export class NoteController {
                 };
 
                 try {
-                    if (this.#noteData) {
+                    if (this.#selectedData) {
                         // Casual note renaming
                         try {
                             await this.update();
@@ -165,7 +165,7 @@ export class NoteController {
                             title: noteTitle,
                             content: "" 
                         });
-                        this.#noteData = data;
+                        this.#selectedData = data;
                     }
 
                     cleanup();
@@ -196,7 +196,7 @@ export class NoteController {
                 }
             };
             const onInput = () => {
-                this.#noteElement.querySelector(".note-title").textContent = inputTitle.value;
+                this.#selectedElement.querySelector(".note-title").textContent = inputTitle.value;
             };
 
             renameBtn.addEventListener("click", onClick);
@@ -204,6 +204,17 @@ export class NoteController {
             inputTitle.addEventListener("keydown", onKeydown);
             inputTitle.addEventListener("input", onInput);
         })
+    }
+
+    async loadList() {
+        try {
+            const notes = await getNoteList();
+            notes.forEach(note => {
+                this.appendToList(note.id, note.title);
+            });
+        } catch (error) {
+            throw error;
+        }
     }
 
     appendToList(id, noteTitle) {
@@ -222,6 +233,6 @@ export class NoteController {
     }
 
     getData() {
-        return this.#noteData;
+        return this.#selectedData;
     }
 }
