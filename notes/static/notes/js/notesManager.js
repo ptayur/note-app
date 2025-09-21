@@ -2,8 +2,8 @@
 // Imports
 //
 
-import { createNote, deleteNote, updateNote, getNoteList } from "./notesAPI.js";
-
+import { createNote, deleteNote, updateNote, getNoteList, getNoteDetails } from "./notesAPI.js";
+import { AppError } from "/static/js/utils.js"
 
 // Note controller object
 export class NotesManager {
@@ -20,6 +20,10 @@ export class NotesManager {
 
     // private helpers
 
+    #displaySelected(noteElement) {
+        noteElement.classList.add("note--selected");
+    }
+
     #render(data) {
         this.#notePanel.querySelector(".note-panel__title").value = data?.title ?? "";
         this.#notePanel.querySelector("textarea").value = data?.content ?? "";
@@ -34,14 +38,19 @@ export class NotesManager {
 
     // public API
 
-    select(noteElement, noteData) {
+    async select(noteElement) {
         this.unselect();
 
-        noteElement.classList.add("note--selected");
-        this.#selectedElement = noteElement;
-        this.#selectedData = noteData;
+        try {
+            const noteData = await getNoteDetails(noteElement.dataset.id);
+            this.#displaySelected(noteElement);
+            this.#selectedElement = noteElement;
+            this.#selectedData = noteData;
 
-        this.#render(noteData);
+            this.#render(noteData);
+        } catch (error) {
+            throw error;
+        }
     }
 
     unselect() {
@@ -77,7 +86,7 @@ export class NotesManager {
 
         // Return early if nothing changed
         if (Object.keys(payload).length === 0) {
-            throw new Error("No changes provided");
+            throw new AppError("Update error", "No changes provided");
         }
 
         try {
@@ -91,7 +100,9 @@ export class NotesManager {
 
     async create() {
         const newNote = this.appendToList(null, "");
-        this.select(newNote, null);
+        this.#displaySelected(newNote);
+        this.#selectedElement = newNote;
+        this.#render(null);
 
         try {
             const result = await this.rename();
@@ -148,17 +159,13 @@ export class NotesManager {
                 const noteTitle = inputTitle.value.trim();
                 if (!noteTitle) {
                     cleanup();
-                    reject("Note title is empty");
+                    reject(new AppError("Rename error", "Note title is empty"));
                 };
 
                 try {
                     if (this.#selectedData) {
                         // Casual note renaming
-                        try {
-                            await this.update();
-                        } catch (error) {
-                            throw error;
-                        }
+                        await this.update();
                     } else {
                         // Naming newly created note
                         const data = await createNote({ 
@@ -206,15 +213,21 @@ export class NotesManager {
         })
     }
 
-    async loadList() {
+    async loadList(filterParams = "") {
+        this.clearList();
         try {
-            const notes = await getNoteList();
+            const notes = await getNoteList(filterParams);
             notes.forEach(note => {
                 this.appendToList(note.id, note.title);
             });
         } catch (error) {
             throw error;
         }
+    }
+
+    clearList() {
+        const notes = this.#notesList.querySelectorAll(".note");
+        notes.forEach(note => note.remove());
     }
 
     appendToList(id, noteTitle) {
