@@ -19,7 +19,7 @@
                 <!-- Filters header -->
                 <div class="filters__header">
                     <h3>Filters</h3>
-                    <div class="dropdown">
+                    <div class="dropdown" id="dropdown-filter">
                         <button class="dropdown__button generic-button">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
                                 viewBox="0 0 24 24">
@@ -29,33 +29,39 @@
                         </button>
                         <ul class="dropdown__menu dropdown__menu--filter">
                             <li>
-                                <span>Search:</span><br>
-                                <input type="text" title="Note content / author">
+                                <span>Search by Title/Content:</span><br>
+                                <input type="text" name="search" title="Note content / author">
                             </li>
                             <li>
-                                <span>Type:</span>
+                                <span>Ownership Type:</span>
                                 <label>
-                                    <input type="checkbox">My Notes
+                                    <input type="checkbox" name="ownership" value="">All
                                 </label>
                                 <label>
-                                    <input type="checkbox">Shared by Me
+                                    <input type="checkbox" name="ownership" value="private">Private
                                 </label>
                                 <label>
-                                    <input type="checkbox">Shared to Me
+                                    <input type="checkbox" name="ownership" value="with_shares">Shared by Me
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="ownership" value="shared">Shared to Me
                                 </label>
                             </li>
                             <li>
-                                <span>Permissions:</span>
+                                <span>Shared Permissions:</span>
                                 <label>
-                                    <input type="checkbox">Read-Only
+                                    <input type="checkbox" name="permissions" value="">All
                                 </label>
                                 <label>
-                                    <input type="checkbox">Write
+                                    <input type="checkbox" name="permissions" value="read">Read-Only
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="permissions" value="write">Can Modify
                                 </label>
                             </li>
                             <li>
                                 <span>Date:</span><br>
-                                <input type="date">
+                                <input type="date" name="date">
                             </li>
                         </ul>
                     </div>
