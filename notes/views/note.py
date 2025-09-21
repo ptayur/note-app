@@ -4,6 +4,7 @@ from rest_framework import permissions, status
 from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django.utils.dateparse import parse_date
 from notes.models import Note
 from notes.serializers import NoteSerializer, NoteListSerializer
 
@@ -18,33 +19,48 @@ class NoteView(APIView):
         """Get info about `pk` note"""
         if pk is None:
             # Get filtering params
-            search = request.query_params.get("search", None)
-            ownership_type = request.query_params.get("ownership", None)
-            shared_permissions = request.query_params.get("permissions", None)
+            search = request.query_params.getlist("search")
+            ownership_type = request.query_params.getlist("ownership")
+            shared_permissions = request.query_params.getlist("permissions")
             date = request.query_params.get("date", None)
 
             # Get all user's notes first
             notes = Note.objects.filter(Q(user=request.user) | Q(shares__user=request.user))
 
-            # Apply filters
+            # Search filters
             if search:
-                notes = notes.filter(Q(title__icontains=search) | Q(content__icontains=search))
+                search_q = Q()
+                for element in search:
+                    search_q |= Q(title__icontains=element) | Q(content__icontains=element)
+                notes = notes.filter(search_q)
 
-            if ownership_type == "private":
-                notes = notes.filter(shared_with__isnull=True)
-            if ownership_type == "with_shares":
-                notes = notes.filter(shared_with__isnull=False)
-            if ownership_type == "shared":
-                notes = notes.filter(shares__user=request.user)
+            # Ownership filters
+            if ownership_type and "" not in ownership_type:
+                ownership_q = Q()
+                if "private" in ownership_type:
+                    ownership_q |= Q(shared_with__isnull=True)
+                if "with_shares" in ownership_type:
+                    ownership_q |= Q(shared_with__isnull=False)
+                if "shared" in ownership_type:
+                    ownership_q |= Q(shares__user=request.user)
+                notes = notes.filter(ownership_q)
 
-            if shared_permissions == "read":
-                notes = notes.filter(shared_with__can_modify=False)
-            if shared_permissions == "write":
-                notes = notes.filter(shared_with__can_modify=True)
+            # Shared permissions filters
+            if shared_permissions and "" not in shared_permissions:
+                perm_q = Q()
+                if "read" in shared_permissions:
+                    perm_q |= Q(shares__can_modify=False)
+                if "write" in shared_permissions:
+                    perm_q |= Q(shares__can_modify=True)
+                notes = notes.filter(perm_q)
 
+            # Date filter
             if date:
-                notes = notes.filter(created_at=date)
+                parsed_date = parse_date(date)  # Normalize date
+                if parsed_date:
+                    notes = notes.filter(created_at__date=parsed_date)
 
+            notes = notes.distinct()  # Prevent duplicates
             serializer = NoteListSerializer(notes, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
