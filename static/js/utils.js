@@ -62,3 +62,11 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
         return {ok: false, status: 0, data: {error: error.message}}
     }
 }
+
+export class AppError extends Error {
+    constructor(title, message) {
+        super(message);
+        this.name = "AppError";
+        this.title = title;
+    }
+}
