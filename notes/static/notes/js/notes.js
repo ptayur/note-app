@@ -1,123 +1,169 @@
-//
-// Imports
-//
-
 import { FiltersManager } from "./filtersManager.js";
 import { NotesManager } from "./notesManager.js";
 import { confirmDeleteModal, noteDetailsModal } from "./notesModal.js";
-
 import { ToastContainer } from "/static/components/toasts/toastContainer.js";
+import { AppError } from "/static/js/utils.js";
 
-//
-// Global Variables & DOM Elements
-//
-
-const notesList = document.querySelector(".notes__list");
-const notePanel = document.querySelector(".note-panel");
-const notesManager = new NotesManager({
-    notePanel: notePanel,
-    notesList: notesList
-});
-
-const toastContainer = new ToastContainer();
-
-const dropdownFilter = document.querySelector("#dropdown-filter");
-const filterManager = new FiltersManager({
-    dropdownFilter: dropdownFilter,
-    onChange: async () => {
-        try {
-            const queryParams = filterManager.getQueryParams();
-            await notesManager.loadList(queryParams);
-        } catch (error) {
-            toastContainer.addErrorToast("Filtering error", error);
-        }
-    }
-});
-// Get note list actions
-const createBtn = document.querySelector("#create-button");
-
-// Get note actions
-const renameBtn = notePanel.querySelector("#rename-button");
-const saveBtn = notePanel.querySelector("#save-button");
-const infoBtn = notePanel.querySelector("#info-button");
-const deleteBtn = notePanel.querySelector("#delete-button");
-
-//
-// Event Listeners
-//
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // Load note list
-    try {
-        await notesManager.loadList();
-    } catch (error) {
-        toastContainer.addErrorToast("Notes loading error", error);
-    }
-})
-
-notesList.addEventListener("click", async (event) => {
-    // Note selecting
-    const note = event.target.closest(".note");
-    if (!note) return;
-    if (note.contains(event.target)) {
-        if (note.classList.contains("note--selected")) {
-            notesManager.unselect();
-        } else {
-            try {
-                notesManager.select(note);
-            } catch (error) {
-                toastContainer.addErrorToast("Note selecting error", error);
+    // ----------------
+    // Init toast messages
+    // ----------------
+    const toastContainer = new ToastContainer();
+    async function toastErrorWrapper(func) {
+        try {
+            await func();
+        } catch (error) {
+            if (error instanceof AppError) {
+                toastContainer.addErrorToast(error.title, error.message);
+            } else {
+                console.error(error);
             }
         }
     }
-})
 
-renameBtn.addEventListener("click", () => {
-    if (!renameBtn.classList.contains("renaming")) {
-        // Prevent double call
-        notesManager.rename();
+    // ----------------
+    // Init Notes Manager
+    // ----------------
+    const notesList = document.querySelector(".notes__list");
+    const notePanel = document.querySelector(".note-panel");
+    if (!notesList || !notePanel) {
+        throw new AppError("Cannot find DOM element", "'notes__list' or '.note-panel' is missing");
     }
-})
+    const notesManager = new NotesManager({
+        notePanel: notePanel,
+        notesList: notesList
+    });
 
-// Create note button logic
-createBtn.addEventListener("click", async() => {
-    try {
-        const result = await notesManager.create();
-        if (result) {
-            toastContainer.addSuccessToast("Note creation", "Note was successfully created!");
+    // Load note list
+    toastErrorWrapper(async () => {
+        await notesManager.loadList();
+    });
+
+    // ----------------
+    // Init notes filtering
+    // ----------------
+    const dropdownFilter = document.querySelector("#dropdown-filter");
+    const filterManager = new FiltersManager({
+        dropdownFilter: dropdownFilter,
+        onChange: () => toastErrorWrapper(async () => {
+            const queryParams = filterManager.getQueryParams();
+            await notesManager.loadList(queryParams);
+        })
+    });
+
+    // ----------------
+    // Init note controls
+    // ----------------
+    
+    function bindAction(control, action, handler) {
+        control.addEventListener(action, (event) => {
+            toastErrorWrapper(() => handler(event));
+        });
+    }
+
+    // Rename controls setup
+    const renameBtn = notePanel.querySelector("#rename-button");
+    const titleInput = notesManager.titleInput;
+
+    function enterRenameMode() {
+        titleInput.disabled = false;
+        titleInput.focus();
+        renameBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
+                viewBox="0 0 2048 2048">
+                <path fill="currentColor" d="M640 1755L19 1133l90-90l531 530L1939 275l90 90L640 1755z"/>
+            </svg>
+        `;
+        renameBtn.classList.add("renaming");
+    }
+
+    function quitRenameMode() {
+        titleInput.disabled = true;
+        renameBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
+                viewBox="0 0 24 24">
+                <path fill="currentColor" d="m15 16l-4 4h10v-4zm-2.94-8.81L3 16.25V20h3.75l9.06-9.06zm6.65.85c.39-.39.39-1.04 0-1.41l-2.34-2.34a1.001 1.001 0 0 0-1.41 0l-1.83 1.83l3.75 3.75z"/>
+            </svg>
+        `;
+        renameBtn.classList.remove("renaming");
+    }
+
+
+    bindAction(renameBtn, "click", async () => {
+        if (!renameBtn.classList.contains("renaming")) {
+            enterRenameMode();
+        } else {
+            await notesManager.update();
+            quitRenameMode();
         }
-    } catch (error) {
-        toastContainer.addErrorToast("Note creation", error);
-    }
-})
+    });
 
-// Save button logic
-saveBtn.addEventListener("click", async () => {
-    try {
+    bindAction(titleInput, "blur", (event) => {
+        if (event.relatedTarget !== renameBtn) {
+            quitRenameMode();
+        }
+    });
+
+    bindAction(titleInput, "keydown", async (event) => {
+        if (event.key === "Enter") {
+            await notesManager.update();
+            quitRenameMode();
+        } else if (event.key === "Escape") {
+            quitRenameMode();
+        }
+    });
+
+    bindAction(titleInput, "input", () => {
+        const note = notesManager.getSelectedNote();
+        if (note) {
+            note.querySelector(".note-title").textContent = titleInput.value;
+        }
+    });
+
+    // Create note button
+    const createBtn = document.querySelector("#create-button");
+    bindAction(createBtn, "click", async () => {
+        await notesManager.create();
+        toastContainer.addSuccessToast("Note creation", "Note was successfully created!");
+        enterRenameMode();
+    });
+
+    // Save note button
+    const saveBtn = notePanel.querySelector("#save-button");
+    bindAction(saveBtn, "click", async () => {
         await notesManager.update();
         toastContainer.addSuccessToast("Note update", "Note was successfully updated!");
-    } catch (error) {
-        toastContainer.addErrorToast("Update error", error);
-    }
-})
+    });
 
-//Info button logic
-infoBtn.addEventListener("click", async () => {
-    const noteData = notesManager.getData();
-    noteDetailsModal(noteData);
-})
+    //Info note button
+    const infoBtn = notePanel.querySelector("#info-button");
+    bindAction(infoBtn, "click", async () => {
+        const noteData = notesManager.getData();
+        noteDetailsModal(noteData);
+    });
 
-// Delete button logic
-deleteBtn.addEventListener("click", async () => {
-    const noteData = notesManager.getData();
-    const confirmed = await confirmDeleteModal(noteData.title);
-    if (confirmed) {
-        try {
-            notesManager.delete();
+    // Delete note button
+    const deleteBtn = notePanel.querySelector("#delete-button");
+    bindAction(deleteBtn, "click", async () => {
+        const noteData = notesManager.getData();
+        const confirmed = await confirmDeleteModal(noteData.title);
+        if (confirmed) {
+            await notesManager.delete();
             toastContainer.addSuccessToast("Delete success", "Note has been deleted!");
-        } catch (error) {
-            toastContainer.addErrorToast("Delete error", error);
         }
-    }
-    
+    });
+
+    // Note selecting flow
+    bindAction(notesManager.notesList, "click", async (event) => {
+        const note = event.target.closest(".note");
+        if (!note) return;
+        if (note.contains(event.target)) {
+            if (note.classList.contains("note--selected")) {
+                notesManager.unselect();
+            } else {
+                await notesManager.select(note);
+            }
+        }
+    });
 })
