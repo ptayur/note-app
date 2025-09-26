@@ -1,0 +1,26 @@
+[
+    {
+        "model": "notes.permissions",
+        "pk": "1",
+        "fields": {
+            "code": "read",
+            "description": "Read access"
+        }
+    },
+    {
+        "model": "notes.permissions",
+        "pk": "2",
+        "fields": {
+            "code": "write",
+            "description": "Write access"
+        }
+    },
+    {
+        "model": "notes.permissions",
+        "pk": "3",
+        "fields": {
+            "code": "delete",
+            "description": "Delete access"
+        }
+    }
+]

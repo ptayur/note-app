@@ -18,10 +18,6 @@ class SharesView(APIView):
         serializer = SharesSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        note = serializer.validated_data["note"]
-        if note.user != request.user:
-            raise PermissionDenied("Only the note owner can share note.")
-
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
