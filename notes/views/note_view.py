@@ -25,7 +25,7 @@ class NoteView(APIView):
             date = request.query_params.get("date", None)
 
             # Get all user's notes first
-            notes = Note.objects.filter(Q(user=request.user) | Q(shares__user=request.user))
+            notes = Note.objects.filter(Q(owner=request.user) | Q(share__user=request.user))
 
             # Search filters
             if search:
@@ -38,20 +38,20 @@ class NoteView(APIView):
             if ownership_type and "" not in ownership_type:
                 ownership_q = Q()
                 if "private" in ownership_type:
-                    ownership_q |= Q(shared_with__isnull=True)
+                    ownership_q |= Q(shares__isnull=True)
                 if "with_shares" in ownership_type:
-                    ownership_q |= Q(shared_with__isnull=False)
+                    ownership_q |= Q(shares__isnull=False)
                 if "shared" in ownership_type:
-                    ownership_q |= Q(shares__user=request.user)
+                    ownership_q |= Q(share__user=request.user)
                 notes = notes.filter(ownership_q)
 
             # Shared permissions filters
             if shared_permissions and "" not in shared_permissions:
                 perm_q = Q()
                 if "read" in shared_permissions:
-                    perm_q |= Q(shares__can_modify=False)
+                    perm_q |= Q(share__can_modify=False)
                 if "write" in shared_permissions:
-                    perm_q |= Q(shares__can_modify=True)
+                    perm_q |= Q(share__can_modify=True)
                 notes = notes.filter(perm_q)
 
             # Date filter
@@ -61,12 +61,12 @@ class NoteView(APIView):
                     notes = notes.filter(created_at__date=parsed_date)
 
             notes = notes.distinct()  # Prevent duplicates
-            serializer = NoteListSerializer(notes, many=True)
+            serializer = NoteListSerializer(notes, context={"request": request}, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             note = self.get_object(pk)
-            serializer = NoteSerializer(note)
+            serializer = NoteSerializer(note, context={"request": request})
 
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -74,7 +74,7 @@ class NoteView(APIView):
         """Create a new note"""
         serializer = NoteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
+        serializer.save(owner=request.user)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

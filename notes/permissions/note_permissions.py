@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from rest_framework import request
 from rest_framework import views
-from notes.models import Shares, Note
+from notes.models import Share, Note
 
 
 class CheckNotePermission(permissions.BasePermission):
@@ -13,13 +13,13 @@ class CheckNotePermission(permissions.BasePermission):
         self, request: request.Request, view: views.APIView, obj: Note
     ) -> bool:
         # Owner always has full access
-        if request.user == obj.user:
+        if request.user == obj.owner:
             return True
 
         # Get user's share for this note
         try:
             share = obj.shares.get(user=request.user)
-        except Shares.DoesNotExist:
+        except Share.DoesNotExist:
             return False
 
         # Check for specific permissions per request method

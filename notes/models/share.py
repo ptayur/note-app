@@ -1,18 +1,7 @@
 from django.db import models
 from django.db.models.query import QuerySet
 from accounts.models import CustomUser
-
-
-class Note(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="owned_notes")
-    title = models.CharField(max_length=200)
-    content = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    shared_with = models.ManyToManyField(CustomUser, through="Shares")
-
-    def __str__(self):
-        return self.title
+from .note import Note
 
 
 class Permissions(models.Model):
@@ -20,9 +9,9 @@ class Permissions(models.Model):
     description = models.CharField(max_length=100, blank=True)
 
 
-class Shares(models.Model):
+class Share(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name="shares")
+    note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name="share")
     permissions = models.ManyToManyField(Permissions)
 
     def get_permissions(self, perm_codes: list[str] | str) -> QuerySet[Permissions, Permissions]:

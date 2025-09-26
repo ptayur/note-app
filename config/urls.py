@@ -17,12 +17,13 @@ Including another URLconf
 
 from django.urls import path, include
 from django.views.generic import TemplateView
+from notes.urls import urlpatterns as notes_urls, render_urls
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="homepage.html")),
     # Notes URLs
-    path("notes/", include("notes.urls.render_urls")),
-    path("api/notes/", include("notes.urls.api_urls")),
+    path("notes/", include(render_urls)),
+    path("api/", include(notes_urls)),
     # Accounts URLs
     path("api/users/", include("accounts.urls.api_urls")),
     path("auth/", include("accounts.urls.render_urls")),
