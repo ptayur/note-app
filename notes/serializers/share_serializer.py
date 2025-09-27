@@ -1,20 +1,22 @@
 from rest_framework import serializers
-from notes.models import Note, Share
+from notes.models import Note, Share, Permissions
 from accounts.models import CustomUser
 
 
-class ShareSerializer(serializers.ModelSerializer):
+class ShareSerializer(serializers.HyperlinkedModelSerializer):
     """Shares serializer for endpoint"""
 
     user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(), slug_field="username")
-    note = serializers.SlugRelatedField(queryset=Note.objects.all(), slug_field="id")
-    permissions = serializers.ListField(
-        child=serializers.CharField(), write_only=True, required=False
+    note = serializers.HyperlinkedRelatedField(
+        queryset=Note.objects.all(), view_name="note-detail", lookup_field="pk"
+    )
+    permissions = serializers.SlugRelatedField(
+        queryset=Permissions.objects.all(), many=True, slug_field="code"
     )
 
     class Meta:
         model = Share
-        fields = "__all__"
+        fields = ["url", "id", "user", "note", "permissions"]
 
     def create(self, validated_data):
         perms = validated_data.pop("permissions", [])
@@ -31,7 +33,7 @@ class ShareSerializer(serializers.ModelSerializer):
         return instance
 
 
-class ShareNestedSerializer(serializers.ModelSerializer):
+class ShareListSerializer(serializers.HyperlinkedModelSerializer):
     """Shares serializer for NoteSerializer"""
 
     user = serializers.SlugRelatedField(read_only=True, slug_field="username")
@@ -39,4 +41,4 @@ class ShareNestedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Share
-        exclude = ["id", "note"]
+        fields = ["url", "id", "user", "permissions"]

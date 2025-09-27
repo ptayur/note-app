@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from notes.models import Note
-from .share_serializer import ShareNestedSerializer
+from .share_serializer import ShareListSerializer
 
 
 class NoteSerializer(serializers.HyperlinkedModelSerializer):
     """Note serializer for detailed note view"""
 
     owner = serializers.SlugRelatedField(read_only=True, slug_field="username")
-    shares = ShareNestedSerializer(source="share", many=True, read_only=True)
+    shares = ShareListSerializer(source="share", many=True, read_only=True)
 
     class Meta:
         model = Note

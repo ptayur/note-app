@@ -1,8 +1,8 @@
 from django.urls import path
-from notes.views import ShareView
+from notes.views import ShareView, ShareNoteView
 
 
 urlpatterns = [
-    path("share/", ShareView.as_view()),
-    path("share/<int:pk>/", ShareView.as_view()),
+    path("notes/<int:note_id>/shares/", ShareNoteView.as_view(), name="share-list"),
+    path("shares/<int:pk>/", ShareView.as_view(), name="share-detail"),
 ]

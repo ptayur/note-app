@@ -1,34 +1,47 @@
 from rest_framework.views import APIView
 from rest_framework import permissions, status
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from notes.models import Share
-from notes.serializers import ShareSerializer
+from notes.serializers import ShareSerializer, ShareListSerializer
+from notes.permissions import SharePermissions
+
+
+class ShareNoteView(APIView):
+    permission_classes = [permissions.IsAuthenticated, SharePermissions]
+
+    def get(self, request, note_id):
+        shares = Share.objects.filter(note__id=note_id)
+        serializer = ShareListSerializer(shares, context={"request": request}, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, note_id):
+        data = request.data
+        data["note"] = note_id
+
+        serializer = ShareSerializer(data=data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ShareView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, SharePermissions]
 
     def get_object(self, pk):
         return get_object_or_404(Share, pk=pk)
 
-    def post(self, request):
-        """Create new share"""
-        serializer = ShareSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def get(self, request, pk):
+        share = self.get_object(pk)
+        serializer = ShareSerializer(share, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, pk):
         """Update a `pk` share"""
         share = self.get_object(pk)
-
-        if share.note.user != request.user:
-            raise PermissionDenied("Only the note owner can modify share.")
-
-        serializer = ShareSerializer(share, data=request.data, partial=True)
+        serializer = ShareSerializer(
+            share, data=request.data, context={"request": request}, partial=True
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -36,9 +49,5 @@ class ShareView(APIView):
     def delete(self, request, pk):
         """Delete a `pk` share"""
         share = self.get_object(pk)
-
-        if share.note.user != request.user:
-            raise PermissionDenied("Only the note owner can remove share.")
-
         share.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
