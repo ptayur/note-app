@@ -6,11 +6,11 @@ from django.db.models import Q
 from django.utils.dateparse import parse_date
 from notes.models import Note
 from notes.serializers import NoteSerializer, NoteListSerializer
-from notes.permissions import CheckNotePermission
+from notes.permissions import NotePermissions
 
 
 class NoteView(APIView):
-    permission_classes = [permissions.IsAuthenticated, CheckNotePermission]
+    permission_classes = [permissions.IsAuthenticated, NotePermissions]
 
     def get_object(self, pk):
         return get_object_or_404(Note, pk=pk)

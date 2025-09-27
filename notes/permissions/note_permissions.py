@@ -4,7 +4,7 @@ from rest_framework import views
 from notes.models import Share, Note
 
 
-class CheckNotePermission(permissions.BasePermission):
+class NotePermissions(permissions.BasePermission):
     """
     Note-level permission to check users access.
     """
