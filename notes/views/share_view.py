@@ -8,6 +8,10 @@ from notes.permissions import SharePermissions
 
 
 class ShareNoteView(APIView):
+    """
+    Share view for nested /api/notes/<int:pk>/shares/ endpoint
+    """
+
     permission_classes = [permissions.IsAuthenticated, SharePermissions]
 
     def get(self, request, note_id):
@@ -26,28 +30,32 @@ class ShareNoteView(APIView):
 
 
 class ShareView(APIView):
+    """
+    Share view for flat /api/shares/<int:pk> endpoint
+    """
+
     permission_classes = [permissions.IsAuthenticated, SharePermissions]
 
-    def get_object(self, pk):
-        return get_object_or_404(Share, pk=pk)
+    def get_object(self, request, pk):
+        share = get_object_or_404(Share, pk=pk)
+        self.check_object_permissions(request, share)
+        return share
 
     def get(self, request, pk):
-        share = self.get_object(pk)
+        share = self.get_object(request, pk)
         serializer = ShareSerializer(share, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, pk):
         """Update a `pk` share"""
-        share = self.get_object(pk)
-        serializer = ShareSerializer(
-            share, data=request.data, context={"request": request}, partial=True
-        )
+        share = self.get_object(request, pk)
+        serializer = ShareSerializer(share, data=request.data, context={"request": request}, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, pk):
         """Delete a `pk` share"""
-        share = self.get_object(pk)
+        share = self.get_object(request, pk)
         share.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

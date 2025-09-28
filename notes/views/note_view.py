@@ -12,8 +12,10 @@ from notes.permissions import NotePermissions
 class NoteView(APIView):
     permission_classes = [permissions.IsAuthenticated, NotePermissions]
 
-    def get_object(self, pk):
-        return get_object_or_404(Note, pk=pk)
+    def get_object(self, request, pk):
+        note = get_object_or_404(Note, pk=pk)
+        self.check_object_permissions(request, note)
+        return note
 
     def get(self, request, pk=None):
         """Get info about `pk` note"""
@@ -65,14 +67,14 @@ class NoteView(APIView):
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            note = self.get_object(pk)
+            note = self.get_object(request, pk)
             serializer = NoteSerializer(note, context={"request": request})
 
             return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         """Create a new note"""
-        serializer = NoteSerializer(data=request.data)
+        serializer = NoteSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save(owner=request.user)
 
@@ -80,9 +82,9 @@ class NoteView(APIView):
 
     def patch(self, request, pk):
         """Update a `pk` note"""
-        note = self.get_object(pk)
+        note = self.get_object(request, pk)
 
-        serializer = NoteSerializer(note, data=request.data, partial=True)
+        serializer = NoteSerializer(note, data=request.data, context={"request": request}, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
@@ -90,7 +92,7 @@ class NoteView(APIView):
 
     def delete(self, request, pk):
         """Delete a `pk` note"""
-        note = self.get_object(pk)
+        note = self.get_object(request, pk)
 
         note.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
