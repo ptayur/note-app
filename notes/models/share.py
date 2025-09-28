@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.query import QuerySet
 from accounts.models import CustomUser
-from .note import Note
+from notes.models import Note
 
 
 class Permissions(models.Model):
@@ -13,6 +13,9 @@ class Share(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name="share")
     permissions = models.ManyToManyField(Permissions)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "note"], name="unique_share_per_user_per_note")]
 
     def get_permissions(self, perm_codes: list[str] | str) -> QuerySet[Permissions, Permissions]:
         if isinstance(perm_codes, str):
