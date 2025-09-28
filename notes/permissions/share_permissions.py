@@ -9,9 +9,7 @@ class SharePermissions(permissions.BasePermission):
     Share-level permission to check users access.
     """
 
-    def has_object_permission(
-        self, request: request.Request, view: views.APIView, obj: Share
-    ) -> bool:
+    def has_object_permission(self, request: request.Request, view: views.APIView, obj: Share) -> bool:
         # Owner always has full access
         return request.user == obj.note.owner
 
@@ -21,6 +19,7 @@ class SharePermissions(permissions.BasePermission):
             # Let object-level handler check permissions
             return True
 
+        # Handle permissions of requests to /api/notes/<int:pk>/shares/
         note_id = view.kwargs.get("note_id")
         if note_id:
             try:
