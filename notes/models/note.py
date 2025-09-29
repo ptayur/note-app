@@ -11,3 +11,7 @@ class Note(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def shares(self):
+        return self.shares.all()
