@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.utils.dateparse import parse_date
 from notes.models import Note
-from notes.serializers import NoteSerializer, NoteListSerializer
+from notes.serializers import NoteSerializer
 from notes.permissions import NotePermissions
 
 
@@ -27,7 +27,7 @@ class NoteView(APIView):
             date = request.query_params.get("date", None)
 
             # Get all user's notes first
-            notes = Note.objects.filter(Q(owner=request.user) | Q(share__user=request.user))
+            notes = Note.objects.filter(Q(owner=request.user) | Q(shares__user=request.user))
 
             # Search filters
             if search:
@@ -44,7 +44,7 @@ class NoteView(APIView):
                 if "with_shares" in ownership_type:
                     ownership_q |= Q(shares__isnull=False)
                 if "shared" in ownership_type:
-                    ownership_q |= Q(share__user=request.user)
+                    ownership_q |= Q(shares__user=request.user)
                 notes = notes.filter(ownership_q)
 
             # Shared permissions filters
@@ -63,7 +63,7 @@ class NoteView(APIView):
                     notes = notes.filter(created_at__date=parsed_date)
 
             notes = notes.distinct()  # Prevent duplicates
-            serializer = NoteListSerializer(notes, context={"request": request}, many=True)
+            serializer = NoteSerializer(notes, context={"request": request}, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:

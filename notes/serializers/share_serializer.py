@@ -1,47 +1,53 @@
 from rest_framework import serializers
 from notes.models import Note, Share, Permissions
 from accounts.models import CustomUser
+from typing import Any
 
 
 class ShareSerializer(serializers.HyperlinkedModelSerializer):
-    """Shares serializer for endpoint"""
+    """
+    Serializer for Share model (requires `context={"request": request}`).
+
+    Handles both list and detail views:
+    - List view: list representation of Note's shares (`url`, `id`, `user`, `permissions`).
+    - Detail view: Share's full representation.
+    """
+
+    list_fields = ["url", "id", "user", "permissions"]
 
     user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(), slug_field="username")
-
-    # Send URL in response
-    note = serializers.HyperlinkedRelatedField(view_name="note-detail", lookup_field="pk", read_only=True)
-    # Accept int as note identifier
-    note_id = serializers.PrimaryKeyRelatedField(source="note", queryset=Note.objects.all(), write_only=True)
-
     permissions = serializers.SlugRelatedField(queryset=Permissions.objects.all(), many=True, slug_field="code")
+
+    # Read-only: show note as URL in responses
+    note = serializers.HyperlinkedRelatedField(view_name="note-detail", lookup_field="pk", read_only=True)
+    # Write-only: accept note ID in requests
+    note_id = serializers.PrimaryKeyRelatedField(source="note", queryset=Note.objects.all(), write_only=True)
 
     class Meta:
         model = Share
         fields = ["url", "id", "user", "note", "note_id", "permissions"]
 
-    def create(self, validated_data):
-        perms = validated_data.pop("permissions", [])
-        share = super().create(validated_data)
-        if perms:
-            perms = [perm.code for perm in perms]
-            share.set_perms(perms)
-        return share
+    def get_fields(self) -> dict[str, serializers.Field]:
+        """
+        Dynamically adjust serializer fields based on context and instance.
 
-    def update(self, instance, validated_data):
-        perms = validated_data.pop("permissions", None)
-        instance = super().update(instance, validated_data)
-        if perms is not None:
-            perms = [perm.code for perm in perms]
-            instance.set_perms(perms)
-        return instance
+        - If used in ListSerializer (list) -> return list representation of user's Shares.
+        - If single instance (detail) -> return Share's full representation.
+        """
+        fields = super().get_fields()
 
+        is_list_view = getattr(self, "many", False) or isinstance(
+            getattr(self, "parent", None), serializers.ListSerializer
+        )
+        if is_list_view:
+            return {k: fields[k] for k in self.list_fields if k in fields}
+        return fields
 
-class ShareListSerializer(serializers.HyperlinkedModelSerializer):
-    """Shares serializer for NoteSerializer"""
-
-    user = serializers.SlugRelatedField(read_only=True, slug_field="username")
-    permissions = serializers.SlugRelatedField(many=True, read_only=True, slug_field="code")
-
-    class Meta:
-        model = Share
-        fields = ["url", "id", "user", "permissions"]
+    def validate(self, attrs: Any) -> Any:
+        validated_data = super().validate(attrs)
+        # Restrict users from sharing a note with themselves.
+        user = validated_data.get("user")
+        note = validated_data.get("note")
+        if note and user and note.owner == user:
+            raise serializers.ValidationError("You cannot share a note with yourself.")
+        return validated_data

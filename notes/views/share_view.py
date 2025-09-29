@@ -3,7 +3,7 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from notes.models import Share
-from notes.serializers import ShareSerializer, ShareListSerializer
+from notes.serializers import ShareSerializer
 from notes.permissions import SharePermissions
 
 
@@ -16,12 +16,12 @@ class ShareNoteView(APIView):
 
     def get(self, request, note_id):
         shares = Share.objects.filter(note__id=note_id)
-        serializer = ShareListSerializer(shares, context={"request": request}, many=True)
+        serializer = ShareSerializer(shares, context={"request": request}, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, note_id):
         data = request.data
-        data["note"] = note_id
+        data["note_id"] = note_id
 
         serializer = ShareSerializer(data=data, context={"request": request})
         serializer.is_valid(raise_exception=True)
