@@ -6,12 +6,20 @@ from notes.models import Share, Note
 
 class NotePermissions(permissions.BasePermission):
     """
-    Note-level permission to check users access.
+    `Note` permissions handler.
+
+    Implements object-level permissions handler:
+    - Object-level: full access for `Note` object owner and verification for request's user.
     """
 
-    def has_object_permission(
-        self, request: request.Request, view: views.APIView, obj: Note
-    ) -> bool:
+    def has_object_permission(self, request: request.Request, view: views.APIView, obj: Note) -> bool:
+        """
+        `Note` object-level permissions handler.
+
+        Implements following access control:
+        - Ensures that owner of the `Note` object has full access.
+        - Verifies permissions of request's user according to request method (`GET`, `PATCH`, etc).
+        """
         # Owner always has full access
         if request.user == obj.owner:
             return True
@@ -22,12 +30,16 @@ class NotePermissions(permissions.BasePermission):
         except Share.DoesNotExist:
             return False
 
-        # Check for specific permissions per request method
-        if request.method == "GET":
-            return share.has_perm("read")
-        elif request.method in ("PATCH", "PUT"):
-            return share.has_perm("write")
-        elif request.method == "DELETE":
-            return share.has_perm("delete")
-
+        # Verify specific permissions per request method
+        method_perm_map = {
+            "GET": "read",
+            "PATCH": "write",
+            "PUT": "write",
+            "DELETE": "delete",
+        }
+        method = request.method
+        if method:
+            perm = method_perm_map.get(method)
+            if perm:
+                return share.has_perm(perm)
         return False
