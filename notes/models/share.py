@@ -11,7 +11,7 @@ class Permissions(models.Model):
 
 class Share(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name="share")
+    note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name="shares")
     permissions = models.ManyToManyField(Permissions)
 
     class Meta:
