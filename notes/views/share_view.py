@@ -1,61 +1,63 @@
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django.shortcuts import get_object_or_404
 from notes.models import Share
-from notes.serializers import ShareSerializer
+from notes.serializers import ShareListSerializer, ShareDetailSerializer
 from notes.permissions import SharePermissions
 
 
-class ShareNoteView(APIView):
+class ShareListView(APIView):
     """
-    Share view for nested /api/notes/<int:pk>/shares/ endpoint
+    Share view for nested `/api/notes/<int:note_id>/shares/` endpoint.
+
+    Supports `GET` and `POST` methods.
     """
 
     permission_classes = [permissions.IsAuthenticated, SharePermissions]
 
-    def get(self, request, note_id):
+    def get(self, request: Request, note_id: int) -> Response:
         shares = Share.objects.filter(note__id=note_id)
-        serializer = ShareSerializer(shares, context={"request": request}, many=True)
+        serializer = ShareListSerializer(shares, context={"request": request}, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, note_id):
+    def post(self, request: Request, note_id: int) -> Response:
         data = request.data
         data["note_id"] = note_id
-
-        serializer = ShareSerializer(data=data, context={"request": request})
+        serializer = ShareDetailSerializer(data=data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class ShareView(APIView):
+class ShareDetailView(APIView):
     """
-    Share view for flat /api/shares/<int:pk> endpoint
+    Share view for flat `/api/shares/<int:pk>` endpoint.
+
+    Supports `GET`, `PATCH` and `DELETE` methods.
     """
 
     permission_classes = [permissions.IsAuthenticated, SharePermissions]
 
-    def get_object(self, request, pk):
+    def get_object(self, request: Request, pk: int) -> Share:
         share = get_object_or_404(Share, pk=pk)
         self.check_object_permissions(request, share)
         return share
 
-    def get(self, request, pk):
+    def get(self, request: Request, pk: int) -> Response:
         share = self.get_object(request, pk)
-        serializer = ShareSerializer(share, context={"request": request})
+        serializer = ShareDetailSerializer(share, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def patch(self, request, pk):
-        """Update a `pk` share"""
+    def patch(self, request: Request, pk: int) -> Response:
         share = self.get_object(request, pk)
-        serializer = ShareSerializer(share, data=request.data, context={"request": request}, partial=True)
+        serializer = ShareDetailSerializer(share, data=request.data, context={"request": request}, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def delete(self, request, pk):
-        """Delete a `pk` share"""
+    def delete(self, request: Request, pk: int) -> Response:
         share = self.get_object(request, pk)
         share.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
