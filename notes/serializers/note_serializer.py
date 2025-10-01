@@ -1,21 +1,29 @@
 from rest_framework import serializers
 from notes.models import Note
-from .share_serializer import ShareSerializer
+from .share_serializer import ShareDetailSerializer
 
 
-class NoteSerializer(serializers.HyperlinkedModelSerializer):
+class NoteListSerializer(serializers.HyperlinkedModelSerializer):
     """
-    Serializer for Note model (requires `context={"request": request}`).
+    Serializer for `Note` model list view (requires `context={"request": request}`).
 
-    Handles both list and detail views:
-    - List view: list representation of user's Notes (`url`, `id`, `title`).
-    - Detail view: Note's full representation (field `shares` removed for non-owners).
+    Handles list representation of user's notes (`url`, `id`, `title`).
     """
 
-    list_fields = ["url", "id", "title"]  # List representation fields
+    class Meta:
+        model = Note
+        fields = ["url", "id", "title"]
+
+
+class NoteDetailSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Serializer for `Note` model detail view (requires `context={"request": request}`).
+
+    Handles note's full representation (field `shares` removed for non-owners).
+    """
 
     owner = serializers.SlugRelatedField(read_only=True, slug_field="username")
-    shares = ShareSerializer(many=True, read_only=True)
+    shares = ShareDetailSerializer(many=True, read_only=True)
 
     class Meta:
         model = Note
@@ -23,22 +31,11 @@ class NoteSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_fields(self) -> dict[str, serializers.Field]:
         """
-        Dynamically adjust serializer fields based on context and instance.
-
-        - If used in ListSerializer (list) -> return list representation of user's Notes.
-        - If single instance (detail) -> return Note's full representation.
-            - If user is not Note.owner -> remove `shares` from representation.
+        Dynamically adjust serializer fields based on request's user:
+        - If user is not `Note.owner` -> remove `shares` from representation.
         """
         fields = super().get_fields()
-
-        # List view: return list representation
-        is_list_view = getattr(self, "many", False) or isinstance(
-            getattr(self, "parent", None), serializers.ListSerializer
-        )
-        if is_list_view:
-            return {k: fields[k] for k in self.list_fields if k in fields}
-
-        # Detail view: remove "shares" for non-owners
+        # Remove "shares" for non-owners
         if isinstance(self.instance, Note):
             request = self.context.get("request")
             if request and request.user != self.instance.owner:

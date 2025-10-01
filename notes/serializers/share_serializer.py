@@ -4,16 +4,24 @@ from accounts.models import CustomUser
 from typing import Any
 
 
-class ShareSerializer(serializers.HyperlinkedModelSerializer):
+class ShareListSerializer(serializers.HyperlinkedModelSerializer):
     """
-    Serializer for Share model (requires `context={"request": request}`).
+    Serializer for `Share` model list view (requires `context={"request": request}`).
 
-    Handles both list and detail views:
-    - List view: list representation of Note's shares (`url`, `id`, `user`, `permissions`).
-    - Detail view: Share's full representation.
+    Handles list representation of note's shares (`url`, `id`, `user`, `permissions`).
     """
 
-    list_fields = ["url", "id", "user", "permissions"]
+    class Meta:
+        model = Share
+        fields = ["url", "id", "user", "permissions"]
+
+
+class ShareDetailSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Serializer for `Share` model detail view (requires `context={"request": request}`).
+
+    Handles share's full representation.
+    """
 
     user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(), slug_field="username")
     permissions = serializers.SlugRelatedField(queryset=Permissions.objects.all(), many=True, slug_field="code")
@@ -27,27 +35,16 @@ class ShareSerializer(serializers.HyperlinkedModelSerializer):
         model = Share
         fields = ["url", "id", "user", "note", "note_id", "permissions"]
 
-    def get_fields(self) -> dict[str, serializers.Field]:
-        """
-        Dynamically adjust serializer fields based on context and instance.
-
-        - If used in ListSerializer (list) -> return list representation of user's Shares.
-        - If single instance (detail) -> return Share's full representation.
-        """
-        fields = super().get_fields()
-
-        is_list_view = getattr(self, "many", False) or isinstance(
-            getattr(self, "parent", None), serializers.ListSerializer
-        )
-        if is_list_view:
-            return {k: fields[k] for k in self.list_fields if k in fields}
-        return fields
-
     def validate(self, attrs: Any) -> Any:
+        """
+        Restrict users from sharing a note with themselves
+        and prevent duplicate (`user`, `note`) pairs.
+        """
         validated_data = super().validate(attrs)
-        # Restrict users from sharing a note with themselves.
         user = validated_data.get("user")
         note = validated_data.get("note")
         if note and user and note.owner == user:
             raise serializers.ValidationError("You cannot share a note with yourself.")
+        elif note and user and Share.objects.filter(user=user, note=note).exists():
+            raise serializers.ValidationError(f"Note is already shared with user {user.username}")
         return validated_data

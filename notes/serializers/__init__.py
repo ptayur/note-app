@@ -1,2 +1,2 @@
-from .note_serializer import NoteSerializer
-from .share_serializer import ShareSerializer
+from .note_serializer import NoteListSerializer, NoteDetailSerializer
+from .share_serializer import ShareListSerializer, ShareDetailSerializer
