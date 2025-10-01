@@ -15,7 +15,9 @@ class Share(models.Model):
     permissions = models.ManyToManyField(Permissions)
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=["user", "note"], name="unique_share_per_user_per_note")]
+        constraints = [
+            models.UniqueConstraint(fields=["user", "note"], name="unique_share_per_user"),
+        ]
 
     def get_permissions(self, perm_codes: list[str] | str) -> QuerySet[Permissions, Permissions]:
         if isinstance(perm_codes, str):
