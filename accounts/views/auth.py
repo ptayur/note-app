@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound, AuthenticationFailed
+from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from django.conf import settings
@@ -45,7 +45,7 @@ class RefreshView(APIView):
         refresh_token = request.COOKIES.get("refresh_token") or request.data.get("refresh_token")
 
         if refresh_token is None:
-            raise NotFound("No refresh token found.")
+            raise ValidationError("No refresh token found.")
 
         try:
             refresh = RefreshToken(refresh_token)
@@ -56,7 +56,7 @@ class RefreshView(APIView):
             try:
                 user = CustomUser.objects.get(id=refresh["user_id"])
             except CustomUser.DoesNotExist:
-                raise NotFound("User not found.")
+                raise ValidationError("User not found.")
             new_refresh = RefreshToken.for_user(user)
 
             if settings.SIMPLE_JWT.get("BLACKLIST_AFTER_ROTATION", True):
@@ -89,7 +89,7 @@ class LogoutView(APIView):
         refresh_token = request.COOKIES.get("refresh_token") or request.data.get("refresh_token")
 
         if refresh_token is None:
-            raise NotFound("No refresh token found.")
+            raise ValidationError("No refresh token found.")
 
         try:
             refresh = RefreshToken(refresh_token)
