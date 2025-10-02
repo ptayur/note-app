@@ -1,6 +1,6 @@
 [
     {
-        "model": "notes.permissions",
+        "model": "notes.note_permissions",
         "pk": "1",
         "fields": {
             "code": "read",
@@ -8,7 +8,7 @@
         }
     },
     {
-        "model": "notes.permissions",
+        "model": "notes.note_permissions",
         "pk": "2",
         "fields": {
             "code": "write",
@@ -16,7 +16,7 @@
         }
     },
     {
-        "model": "notes.permissions",
+        "model": "notes.note_permissions",
         "pk": "3",
         "fields": {
             "code": "delete",
