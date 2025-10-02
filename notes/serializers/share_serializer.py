@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from notes.models import Note, Share, Permissions
+from notes.models import Note, Share, NotePermissions
 from accounts.models import CustomUser
 from typing import Any
 
@@ -10,6 +10,9 @@ class ShareListSerializer(serializers.HyperlinkedModelSerializer):
 
     Handles list representation of note's shares (`url`, `id`, `user`, `permissions`).
     """
+
+    user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(), slug_field="username")
+    permissions = serializers.SlugRelatedField(queryset=NotePermissions.objects.all(), many=True, slug_field="code")
 
     class Meta:
         model = Share
@@ -24,7 +27,7 @@ class ShareDetailSerializer(serializers.HyperlinkedModelSerializer):
     """
 
     user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(), slug_field="username")
-    permissions = serializers.SlugRelatedField(queryset=Permissions.objects.all(), many=True, slug_field="code")
+    permissions = serializers.SlugRelatedField(queryset=NotePermissions.objects.all(), many=True, slug_field="code")
 
     # Read-only: show note as URL in responses
     note = serializers.HyperlinkedRelatedField(view_name="note-detail", lookup_field="pk", read_only=True)

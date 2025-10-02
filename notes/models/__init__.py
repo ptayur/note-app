@@ -1,2 +1,3 @@
 from .note import Note
-from .share import Permissions, Share
+from .note_permissions import NotePermissions
+from .share import Share
