@@ -1,12 +1,10 @@
 from django.urls import path
-from ..views.auth import (
+from accounts.views import (
     LogoutView,
     RegisterView,
     LoginView,
     RefreshView,
     MeView,
-)
-from ..views.validation import (
     UsernameValidationView,
     EmailValidationView,
     PasswordValidationView,
