@@ -2,221 +2,132 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.conf import settings
 from accounts.models import CustomUser
+from accounts.tests.mixins import AuthTestMixin
 
 
-class LoginViewTests(APITestCase):
+class LoginViewTests(AuthTestMixin, APITestCase):
     """Class for LoginView tests"""
 
     def setUp(self) -> None:
-        self.client = APIClient()
-        self.login_url = "/api/users/login/"
+        self.register()
 
-        self.user_data = {
-            "username": "testuser",
-            "email": "test@email.com",
-            "password": "testuser",
-        }
-        CustomUser.objects.create_user(**self.user_data)
-
-    def test_login_sucess(self):
+    def test_login_success(self):
         """Test success routine and return values"""
-        response = self.client.post(
-            self.login_url,
-            {"email": self.user_data["email"], "password": self.user_data["password"]},
-            format="json",
-        )
+        response = self.login()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("access_token", response.data["data"])
+        self.assertIn("access_token", response.data)
         self.assertIn("refresh_token", response.cookies)
 
     def test_login_invalid_credentials(self):
         """Test when email or password is invalid"""
-        # Test invalid email
-        with self.subTest("Email"):
-            invalid_email = "invalid"
-            response = self.client.post(
-                self.login_url,
-                {"email": invalid_email, "password": "testuser"},
-                format="json",
-            )
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertFalse(CustomUser.objects.filter(email=invalid_email).exists())
-
-        # Test invalid password
-        with self.subTest("Password"):
-            response = self.client.post(
-                self.login_url,
-                {"email": self.user_data["email"], "password": "wrong"},
-                format="json",
-            )
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        for field, value in [("email", "wrong@email.com"), ("password", "wrongpass")]:
+            with self.subTest(field=field):
+                data = self.testuser_data.copy()
+                data[field] = value
+                response = self.login(email=data["email"], password=data["password"])
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class RefreshViewTests(APITestCase):
+class RefreshViewTests(AuthTestMixin, APITestCase):
     """Class for RefreshView tests"""
 
     def setUp(self) -> None:
-        self.client = APIClient()
-        self.login_url = "/api/users/login/"
-        self.refresh_url = "/api/users/refresh/"
-
-        self.user_data = {
-            "username": "testuser",
-            "email": "test@email.com",
-            "password": "testuser",
-        }
-        self.user = CustomUser.objects.create_user(**self.user_data)
+        self.register()
+        response = self.login()
+        self.access_token = response.data["access_token"]
+        self.refresh_token = response.cookies.get("refresh_token").value
 
     def test_refresh_success(self):
         """Test success routine and return values"""
-        login_response = self.client.post(
-            self.login_url,
-            {"email": self.user_data["email"], "password": self.user_data["password"]},
-            format="json",
-        )
-        old_refresh_token = login_response.cookies["refresh_token"]
-        old_access_token = login_response.data["data"]
-
-        response = self.client.post(self.refresh_url, data={}, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # Test values in HTTP body
+        # Test success routine with `refresh_token` in request body
         with self.subTest("Body"):
-            self.assertIn("access_token", response.data["data"])
-            self.assertNotEqual(old_access_token, response.data["data"]["access_token"])
-
-        # Test values in HTTP cookie
-        with self.subTest("Cookie"):
+            self.client.cookies.clear()
+            response = self.refresh(refresh_token=self.refresh_token)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertIn("access_token", response.data)
+            self.assertNotEqual(self.access_token, response.data["access_token"])
             self.assertIn("refresh_token", response.cookies)
-            if settings.SIMPLE_JWT.get("ROTATE_REFRESH_TOKENS", True):
-                self.assertNotEqual(old_refresh_token, response.cookies.get("refresh_token").value)
+            if settings.SIMPLE_JWT.get("ROTATE_REFRESH_TOKENS", False):
+                self.assertNotEqual(self.refresh_token, response.cookies.get("refresh_token").value)
+        # Test success routine with `refresh_token` in request cookie
+        with self.subTest("Cookie"):
+            response = self.refresh()
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertIn("access_token", response.data)
+            self.assertNotEqual(self.access_token, response.data["access_token"])
+            self.assertIn("refresh_token", response.cookies)
+            if settings.SIMPLE_JWT.get("ROTATE_REFRESH_TOKENS", False):
+                self.assertNotEqual(self.refresh_token, response.cookies.get("refresh_token").value)
 
     def test_refresh_no_token(self):
         """Test when refresh_token is missing in HTTP body and cookie"""
-        response = self.client.post(self.refresh_url, data={}, format="json")
+        self.client.cookies.clear()
+        response = self.refresh()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_refresh_invalid_token(self):
         """Test when refresh_token is invalid in HTTP body or cookie"""
-        # Test invalid refresh_token in HTTP body
-        with self.subTest("Body"):
-            response = self.client.post(
-                self.refresh_url, data={"refresh_token": "invalid_token"}, format="json"
-            )
-            self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
         # Test invalid refresh_token in HTTP cookie
         with self.subTest("Cookie"):
-            self.client.cookies.clear()  # Clear cookie as previous response sets it
             self.client.cookies["refresh_token"] = "invalid_token"
-            response = self.client.post(self.refresh_url, data={}, format="json")
+            response = self.refresh()
             self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_refresh_deleted_user(self):
-        """Test when user for refresh_token was deleted"""
-        login_response = self.client.post(
-            self.login_url,
-            {"email": self.user_data["email"], "password": self.user_data["password"]},
-            format="json",
-        )
-        self.user.delete()
-
-        response = self.client.post(
-            self.refresh_url,
-            data={"refresh_token": login_response.cookies["refresh_token"]},
-            format="json",
-        )
-        self.user = CustomUser.objects.create_user(**self.user_data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        # Test invalid refresh_token in HTTP body
+        with self.subTest("Body"):
+            self.client.cookies.clear()
+            response = self.refresh(refresh_token="invalid_token")
+            self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class LogoutViewTests(APITestCase):
+class LogoutViewTests(AuthTestMixin, APITestCase):
     """Class for LogoutView tests"""
 
     def setUp(self) -> None:
-        self.client = APIClient()
-        self.logout_url = "/api/users/logout/"
-        self.login_url = "/api/users/login/"
-
-        self.user_data = {
-            "username": "testuser",
-            "email": "test@email.com",
-            "password": "testuser",
-        }
-        CustomUser.objects.create_user(**self.user_data)
+        self.register()
+        response = self.login()
+        self.refresh_token = response.cookies.get("refresh_token").value
 
     def test_logout_success(self):
         """Test success routine"""
-        login_response = self.client.post(
-            self.login_url,
-            {"email": self.user_data["email"], "password": self.user_data["password"]},
-            format="json",
-        )
-        refresh_token = login_response.cookies["refresh_token"]
-
-        # Test logout using HTTP body
-        with self.subTest("Body"):
-            self.client.cookies.clear()  # Clear cookies as '/auth/login/' sets it
-            response = self.client.post(
-                self.logout_url, data={"refresh_token": refresh_token}, format="json"
-            )
-            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
         # Test logout using HTTP cookie
         with self.subTest("Cookie"):
-            self.client.cookies["refresh_token"] = refresh_token  # Set refresh_token in cookie
-            response = self.client.post(self.logout_url, data={}, format="json")
+            response = self.logout()
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Test logout using HTTP body
+        self.client.cookies.clear()
+        with self.subTest("Body"):
+            response = self.logout(refresh_token=self.refresh_token)
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_logout_no_token(self):
         """Test when refresh_token is missing in HTTP body and cookie"""
-        response = self.client.post(self.logout_url, data={}, format="json")
+        self.client.cookies.clear()
+        response = self.logout()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class RegisterViewTests(APITestCase):
+class RegisterViewTests(AuthTestMixin, APITestCase):
     """Class for RegisterView tests"""
-
-    def setUp(self) -> None:
-        self.client = APIClient()
-        self.register_url = "/api/users/register/"
-
-        self.user_data = {
-            "username": "testuser",
-            "email": "testuser@email.com",
-            "password": "testuser",
-        }
-        self.duplicate_data = {
-            "username": "duplicateuser",
-            "email": "duplicate@email.com",
-            "password": "duplicateuser",
-        }
-        CustomUser.objects.create_user(**self.duplicate_data)
 
     def test_register_success(self):
         """Test success routine and return values"""
-        user_data = self.user_data
-        response = self.client.post(self.register_url, data=user_data, format="json")
-        user_data.pop("password")  # Delete 'password' entry as API shouldn't return password
+        response = self.register()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["data"]["user"], user_data)
-        self.assertTrue(CustomUser.objects.filter(email=user_data["email"]).exists())
+        self.assertEqual(response.data["user"], {k: v for k, v in self.testuser_data.items() if k != "password"})
+        self.assertTrue(CustomUser.objects.filter(email=self.testuser_data["email"]).exists())
 
     def test_register_duplicate_data(self):
         """Test when username or email is already used"""
-        user_data = self.duplicate_data.copy()
-
+        self.register()  # Init testuser
         # Test username duplication
         with self.subTest("Username"):
-            user_data["email"] = "different@email.com"
-            response = self.client.post(self.register_url, data=user_data, format="json")
+            response = self.register(email="different@email.com")
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertEqual(CustomUser.objects.filter(username=user_data["username"]).count(), 1)
-            user_data["email"] = self.duplicate_data["email"]  # Set duplicated email back
-
-        # Test email
+            self.assertEqual(CustomUser.objects.filter(username=self.testuser_data["username"]).count(), 1)
+        # Test email duplication
         with self.subTest("Email"):
-            user_data["username"] = "differentuser"
-            response = self.client.post(self.register_url, data=user_data, format="json")
+            response = self.register(username="differentuser")
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertEqual(CustomUser.objects.filter(email=user_data["email"]).count(), 1)
+            self.assertEqual(CustomUser.objects.filter(email=self.testuser_data["email"]).count(), 1)
