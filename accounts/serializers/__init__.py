@@ -1,1 +1,1 @@
-from .custom_user_serializer import CustomUserModelSerializer, LoginSerializer
+from .custom_user_serializer import CustomUserModelSerializer
