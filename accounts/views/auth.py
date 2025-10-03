@@ -11,7 +11,6 @@ from accounts.serializers import CustomUserModelSerializer, LoginSerializer
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
-    authentication_classes = []
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -104,7 +103,6 @@ class LogoutView(APIView):
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
-    authentication_classes = []
 
     def post(self, request):
         serializer = CustomUserModelSerializer(data=request.data)
