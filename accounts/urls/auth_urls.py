@@ -18,7 +18,7 @@ urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("me/", MeView.as_view(), name="me"),
     # Validation
-    path("validation/username/", UsernameValidationView.as_view(), name="validation_username"),
-    path("validation/email/", EmailValidationView.as_view(), name="validation_email"),
-    path("validation/password/", PasswordValidationView.as_view(), name="validation_password"),
+    path("validate-username/", UsernameValidationView.as_view(), name="validate_username"),
+    path("validate-email/", EmailValidationView.as_view(), name="validate_email"),
+    path("validate-password/", PasswordValidationView.as_view(), name="validate_password"),
 ]
