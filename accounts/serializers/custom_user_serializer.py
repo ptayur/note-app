@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import authenticate
-from .models import CustomUser
+from accounts.models import CustomUser
 
 
 class CustomUserModelSerializer(serializers.ModelSerializer):
