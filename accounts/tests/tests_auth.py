@@ -24,8 +24,8 @@ class LoginViewTests(AuthTestMixin, APITestCase):
         Test that login fails when user provides invalid credentials.
         """
         cases = {
-            "Wrong Email": {"email": "wrong@email.com", "password": self.testuser_data["password"]},
-            "Wrong Password": {"email": self.testuser_data["email"], "password": "wrongpass"},
+            "Wrong Email": {"email": "wrong@email.com", "password": self.users_data[0]["password"]},
+            "Wrong Password": {"email": self.users_data[0]["email"], "password": "wrongpass"},
         }
         for label, data in cases.items():
             with self.subTest(label):
@@ -124,7 +124,7 @@ class RegisterViewTests(AuthTestMixin, APITestCase):
     Integration tests for register endpoint.
     """
 
-    create_testuser = False
+    create_users = False
 
     def test_register_success(self):
         """
@@ -132,20 +132,20 @@ class RegisterViewTests(AuthTestMixin, APITestCase):
         """
         response = self.register()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["user"], {k: v for k, v in self.testuser_data.items() if k != "password"})
-        self.assertTrue(CustomUser.objects.filter(email=self.testuser_data["email"]).exists())
+        self.assertEqual(response.data["user"], {k: v for k, v in self.users_data[0].items() if k != "password"})
+        self.assertTrue(CustomUser.objects.filter(email=self.users_data[0]["email"]).exists())
 
     def test_register_duplicate_data(self):
         """
         Test that register fails if user with provided data exists.
         """
-        self.register()  # Init testuser
+        self.register()  # Init user
         cases = {
-            "Username": ({"email": "different@email.com", "username": self.testuser_data["username"]}, "username"),
-            "Email": ({"email": self.testuser_data["email"], "username": "differentuser"}, "email"),
+            "Username": ({"email": "different@email.com", "username": self.users_data[0]["username"]}, "username"),
+            "Email": ({"email": self.users_data[0]["email"], "username": "differentuser"}, "email"),
         }
         for label, (data, field) in cases.items():
             with self.subTest(label):
                 response = self.register(**data)
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-                self.assertEqual(CustomUser.objects.filter(**{field: self.testuser_data[field]}).count(), 1)
+                self.assertEqual(CustomUser.objects.filter(**{field: self.users_data[0][field]}).count(), 1)

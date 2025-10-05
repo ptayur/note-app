@@ -10,22 +10,25 @@ class AuthTestMixin:
     Provides basic methods for requests to endpoints
     and user's setup.
 
-    By default creates `testuser`. Can be prevented using `create_testuser = False`.
+    By default creates `users`. Can be prevented using `create_users = False`.
     """
 
-    create_testuser = True
+    create_users = True
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.testuser_data = {
-            "username": "testuser",
-            "email": "testuser@email.com",
-            "password": "testuser",
-        }
-        if getattr(cls, "create_testuser", True):
-            cls.testuser = CustomUser.objects.create_user(**cls.testuser_data)
+        cls.users_data = [
+            {
+                "username": f"User{i}",
+                "email": f"user{i}@email.com",
+                "password": f"user{i}password",
+            }
+            for i in range(2)
+        ]
+        if getattr(cls, "create_users", True):
+            cls.users = [CustomUser.objects.create_user(**user_data) for user_data in cls.users_data]
 
         cls.auth_routes = {
             "login": reverse("login"),
@@ -37,7 +40,7 @@ class AuthTestMixin:
 
     def authenticate(self, **kwargs) -> None:
         """
-        Sets authentication state for user with `testuser_data`
+        Sets authentication state for user with `users_data[0]`
         or one provided in `**kwargs`.
 
         Stores tokens in class members and configures client
@@ -50,25 +53,25 @@ class AuthTestMixin:
 
     def login(self, **kwargs) -> Response:
         """
-        Makes POST request to login endpoint with default `testuser_data`
+        Makes POST request to login endpoint with default `users_data[0]`
         or provided credentials in `**kwargs`.
 
         Returns `Response`.
         """
         data = {
-            "email": kwargs.get("email", self.testuser_data["email"]),
-            "password": kwargs.get("password", self.testuser_data["password"]),
+            "email": kwargs.get("email", self.users_data[0]["email"]),
+            "password": kwargs.get("password", self.users_data[0]["password"]),
         }
         return self.client.post(self.auth_routes["login"], data, format="json")
 
     def register(self, **kwargs) -> Response:
         """
-        Makes POST request to register endpoint with default `testuser_data`
+        Makes POST request to register endpoint with default `users_data`
         or provided data in `**kwargs`.
 
         Returns `Response`.
         """
-        data = {**self.testuser_data, **kwargs}
+        data = {**self.users_data[0], **kwargs}
         return self.client.post(self.auth_routes["register"], data, format="json")
 
     def logout(self, refresh_token: str | None = None) -> Response:

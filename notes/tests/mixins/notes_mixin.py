@@ -22,7 +22,7 @@ class NotesTestMixin(AuthTestMixin):
         super().setUpTestData()
         cls.notes_data = [
             {
-                "owner": cls.testuser,
+                "owner": cls.users[0],
                 "title": f"title{i}",
                 "content": f"content{i}",
             }
