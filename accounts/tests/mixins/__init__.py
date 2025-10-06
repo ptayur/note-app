@@ -1,1 +1,2 @@
-from .auth_mixin import AuthTestMixin
+from .user_mixins import UserTestMixin
+from .auth_mixins import AuthTestMixin, AuthActionsTestMixin

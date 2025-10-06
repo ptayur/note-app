@@ -2,10 +2,10 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.conf import settings
 from accounts.models import CustomUser
-from accounts.tests.mixins import AuthTestMixin
+from accounts.tests.mixins import AuthTestMixin, UserTestMixin, AuthActionsTestMixin
 
 
-class LoginViewTests(AuthTestMixin, APITestCase):
+class LoginViewTests(AuthActionsTestMixin, UserTestMixin, APITestCase):
     """
     Integration tests for login endpoint.
     """
@@ -14,7 +14,7 @@ class LoginViewTests(AuthTestMixin, APITestCase):
         """
         Test that user can log in successfully using valid credentials.
         """
-        response = self.login()
+        response = self.login(self.users_data[0])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access_token", response.data)
         self.assertIn("refresh_token", response.cookies)
@@ -29,11 +29,11 @@ class LoginViewTests(AuthTestMixin, APITestCase):
         }
         for label, data in cases.items():
             with self.subTest(label):
-                response = self.login(**data)
+                response = self.login(data)
                 self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class RefreshViewTests(AuthTestMixin, APITestCase):
+class RefreshViewTests(AuthActionsTestMixin, AuthTestMixin, UserTestMixin, APITestCase):
     """
     Integration tests for refresh endpoint.
     """
@@ -42,7 +42,7 @@ class RefreshViewTests(AuthTestMixin, APITestCase):
         """
         Authenticate client before each test.
         """
-        self.authenticate()
+        self.client = self.authenticate(self.users_data[0])
 
     def test_refresh_success(self):
         """
@@ -50,12 +50,12 @@ class RefreshViewTests(AuthTestMixin, APITestCase):
         """
         for source in ["Cookie", "Body"]:
             with self.subTest(source):
-                self.authenticate()
+                self.client = self.authenticate(self.users_data[0])
                 if source == "Cookie":
                     response = self.refresh()
                 else:
                     self.client.cookies.clear()
-                    response = self.refresh(refresh_token=self.refresh_token)
+                    response = self.refresh(self.refresh_token)
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertIn("access_token", response.data)
                 self.assertNotEqual(self.access_token, response.data["access_token"])
@@ -86,7 +86,7 @@ class RefreshViewTests(AuthTestMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class LogoutViewTests(AuthTestMixin, APITestCase):
+class LogoutViewTests(AuthActionsTestMixin, AuthTestMixin, UserTestMixin, APITestCase):
     """
     Integration tests for logout endpoint.
     """
@@ -95,7 +95,7 @@ class LogoutViewTests(AuthTestMixin, APITestCase):
         """
         Authenticate client before each test.
         """
-        self.authenticate()
+        self.client = self.authenticate(self.users_data[0])
 
     def test_logout_success(self):
         """
@@ -107,7 +107,7 @@ class LogoutViewTests(AuthTestMixin, APITestCase):
                     response = self.logout()
                 else:
                     self.client.cookies.clear()
-                    response = self.logout(refresh_token=self.refresh_token)
+                    response = self.logout(self.refresh_token)
                 self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_logout_no_token(self):
@@ -119,7 +119,7 @@ class LogoutViewTests(AuthTestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class RegisterViewTests(AuthTestMixin, APITestCase):
+class RegisterViewTests(AuthActionsTestMixin, UserTestMixin, APITestCase):
     """
     Integration tests for register endpoint.
     """
@@ -130,7 +130,7 @@ class RegisterViewTests(AuthTestMixin, APITestCase):
         """
         Test that user can register using valid data.
         """
-        response = self.register()
+        response = self.register(self.users_data[0])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["user"], {k: v for k, v in self.users_data[0].items() if k != "password"})
         self.assertTrue(CustomUser.objects.filter(email=self.users_data[0]["email"]).exists())
@@ -139,13 +139,13 @@ class RegisterViewTests(AuthTestMixin, APITestCase):
         """
         Test that register fails if user with provided data exists.
         """
-        self.register()  # Init user
+        self.register(self.users_data[0])  # Init user
         cases = {
             "Username": ({"email": "different@email.com", "username": self.users_data[0]["username"]}, "username"),
             "Email": ({"email": self.users_data[0]["email"], "username": "differentuser"}, "email"),
         }
         for label, (data, field) in cases.items():
             with self.subTest(label):
-                response = self.register(**data)
+                response = self.register(data)
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertEqual(CustomUser.objects.filter(**{field: self.users_data[0][field]}).count(), 1)

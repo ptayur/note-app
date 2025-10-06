@@ -1,1 +1,1 @@
-from .notes_mixin import NotesTestMixin
+from .notes_mixins import NotesTestMixin, NotesActionsTestMixin
