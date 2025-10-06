@@ -1,29 +1,38 @@
 from rest_framework import serializers
 from notes.models import Note
-from .share_serializer import ShareDetailSerializer
+from .share_serializer import SharesDetailSerializer
 
 
-class NoteListSerializer(serializers.HyperlinkedModelSerializer):
+class NotesListSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for `Note` model list view (requires `context={"request": request}`).
 
     Handles list representation of user's notes (`url`, `id`, `title`).
     """
 
+    url = serializers.HyperlinkedIdentityField(
+        view_name="notes-detail",
+        lookup_field="pk",
+    )
+
     class Meta:
         model = Note
         fields = ["url", "id", "title"]
 
 
-class NoteDetailSerializer(serializers.HyperlinkedModelSerializer):
+class NotesDetailSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for `Note` model detail view (requires `context={"request": request}`).
 
     Handles note's full representation (field `shares` removed for non-owners).
     """
 
+    url = serializers.HyperlinkedIdentityField(
+        view_name="notes-detail",
+        lookup_field="pk",
+    )
     owner = serializers.SlugRelatedField(read_only=True, slug_field="username")
-    shares = ShareDetailSerializer(many=True, read_only=True)
+    shares = SharesDetailSerializer(many=True, read_only=True)
 
     class Meta:
         model = Note

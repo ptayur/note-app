@@ -4,7 +4,7 @@ from accounts.models import CustomUser
 from typing import Any
 
 
-class ShareListSerializer(serializers.HyperlinkedModelSerializer):
+class SharesListSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for `Share` model list view (requires `context={"request": request}`).
 
@@ -19,7 +19,7 @@ class ShareListSerializer(serializers.HyperlinkedModelSerializer):
         fields = ["url", "id", "user", "permissions"]
 
 
-class ShareDetailSerializer(serializers.HyperlinkedModelSerializer):
+class SharesDetailSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for `Share` model detail view (requires `context={"request": request}`).
 
@@ -30,7 +30,7 @@ class ShareDetailSerializer(serializers.HyperlinkedModelSerializer):
     permissions = serializers.SlugRelatedField(queryset=NotePermissions.objects.all(), many=True, slug_field="code")
 
     # Read-only: show note as URL in responses
-    note = serializers.HyperlinkedRelatedField(view_name="note-detail", lookup_field="pk", read_only=True)
+    note = serializers.HyperlinkedRelatedField(view_name="notes-detail", lookup_field="pk", read_only=True)
     # Write-only: accept note ID in requests
     note_id = serializers.PrimaryKeyRelatedField(source="note", queryset=Note.objects.all(), write_only=True)
 
