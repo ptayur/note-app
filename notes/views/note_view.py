@@ -6,11 +6,11 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.utils.dateparse import parse_date
 from notes.models import Note
-from notes.serializers import NoteListSerializer, NoteDetailSerializer
+from notes.serializers import NotesListSerializer, NotesDetailSerializer
 from notes.permissions import NotePermissions
 
 
-class NoteListView(APIView):
+class NotesListView(APIView):
     """
     Note view for `/api/notes/` endpoint.
 
@@ -63,17 +63,17 @@ class NoteListView(APIView):
                 notes = notes.filter(created_at__date=parsed_date)
 
         notes = notes.distinct()  # Prevent duplicates
-        serializer = NoteListSerializer(notes, context={"request": request}, many=True)
+        serializer = NotesListSerializer(notes, context={"request": request}, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request: Request) -> Response:
-        serializer = NoteDetailSerializer(data=request.data, context={"request": request})
+        serializer = NotesDetailSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save(owner=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class NoteDetailView(APIView):
+class NotesDetailView(APIView):
     """
     Note view for `/api/notes/<int:pk>` endpoint.
 
@@ -89,12 +89,12 @@ class NoteDetailView(APIView):
 
     def get(self, request: Request, pk: int) -> Response:
         note = self.get_object(request, pk)
-        serializer = NoteDetailSerializer(note, context={"request": request})
+        serializer = NotesDetailSerializer(note, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request: Request, pk: int) -> Response:
         note = self.get_object(request, pk)
-        serializer = NoteDetailSerializer(note, data=request.data, context={"request": request}, partial=True)
+        serializer = NotesDetailSerializer(note, data=request.data, context={"request": request}, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,2 +1,2 @@
-from .note_view import NoteListView, NoteDetailView
-from .share_view import ShareListView, ShareDetailView
+from .note_view import NotesListView, NotesDetailView
+from .share_view import SharesListView, SharesDetailView
