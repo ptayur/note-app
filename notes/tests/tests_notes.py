@@ -1,36 +1,31 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
-from notes.tests.mixins import NotesActionsTestMixin, NotesTestMixin
-from accounts.tests.mixins import AuthTestMixin
-from notes.models import Note
+from notes.tests.mixins import NotesAPIMixin
 
 
-class NoteCreateTests(NotesActionsTestMixin, NotesTestMixin, AuthTestMixin, APITestCase):
+class NoteCreateTests(NotesAPIMixin, APITestCase):
     """
     Integration tests for create endpoint.
     """
-
-    create_notes = False
-
-    def setUp(self):
-        self.client = self.authenticate(self.users_data[0])
 
     def test_create_success(self):
         """
         Test that note can be created with valid data.
         """
-        response = self.create_note(self.notes_data[0])
+        data = {
+            "title": "noteTitle",
+            "content": "noteContent",
+        }
+        response = self.create_note(data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(Note.objects.filter(id=response.data["id"]).exists())
+        self.assertDictEqual(response.data, self.notes_representation(response.data["id"]))
+        self.assertTrue(self.get_note_objects({"pk": response.data["id"]}).exists())
 
 
-class NoteGetTests(NotesActionsTestMixin, NotesTestMixin, AuthTestMixin, APITestCase):
+class NoteGetTests(NotesAPIMixin, APITestCase):
     """
     Integration tests for get endpoint.
     """
-
-    def setUp(self):
-        self.client = self.authenticate(self.users_data[0])
 
     def test_get_success(self):
         """
@@ -38,13 +33,13 @@ class NoteGetTests(NotesActionsTestMixin, NotesTestMixin, AuthTestMixin, APITest
         """
         response = self.read_note(1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertDictContainsSubset(self.notes_data[0], response.data)
+        self.assertDictEqual(response.data, self.notes_representation(response.data["id"]))
 
     def test_get_nonowner(self):
         """
         Test that get fails if user isn't note owner.
         """
-        self.client = self.authenticate(self.users_data[1])
+        self.authenticate_client_as(self.nonowner_user)
         response = self.read_note(1)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -54,24 +49,25 @@ class NoteGetTests(NotesActionsTestMixin, NotesTestMixin, AuthTestMixin, APITest
         """
         response = self.read_notes_list()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), len(self.notes_data))
+        self.assertListEqual(response.data, self.notes_representation(user=self.default_user))
 
 
-class NoteDeleteTests(NotesActionsTestMixin, NotesTestMixin, AuthTestMixin, APITestCase):
+class NoteDeleteTests(NotesAPIMixin, APITestCase):
     """
     Integration tests for delete endpoint.
     """
 
     def setUp(self):
-        self.client = self.authenticate(self.users_data[0])
+        super().setUp()
+        self.note_id = 1
 
     def test_delete_success(self):
         """
         Test that existing note can be successfully deleted.
         """
-        response = self.delete_note(1)
+        response = self.delete_note(self.note_id)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Note.objects.filter(id=1).exists())
+        self.assertFalse(self.get_note_objects({"pk": self.note_id}).exists())
 
     def test_delete_nonexistent(self):
         """
@@ -84,19 +80,19 @@ class NoteDeleteTests(NotesActionsTestMixin, NotesTestMixin, AuthTestMixin, APIT
         """
         Test that delete fails if user isn't note owner.
         """
-        self.client = self.authenticate(self.users_data[1])
-        response = self.delete_note(1)
+        self.authenticate_client_as(self.nonowner_user)
+        response = self.delete_note(self.note_id)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertTrue(Note.objects.filter(id=1).exists())
+        self.assertTrue(self.get_note_objects({"pk": self.note_id}).exists())
 
 
-class NoteUpdateTests(NotesActionsTestMixin, NotesTestMixin, AuthTestMixin, APITestCase):
+class NoteUpdateTests(NotesAPIMixin, APITestCase):
     """
     Integration tests for update endpoint.
     """
 
     def setUp(self):
-        self.client = self.authenticate(self.users_data[0])
+        super().setUp()
         self.note_id = 1
         self.update_data = {"title": "newTitle"}
 
@@ -106,18 +102,12 @@ class NoteUpdateTests(NotesActionsTestMixin, NotesTestMixin, AuthTestMixin, APIT
         """
         response = self.update_note(self.note_id, self.update_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertDictContainsSubset(self.update_data, response.data)
-        note = Note.objects.get(id=self.note_id)
-        for key in self.update_data.keys():
-            self.assertEqual(self.update_data[key], getattr(note, key))
+        self.assertDictEqual(response.data, self.notes_representation(self.note_id))
 
     def test_update_nonowner(self):
         """
         Test that update fails if user isn't note owner.
         """
-        self.client = self.authenticate(self.users_data[1])
+        self.authenticate_client_as(self.nonowner_user)
         response = self.update_note(self.note_id, self.update_data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        note = Note.objects.get(id=self.note_id)
-        for key in self.update_data.keys():
-            self.assertNotEqual(self.update_data[key], getattr(note, key))
