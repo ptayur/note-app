@@ -1,20 +1,11 @@
 from accounts.models import CustomUser
 
 
-class UserTestMixin:
-
-    create_user = True
+class CustomUserMixin:
 
     @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        cls.users_data = [
-            {
-                "username": f"User{i}",
-                "email": f"user{i}@email.com",
-                "password": f"user{i}password",
-            }
-            for i in range(2)
-        ]
-        if getattr(cls, "create_users", True):
-            cls.users = [CustomUser.objects.create_user(**user_data) for user_data in cls.users_data]
+    def create_user(cls, data: dict[str, str]) -> CustomUser:
+        return CustomUser.objects.create_user(**data)
+
+    def get_user(self, username: str) -> CustomUser:
+        return CustomUser.objects.get(username=username)
