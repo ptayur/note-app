@@ -11,6 +11,10 @@ class SharesListSerializer(serializers.HyperlinkedModelSerializer):
     Handles list representation of note's shares (`url`, `id`, `user`, `permissions`).
     """
 
+    url = serializers.HyperlinkedIdentityField(
+        view_name="shares-detail",
+        lookup_field="pk",
+    )
     user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(), slug_field="username")
     permissions = serializers.SlugRelatedField(queryset=NotePermissions.objects.all(), many=True, slug_field="code")
 
@@ -26,6 +30,10 @@ class SharesDetailSerializer(serializers.HyperlinkedModelSerializer):
     Handles share's full representation.
     """
 
+    url = serializers.HyperlinkedIdentityField(
+        view_name="shares-detail",
+        lookup_field="pk",
+    )
     user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(), slug_field="username")
     permissions = serializers.SlugRelatedField(queryset=NotePermissions.objects.all(), many=True, slug_field="code")
 
