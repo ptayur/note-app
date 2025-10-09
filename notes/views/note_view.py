@@ -77,7 +77,7 @@ class NotesDetailView(APIView):
     """
     Note view for `/api/notes/<int:pk>` endpoint.
 
-    Supports `GET`, `PATCH`, `DELETE` methods.
+    Supports `GET`, `PUT`, `PATCH`, `DELETE` methods.
     """
 
     permission_classes = [permissions.IsAuthenticated, NotePermissions]
@@ -90,6 +90,13 @@ class NotesDetailView(APIView):
     def get(self, request: Request, pk: int) -> Response:
         note = self.get_object(request, pk)
         serializer = NotesDetailSerializer(note, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request: Request, pk: int) -> Response:
+        note = self.get_object(request, pk)
+        serializer = NotesDetailSerializer(note, data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request: Request, pk: int) -> Response:
