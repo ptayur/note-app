@@ -1,13 +1,13 @@
 from django.db import models
 from typing import Iterable
 from accounts.models import CustomUser
-from notes.models import Note, NotePermissions
+from notes.models import Note, NotePermission
 
 
 class Share(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name="shares")
-    permissions = models.ManyToManyField(NotePermissions)
+    permissions = models.ManyToManyField(NotePermission)
 
     class Meta:
         constraints = [
@@ -18,6 +18,6 @@ class Share(models.Model):
         """
         Returns `True` if given `perm_codes` are subset of current `Share.permissions`.
         """
-        perms = NotePermissions.validate_codes(perm_codes)
+        perms = NotePermission.validate_codes(perm_codes)
         current = set(self.permissions.values_list("code", flat=True))
         return perms.issubset(current)

@@ -5,11 +5,11 @@ from django.dispatch import receiver
 from typing import Iterable
 
 
-class NotePermissions(models.Model):
+class NotePermission(models.Model):
     code = models.CharField(max_length=20, unique=True)
     description = models.CharField(max_length=100, blank=True)
 
-    CACHE_KEY = "note_permissions:all_codes"
+    CACHE_KEY = "note_permission:all_codes"
 
     @classmethod
     def all_codes(cls) -> set[str]:
@@ -25,7 +25,7 @@ class NotePermissions(models.Model):
     @classmethod
     def validate_codes(cls, perm_codes: Iterable[str] | str) -> set[str]:
         """
-        Validates `perm_codes` type and existence in `NotePermissions` table.
+        Validates `perm_codes` type and existence in `NotePermission` table.
 
         Returns set of permission codes.
         """
@@ -46,6 +46,6 @@ class NotePermissions(models.Model):
 
 
 # Auto-clear cache on table change
-@receiver([post_save, post_delete], sender=NotePermissions)
+@receiver([post_save, post_delete], sender=NotePermission)
 def clear_permission_cache(sender, **kwargs):
     cache.delete(sender.CACHE_KEY)
