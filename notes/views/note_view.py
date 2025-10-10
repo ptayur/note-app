@@ -30,14 +30,14 @@ class NotesListView(APIView):
         notes = Note.objects.filter(Q(owner=request.user) | Q(shares__user=request.user))
 
         # Search filters
-        if search:
+        if len(search) > 0:
             search_q = Q()
             for element in search:
                 search_q |= Q(title__icontains=element) | Q(content__icontains=element)
             notes = notes.filter(search_q)
 
         # Ownership filters
-        if ownership_type and "" not in ownership_type:
+        if len(ownership_type) > 0:
             ownership_q = Q()
             if "private" in ownership_type:
                 ownership_q |= Q(shares__isnull=True)
@@ -48,16 +48,14 @@ class NotesListView(APIView):
             notes = notes.filter(ownership_q)
 
         # Shared permissions filters
-        if shared_permissions and "" not in shared_permissions:
+        if len(shared_permissions) > 0:
             perm_q = Q()
-            if "read" in shared_permissions:
-                perm_q |= Q(share__can_modify=False)
-            if "write" in shared_permissions:
-                perm_q |= Q(share__can_modify=True)
+            for perm in shared_permissions:
+                perm_q &= Q(shares__permissions__code=perm)
             notes = notes.filter(perm_q)
 
         # Date filter
-        if date:
+        if date is not None:
             parsed_date = parse_date(date)  # Normalize date
             if parsed_date:
                 notes = notes.filter(created_at__date=parsed_date)
