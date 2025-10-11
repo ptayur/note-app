@@ -4,7 +4,6 @@ from rest_framework.request import Request
 from rest_framework import permissions, status
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from django.utils.dateparse import parse_date
 from notes.models import Note
 from notes.serializers import NotesListSerializer, NotesDetailSerializer
 from notes.permissions import NotePermissions
@@ -24,7 +23,6 @@ class NotesListView(APIView):
         search = request.query_params.getlist("search")
         ownership_type = request.query_params.getlist("ownership")
         shared_permissions = request.query_params.getlist("permissions")
-        date = request.query_params.get("date", None)
 
         # Get all user's notes first
         notes = Note.objects.filter(Q(owner=request.user) | Q(shares__user=request.user))
@@ -53,12 +51,6 @@ class NotesListView(APIView):
             for perm in shared_permissions:
                 perm_q &= Q(shares__permissions__code=perm)
             notes = notes.filter(perm_q)
-
-        # Date filter
-        if date is not None:
-            parsed_date = parse_date(date)  # Normalize date
-            if parsed_date:
-                notes = notes.filter(created_at__date=parsed_date)
 
         notes = notes.distinct()  # Prevent duplicates
         serializer = NotesListSerializer(notes, context={"request": request}, many=True)
