@@ -1,11 +1,12 @@
 import pytest
 from model_bakery import baker
 from notes.models import NotePermission
-from .factories import note_factory, share_factory
+from .annotations import *
+from .factories import *
 
 
 @pytest.fixture
-def note_permissions():
+def note_permissions() -> dict[str, NotePermission]:
     """
     Get possible note permissions.
 
@@ -17,8 +18,9 @@ def note_permissions():
 
         Example: `{"read": <NotePermission: [read]>, ...}`
     """
-    note_permissions = {"read": "", "write": "", "delete": ""}
-    for perm in note_permissions.keys():
+    permissions = ["read", "write", "delete"]
+    note_permissions = {}
+    for perm in permissions:
         note_permissions[perm] = baker.make(
             NotePermission,
             code=perm,
@@ -28,9 +30,13 @@ def note_permissions():
 
 
 @pytest.fixture
-def prepare_notes(user_factory, note_factory, share_factory, note_permissions):
-    user1 = user_factory()
-    user2 = user_factory()
+def prepare_notes(
+    user_factory_batch: UserFactoryBatch,
+    note_factory: NoteFactory,
+    share_factory: ShareFactory,
+    note_permissions: dict[str, NotePermission],
+) -> PrepareNotes:
+    user1, user2 = user_factory_batch(2)
 
     notes_data = [
         {"owner": user1, "title": "Shopping List", "content": "Buy milk and eggs"},

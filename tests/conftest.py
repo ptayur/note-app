@@ -1,8 +1,9 @@
 import pytest
-from model_bakery import baker
+from collections.abc import Callable
 from rest_framework.test import APIClient
 from accounts.models import CustomUser
-from .factories import user_factory
+from .factories import *
+from .annotations import *
 
 
 @pytest.fixture
@@ -11,7 +12,7 @@ def api_client() -> APIClient:
 
 
 @pytest.fixture()
-def authenticate(user_factory, api_client):
+def authenticate(user_factory: UserFactory, api_client: APIClient) -> Callable[[CustomUser | None], APIClient]:
     def do_authentication(user: CustomUser | None = None) -> APIClient:
         api_client.force_authenticate(user or user_factory())
         return api_client
