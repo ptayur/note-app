@@ -20,10 +20,57 @@ class TestAccountsEndpoints:
         assert response.cookies.get("refresh_token", False)
         assert response.data["access_token"]
 
+    @pytest.mark.parametrize(
+        "credentials",
+        [
+            {"email": None, "password": "testuser"},
+            {"email": "testuser@email.com", "password": None},
+        ],
+    )
+    def test_login_without_credentials(
+        self,
+        credentials: dict[str, str | None],
+        registered_user: RegisteredUser,
+        api_client: APIClient,
+    ) -> None:
+        response = api_client.post(self.endpoint_login, credentials, format="json")
+
+        assert response.status_code == 400
+
+    @pytest.mark.parametrize(
+        "credentials",
+        [
+            {"email": "wrong@email.com", "password": "testuser"},
+            {"email": "testuser@email.com", "password": "wrongpass"},
+        ],
+    )
+    def test_login_wrong_credentials(
+        self,
+        credentials: dict[str, str],
+        registered_user: RegisteredUser,
+        api_client: APIClient,
+    ) -> None:
+        response = api_client.post(self.endpoint_login, credentials, format="json")
+
+        assert response.status_code == 401
+
     def test_register(self, user_data: dict[str, str], api_client: APIClient) -> None:
         response = api_client.post(self.endpoint_register, user_data, format="json")
 
         assert response.status_code == 201
+
+    @pytest.mark.parametrize(
+        "credentials",
+        [
+            {"username": None, "password": "testuser", "email": "testuser@email.com"},
+            {"username": "testuser", "password": None, "email": "testuser@email.com"},
+            {"username": "testuser", "password": "testuser", "email": None},
+        ],
+    )
+    def test_register_without_credentials(self, credentials: dict[str, str], api_client: APIClient) -> None:
+        response = api_client.post(self.endpoint_register, credentials, format="json")
+
+        assert response.status_code == 400
 
     def test_logout(self, registered_user: RegisteredUser, api_client: APIClient) -> None:
         api_client.post(self.endpoint_login, registered_user["credentials"], format="json")
@@ -31,6 +78,18 @@ class TestAccountsEndpoints:
         response = api_client.post(self.endpoint_logout, format="json")
 
         assert response.status_code == 204
+
+    def test_logout_wrong_token(self, api_client: APIClient) -> None:
+        api_client.cookies["refresh_token"] = "wrongtoken"
+
+        response = api_client.post(self.endpoint_logout, format="json")
+
+        assert response.status_code == 204
+
+    def test_logout_unauthenticated(self, api_client: APIClient) -> None:
+        response = api_client.post(self.endpoint_logout, format="json")
+
+        assert response.status_code == 400
 
     def test_refresh(self, registered_user: RegisteredUser, api_client: APIClient) -> None:
         login_response = api_client.post(self.endpoint_login, registered_user["credentials"], format="json")
@@ -41,6 +100,18 @@ class TestAccountsEndpoints:
         assert response.status_code == 200
         assert old_refresh != api_client.cookies.get("refresh_token")
         assert login_response.data["access_token"] != response.data["access_token"]
+
+    def test_refresh_unauthenticated(self, api_client: APIClient) -> None:
+        response = api_client.post(self.endpoint_refresh, format="json")
+
+        assert response.status_code == 400
+
+    def test_refresh_wrong_token(self, api_client: APIClient) -> None:
+        api_client.cookies["refresh_token"] = "wrongtoken"
+
+        response = api_client.post(self.endpoint_refresh, format="json")
+
+        assert response.status_code == 401
 
     def test_me(self, registered_user: RegisteredUser, api_client: APIClient) -> None:
         login_response = api_client.post(self.endpoint_login, registered_user["credentials"], format="json")
