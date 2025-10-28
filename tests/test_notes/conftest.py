@@ -55,7 +55,9 @@ def prepare_notes(
         {"note": notes[1], "user": user2, "permissions": [note_permissions["read"], note_permissions["write"]]},
         {"note": notes[3], "user": user1, "permissions": [note_permissions["read"]]},
     ]
+    shares = []
     for share_data in shares_data:
-        share_factory(**share_data)
+        share = share_factory(**share_data)
+        shares.append(share)
 
-    return {"user1": user1, "user2": user2, "notes": notes}
+    return {"user1": user1, "user2": user2, "notes": notes, "shares": shares}

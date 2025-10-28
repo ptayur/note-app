@@ -14,3 +14,4 @@ class PrepareNotes(TypedDict):
     user1: CustomUser
     user2: CustomUser
     notes: list[Note]
+    shares: list[Share]
