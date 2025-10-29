@@ -1,7 +1,6 @@
 import pytest
 from model_bakery import baker
 from rest_framework.test import APIClient
-from rest_framework.response import Response
 from notes.models import Note
 from .annotations import *
 
@@ -10,12 +9,10 @@ pytestmark = pytest.mark.django_db
 
 class TestNotesEndpoints:
 
-    endpoint = "/api/notes/"
-
-    def test_list(self, prepare_notes: PrepareNotes, authenticate: Authenticate) -> None:
+    def test_list(self, prepare_notes: PrepareNotes, authenticate: Authenticate, get_notes_url: GetNotesUrl) -> None:
         client = authenticate(prepare_notes["user1"])
 
-        response = client.get(self.endpoint)
+        response = client.get(get_notes_url())
 
         assert response.status_code == 200
         assert len(response.data) == 4
@@ -37,9 +34,9 @@ class TestNotesEndpoints:
         search: list[str] | None,
         ownership: list[str] | None,
         permissions: list[str] | None,
+        get_notes_url: GetNotesUrl,
     ) -> None:
         client = authenticate(prepare_notes["user1"])
-
         query = []
         if search is not None:
             for s in search:
@@ -51,11 +48,11 @@ class TestNotesEndpoints:
             for p in permissions:
                 query.append(("permissions", p))
 
-        response = client.get(self.endpoint, query, format="json")
+        response = client.get(get_notes_url(), query, format="json")
 
         assert response.status_code == 200
 
-    def test_create(self, user_factory: UserFactory, authenticate: Authenticate) -> None:
+    def test_create(self, user_factory: UserFactory, authenticate: Authenticate, get_notes_url: GetNotesUrl) -> None:
         user = user_factory()
         client = authenticate(user)
         note = baker.prepare(Note, owner=user)
@@ -64,7 +61,7 @@ class TestNotesEndpoints:
             "content": note.content,
         }
 
-        response = client.post(self.endpoint, data=payload, format="json")
+        response = client.post(get_notes_url(), data=payload, format="json")
 
         assert response.status_code == 201
         assert response.data["title"] == payload["title"]
@@ -76,12 +73,19 @@ class TestNotesEndpoints:
         assert "updated_at" in response.data
         assert "shares" in response.data
 
-    def test_retrieve(self, user_factory: UserFactory, note_factory: NoteFactory, authenticate: Authenticate) -> None:
+    def test_retrieve(
+        self,
+        user_factory: UserFactory,
+        note_factory: NoteFactory,
+        authenticate: Authenticate,
+        get_notes_url: GetNotesUrl,
+    ) -> None:
         user = user_factory()
         client = authenticate(user)
         note = note_factory(owner=user)
+        note_url = get_notes_url(note.pk)
         expected_json = {
-            "url": f"http://testserver{self.endpoint}{note.pk}/",
+            "url": f"http://testserver{note_url}",
             "id": note.pk,
             "owner": user.username,
             "title": note.title,
@@ -91,13 +95,18 @@ class TestNotesEndpoints:
             "shares": [],
         }
 
-        url = f"{self.endpoint}{note.pk}/"
-        response = client.get(url)
+        response = client.get(note_url)
 
         assert response.status_code == 200
         assert response.data == expected_json
 
-    def test_update(self, user_factory: UserFactory, note_factory: NoteFactory, authenticate: Authenticate) -> None:
+    def test_update(
+        self,
+        user_factory: UserFactory,
+        note_factory: NoteFactory,
+        authenticate: Authenticate,
+        get_notes_url: GetNotesUrl,
+    ) -> None:
         user = user_factory()
         client = authenticate(user)
         old_note = note_factory(owner=user)
@@ -107,8 +116,7 @@ class TestNotesEndpoints:
             "content": new_note.content,
         }
 
-        url = f"{self.endpoint}{old_note.pk}/"
-        response = client.put(url, data=payload, format="json")
+        response = client.put(get_notes_url(old_note.pk), data=payload, format="json")
 
         assert response.status_code == 200
         assert response.data["title"] == payload["title"]
@@ -116,7 +124,12 @@ class TestNotesEndpoints:
 
     @pytest.mark.parametrize("field", ["title", "content"])
     def test_partially_update(
-        self, field: str, user_factory: UserFactory, note_factory: NoteFactory, authenticate: Authenticate
+        self,
+        field: str,
+        user_factory: UserFactory,
+        note_factory: NoteFactory,
+        authenticate: Authenticate,
+        get_notes_url: GetNotesUrl,
     ) -> None:
         user = user_factory()
         client = authenticate(user)
@@ -124,19 +137,23 @@ class TestNotesEndpoints:
         note_data = baker.prepare(Note, owner=user)
         payload = {field: getattr(note_data, field)}
 
-        url = f"{self.endpoint}{note.pk}/"
-        response = client.patch(url, data=payload, format="json")
+        response = client.patch(get_notes_url(note.pk), data=payload, format="json")
 
         assert response.status_code == 200
         assert response.data[field] == payload[field]
 
-    def test_delete(self, user_factory: UserFactory, note_factory: NoteFactory, authenticate: Authenticate) -> None:
+    def test_delete(
+        self,
+        user_factory: UserFactory,
+        note_factory: NoteFactory,
+        authenticate: Authenticate,
+        get_notes_url: GetNotesUrl,
+    ) -> None:
         user = user_factory()
         client = authenticate(user)
         note = note_factory(owner=user)
 
-        url = f"{self.endpoint}{note.pk}/"
-        response = client.delete(url)
+        response = client.delete(get_notes_url(note.pk))
 
         assert response.status_code == 204
 
@@ -149,12 +166,13 @@ class TestNotesEndpoints:
             ("delete"),
         ],
     )
-    def test_unauthorized_access(self, prepare_notes: PrepareNotes, authenticate: Authenticate, method: str) -> None:
+    def test_unauthorized_access(
+        self, prepare_notes: PrepareNotes, authenticate: Authenticate, get_notes_url: GetNotesUrl, method: str
+    ) -> None:
         client = authenticate(prepare_notes["user2"])
-
         note = prepare_notes["notes"][2]
-        url = f"{self.endpoint}{note.pk}/"
-        response: Response = getattr(client, method)(url, format="json")
+
+        response = getattr(client, method)(get_notes_url(note.pk), format="json")
 
         assert response.status_code == 403
 
@@ -168,56 +186,76 @@ class TestNotesEndpoints:
             ("delete"),
         ],
     )
-    def test_unauthenticated_access(self, prepare_notes: PrepareNotes, api_client: APIClient, method: str):
+    def test_unauthenticated_access(
+        self,
+        prepare_notes: PrepareNotes,
+        api_client: APIClient,
+        get_notes_url: GetNotesUrl,
+        method: str,
+    ):
         note = prepare_notes["notes"][0]
+        url = get_notes_url(note.pk)
+        if method in ["post"]:
+            url = get_notes_url()
 
-        url = self.endpoint
-        if method in ["get", "put", "patch", "delete"]:
-            url += f"{note.pk}/"
-        response: Response = getattr(api_client, method)(url, format="json")
+        response = getattr(api_client, method)(url, format="json")
 
         assert response.status_code == 401
 
 
 class TestSharesEndpoints:
 
-    endpoint_notes = "/api/notes/"
-    endpoint_shares = "/api/shares/"
-
-    def test_create(self, prepare_notes: PrepareNotes, authenticate: Authenticate) -> None:
+    def test_create(
+        self,
+        prepare_notes: PrepareNotes,
+        authenticate: Authenticate,
+        get_shares_url: GetSharesUrl,
+    ) -> None:
         client = authenticate(prepare_notes["user1"])
         payload = {
             "user": prepare_notes["user2"].username,
             "permissions": ["read"],
         }
+        note = prepare_notes["notes"][2]
 
-        url = self.endpoint_notes + f"{prepare_notes['notes'][2].pk}/shares/"
-        response = client.post(url, payload, format="json")
+        response = client.post(get_shares_url(note_pk=note.pk), payload, format="json")
 
         assert response.status_code == 201
 
-    def test_get_list(self, prepare_notes: PrepareNotes, authenticate: Authenticate) -> None:
+    def test_get_list(
+        self,
+        prepare_notes: PrepareNotes,
+        authenticate: Authenticate,
+        get_shares_url: GetSharesUrl,
+    ) -> None:
         client = authenticate(prepare_notes["user1"])
+        note = prepare_notes["notes"][0]
 
-        url = self.endpoint_notes + f"{prepare_notes['notes'][0].pk}/shares/"
-        response = client.get(url, format="json")
+        response = client.get(get_shares_url(note_pk=note.pk), format="json")
 
         assert response.status_code == 200
         assert len(response.data) == 1
 
-    def test_unauthorized_create(self, prepare_notes: PrepareNotes, authenticate: Authenticate) -> None:
+    def test_unauthorized_create(
+        self,
+        prepare_notes: PrepareNotes,
+        authenticate: Authenticate,
+        get_shares_url: GetSharesUrl,
+    ) -> None:
         client = authenticate(prepare_notes["user2"])
         payload = {
             "user": prepare_notes["user2"].username,
             "permissions": ["read"],
         }
+        note = prepare_notes["notes"][0]
 
-        url = self.endpoint_notes + f"{prepare_notes['notes'][0].pk}/shares/"
-        response = client.post(url, payload, format="json")
+        response = client.post(get_shares_url(note_pk=note.pk), payload, format="json")
 
         assert response.status_code == 403
 
-    def test_unauthorized_list(self, prepare_notes: PrepareNotes, authenticate: Authenticate) -> None:
+    def test_unauthorized_list(
+        self, prepare_notes: PrepareNotes, authenticate: Authenticate, get_shares_url: GetSharesUrl
+    ) -> None:
         client = authenticate(prepare_notes["user2"])
 
         url = self.endpoint_notes + f"{prepare_notes['notes'][0].pk}/shares/"

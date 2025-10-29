@@ -61,3 +61,25 @@ def prepare_notes(
         shares.append(share)
 
     return {"user1": user1, "user2": user2, "notes": notes, "shares": shares}
+
+
+@pytest.fixture
+def get_notes_url() -> GetNotesUrl:
+    def build_url(pk: int | None = None) -> str:
+        if pk:
+            return f"/api/notes/{pk}/"
+        return "/api/notes/"
+
+    return build_url
+
+
+@pytest.fixture
+def get_shares_url() -> GetSharesUrl:
+    def build_url(note_pk: int | None = None, pk: int | None = None) -> str:
+        if note_pk is not None:
+            return f"/api/notes/{note_pk}/shares/"
+        if pk is not None:
+            return f"/api/shares/{pk}/"
+        raise ValueError("Either 'note_pk' or 'pk' must be provided.")
+
+    return build_url
