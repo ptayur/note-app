@@ -1,13 +1,23 @@
 from tests.annotations import UserFactory, UserFactoryBatch, Authenticate
-from collections.abc import Callable
-from typing import TypeAlias, TypedDict, Protocol
+from typing import TypedDict, Protocol, Any
 from notes.models import Note, Share
 from accounts.models import CustomUser
 
-NoteFactory: TypeAlias = Callable[..., Note]
-NoteFactoryBatch: TypeAlias = Callable[[int], list[Share]]
-ShareFactory: TypeAlias = Callable[..., Share]
-ShareFactoryBatch: TypeAlias = Callable[[int], list[Share]]
+
+class NoteFactory(Protocol):
+    def __call__(self, **kwargs: Any) -> Note: ...
+
+
+class NoteFactoryBatch(Protocol):
+    def __call__(self, n: int) -> list[Note]: ...
+
+
+class ShareFactory(Protocol):
+    def __call__(self, **kwargs: Any) -> Share: ...
+
+
+class ShareFactoryBatch(Protocol):
+    def __call__(self, n: int) -> list[Share]: ...
 
 
 class GetNotesUrl(Protocol):

@@ -1,12 +1,12 @@
 import pytest
-from collections.abc import Callable
 from typing import Any
 from model_bakery import baker
 from accounts.models import CustomUser
+from .annotations import UserFactory, UserFactoryBatch
 
 
 @pytest.fixture
-def user_factory() -> Callable[..., CustomUser]:
+def user_factory() -> UserFactory:
     def make_user(**kwargs: Any) -> CustomUser:
         return baker.make(
             CustomUser,
@@ -17,7 +17,7 @@ def user_factory() -> Callable[..., CustomUser]:
 
 
 @pytest.fixture
-def user_factory_batch() -> Callable[[int], list[CustomUser]]:
+def user_factory_batch() -> UserFactoryBatch:
     def make_users(n: int) -> list[CustomUser]:
         return baker.make(
             CustomUser,

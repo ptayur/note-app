@@ -1,12 +1,12 @@
 import pytest
-from collections.abc import Callable
 from typing import Any
 from model_bakery import baker
 from notes.models import Share, Note
+from .annotations import NoteFactory, NoteFactoryBatch, ShareFactory, ShareFactoryBatch
 
 
 @pytest.fixture
-def note_factory() -> Callable[..., Note]:
+def note_factory() -> NoteFactory:
     def make_note(**kwargs: Any) -> Note:
         return baker.make(
             Note,
@@ -17,7 +17,7 @@ def note_factory() -> Callable[..., Note]:
 
 
 @pytest.fixture
-def note_factory_batch() -> Callable[[int], list[Note]]:
+def note_factory_batch() -> NoteFactoryBatch:
     def make_notes(n: int) -> list[Note]:
         return baker.make(
             Note,
@@ -28,7 +28,7 @@ def note_factory_batch() -> Callable[[int], list[Note]]:
 
 
 @pytest.fixture
-def share_factory() -> Callable[..., Share]:
+def share_factory() -> ShareFactory:
     def make_share(**kwargs) -> Share:
         return baker.make(
             Share,
@@ -39,7 +39,7 @@ def share_factory() -> Callable[..., Share]:
 
 
 @pytest.fixture
-def share_factory_batch() -> Callable[[int], list[Share]]:
+def share_factory_batch() -> ShareFactoryBatch:
     def make_shares(n: int) -> list[Share]:
         return baker.make(
             Share,

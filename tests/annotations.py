@@ -1,8 +1,15 @@
-from collections.abc import Callable
-from typing import TypeAlias
+from typing import Protocol, Any
 from rest_framework.test import APIClient
 from accounts.models import CustomUser
 
-UserFactory: TypeAlias = Callable[..., CustomUser]
-UserFactoryBatch: TypeAlias = Callable[[int], list[CustomUser]]
-Authenticate: TypeAlias = Callable[[CustomUser | None], APIClient]
+
+class UserFactory(Protocol):
+    def __call__(self, **kwargs: Any) -> CustomUser: ...
+
+
+class UserFactoryBatch(Protocol):
+    def __call__(self, n: int) -> list[CustomUser]: ...
+
+
+class Authenticate(Protocol):
+    def __call__(self, user: CustomUser | None = None) -> APIClient: ...
