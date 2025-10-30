@@ -56,6 +56,4 @@ class SharesDetailSerializer(serializers.HyperlinkedModelSerializer):
         note = validated_data.get("note")
         if note and user and note.owner == user:
             raise serializers.ValidationError("You cannot share a note with yourself.")
-        elif note and user and Share.objects.filter(user=user, note=note).exists():
-            raise serializers.ValidationError(f"Note is already shared with user {user.username}")
         return validated_data
