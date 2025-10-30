@@ -30,12 +30,12 @@ def note_permissions() -> dict[str, NotePermission]:
 
 
 @pytest.fixture
-def prepare_notes(
+def prepare_notes_env(
     user_factory_batch: UserFactoryBatch,
     note_factory: NoteFactory,
     share_factory: ShareFactory,
     note_permissions: dict[str, NotePermission],
-) -> PrepareNotes:
+) -> PrepareNotesEnv:
     user1, user2 = user_factory_batch(2)
 
     notes_data = [
@@ -51,7 +51,7 @@ def prepare_notes(
         notes.append(note)
 
     shares_data = [
-        {"note": notes[0], "user": user2, "permissions": [note_permissions["read"]]},
+        {"note": notes[0], "user": user2, "permissions": [note_permissions["read"], note_permissions["delete"]]},
         {"note": notes[1], "user": user2, "permissions": [note_permissions["read"], note_permissions["write"]]},
         {"note": notes[3], "user": user1, "permissions": [note_permissions["read"]]},
     ]

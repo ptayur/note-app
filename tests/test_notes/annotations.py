@@ -28,7 +28,7 @@ class GetSharesUrl(Protocol):
     def __call__(self, note_pk: int | None = None, pk: int | None = None) -> str: ...
 
 
-class PrepareNotes(TypedDict):
+class PrepareNotesEnv(TypedDict):
     user1: CustomUser
     user2: CustomUser
     notes: list[Note]
