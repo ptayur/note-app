@@ -33,3 +33,11 @@ class PrepareNotes(TypedDict):
     user2: CustomUser
     notes: list[Note]
     shares: list[Share]
+
+
+class PrepareSharesEnv(TypedDict):
+    owner: CustomUser
+    user_noright: CustomUser
+    user_read: CustomUser
+    note: Note
+    share: Share

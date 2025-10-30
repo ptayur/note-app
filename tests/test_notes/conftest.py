@@ -64,6 +64,19 @@ def prepare_notes(
 
 
 @pytest.fixture
+def prepare_shares_env(
+    user_factory_batch: UserFactoryBatch,
+    note_factory: NoteFactory,
+    share_factory: ShareFactory,
+    note_permissions: dict[str, NotePermission],
+) -> PrepareSharesEnv:
+    owner, user_norights, user_read = user_factory_batch(3)
+    note = note_factory(owner=owner)
+    share = share_factory(note=note, user=user_read, permissions=[note_permissions["read"]])
+    return {"owner": owner, "user_norights": user_norights, "user_read": user_read, "note": note, "share": share}
+
+
+@pytest.fixture
 def get_notes_url() -> GetNotesUrl:
     def build_url(pk: int | None = None) -> str:
         if pk:
