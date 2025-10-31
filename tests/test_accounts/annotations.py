@@ -3,6 +3,6 @@ from accounts.models import CustomUser
 from typing import TypedDict
 
 
-class RegisteredUser(TypedDict):
+class PrepareAccountsEnv(TypedDict):
     user: CustomUser
     credentials: dict[str, str]
