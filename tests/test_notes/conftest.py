@@ -80,19 +80,17 @@ def prepare_shares_env(
 def get_notes_url() -> GetNotesUrl:
     def build_url(pk: int | None = None) -> str:
         if pk:
-            return f"/api/notes/{pk}/"
-        return "/api/notes/"
+            return f"/api/v1/notes/{pk}/"
+        return "/api/v1/notes/"
 
     return build_url
 
 
 @pytest.fixture
 def get_shares_url() -> GetSharesUrl:
-    def build_url(note_pk: int | None = None, pk: int | None = None) -> str:
-        if note_pk is not None:
-            return f"/api/notes/{note_pk}/shares/"
-        if pk is not None:
-            return f"/api/shares/{pk}/"
-        raise ValueError("Either 'note_pk' or 'pk' must be provided.")
+    def build_url(note_pk: int, pk: int | None = None) -> str:
+        if pk:
+            return f"/api/v1/notes/{note_pk}/shares/{pk}/"
+        return f"/api/v1/notes/{note_pk}/shares/"
 
     return build_url

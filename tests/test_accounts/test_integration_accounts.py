@@ -7,11 +7,12 @@ pytestmark = pytest.mark.django_db
 
 class TestAccountsEndpoints:
 
-    endpoint_login = "/api/users/login/"
-    endpoint_logout = "/api/users/logout/"
-    endpoint_register = "/api/users/register/"
-    endpoint_refresh = "/api/users/refresh/"
-    endpoint_me = "/api/users/me/"
+    base_endpoint = "/api/v1/users/"
+    endpoint_login = base_endpoint + "login/"
+    endpoint_logout = base_endpoint + "logout/"
+    endpoint_register = base_endpoint + "register/"
+    endpoint_refresh = base_endpoint + "refresh/"
+    endpoint_me = base_endpoint + "me/"
 
     @pytest.mark.parametrize(
         "credentials, expected_status",

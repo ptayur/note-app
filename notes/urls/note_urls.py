@@ -1,8 +1,10 @@
-from django.urls import path
+from django.urls import path, include
 from notes.views import NotesListView, NotesDetailView
+from .share_urls import urlpatterns as shares_urls
 
 
 urlpatterns = [
-    path("notes/", NotesListView.as_view(), name="notes-list"),
-    path("notes/<int:pk>/", NotesDetailView.as_view(), name="notes-detail"),
+    path("", NotesListView.as_view(), name="notes-list"),
+    path("<int:pk>/", NotesDetailView.as_view(), name="notes-detail"),
+    path("<int:note_id>/shares/", include(shares_urls)),
 ]

@@ -12,7 +12,7 @@ from accounts.serializers import CustomUserModelSerializer
 
 class LoginView(APIView):
     """
-    Login view for `/api/users/login/` endpoint.
+    Login view for `/api/v1/users/login/` endpoint.
 
     Supports `POST` method.
     """
@@ -42,14 +42,14 @@ class LoginView(APIView):
             secure=True,
             samesite="Strict",
             max_age=7 * 24 * 60 * 60,
-            path="/api/users/",
+            path="/api/v1/users/",
         )
         return response
 
 
 class RefreshView(APIView):
     """
-    Token refresh view for `/api/users/refresh/` endpoint.
+    Token refresh view for `/api/v1/users/refresh/` endpoint.
 
     Supports `POST` method.
     """
@@ -90,14 +90,14 @@ class RefreshView(APIView):
             secure=True,
             samesite="Strict",
             max_age=7 * 24 * 60 * 60,
-            path="/api/users/",
+            path="/api/v1/users/",
         )
         return response
 
 
 class LogoutView(APIView):
     """
-    Logout view for `/api/users/logout/` endpoint.
+    Logout view for `/api/v1/users/logout/` endpoint.
 
     Supports `POST` method.
     """
@@ -122,7 +122,7 @@ class LogoutView(APIView):
 
 class RegisterView(APIView):
     """
-    Registration view for `/api/users/register/` endpoint.
+    Registration view for `/api/v1/users/register/` endpoint.
 
     Supports `POST` method.
     """
@@ -139,7 +139,7 @@ class RegisterView(APIView):
 
 class MeView(APIView):
     """
-    Me view for `/api/users/me/` endpoint.
+    Me view for `/api/v1/users/me/` endpoint.
 
     Supports `GET` method.
     """

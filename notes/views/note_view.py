@@ -11,7 +11,7 @@ from notes.permissions import NotePermissions
 
 class NotesListView(APIView):
     """
-    Note view for `/api/notes/` endpoint.
+    Note view for `/api/v1/notes/` endpoint.
 
     Supports `GET` and `POST` methods.
     """
@@ -65,7 +65,7 @@ class NotesListView(APIView):
 
 class NotesDetailView(APIView):
     """
-    Note view for `/api/notes/<int:pk>` endpoint.
+    Note view for `/api/v1/notes/<int:pk>` endpoint.
 
     Supports `GET`, `PUT`, `PATCH`, `DELETE` methods.
     """

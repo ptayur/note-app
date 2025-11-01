@@ -86,8 +86,9 @@ class TestSharesEndpoints:
     ) -> None:
         client = authenticate(prepare_shares_env[auth_user]) if auth_user else APIClient()
         share = prepare_shares_env["share"]
+        note = prepare_shares_env["note"]
 
-        response = client.get(get_shares_url(pk=share.pk), format="json")
+        response = client.get(get_shares_url(note_pk=note.pk, pk=share.pk), format="json")
 
         assert response.status_code == expected_status
 
@@ -110,8 +111,9 @@ class TestSharesEndpoints:
         client = authenticate(prepare_shares_env[auth_user]) if auth_user else APIClient()
         payload = {"permissions": ["read", "write"]}
         share = prepare_shares_env["share"]
+        note = prepare_shares_env["note"]
 
-        response = client.patch(get_shares_url(pk=share.pk), payload, format="json")
+        response = client.patch(get_shares_url(note_pk=note.pk, pk=share.pk), payload, format="json")
 
         assert response.status_code == expected_status
 
@@ -133,7 +135,8 @@ class TestSharesEndpoints:
     ) -> None:
         client = authenticate(prepare_shares_env[auth_user]) if auth_user else APIClient()
         share = prepare_shares_env["share"]
+        note = prepare_shares_env["note"]
 
-        response = client.delete(get_shares_url(pk=share.pk), format="json")
+        response = client.delete(get_shares_url(note_pk=note.pk, pk=share.pk), format="json")
 
         assert response.status_code == expected_status
