@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from notes.models import Note, Share, NotePermission
+from notes.models import Note, Share
 from accounts.models import CustomUser
 from typing import Any
 
@@ -16,11 +16,10 @@ class SharesListSerializer(serializers.HyperlinkedModelSerializer):
         lookup_field="pk",
     )
     user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(), slug_field="username")
-    permissions = serializers.SlugRelatedField(queryset=NotePermission.objects.all(), many=True, slug_field="code")
 
     class Meta:
         model = Share
-        fields = ["url", "id", "user", "permissions"]
+        fields = ["url", "id", "user", "role"]
 
 
 class SharesDetailSerializer(serializers.HyperlinkedModelSerializer):
@@ -35,7 +34,6 @@ class SharesDetailSerializer(serializers.HyperlinkedModelSerializer):
         lookup_field="pk",
     )
     user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(), slug_field="username")
-    permissions = serializers.SlugRelatedField(queryset=NotePermission.objects.all(), many=True, slug_field="code")
 
     # Read-only: show note as URL in responses
     note = serializers.HyperlinkedRelatedField(view_name="notes-detail", lookup_field="pk", read_only=True)
@@ -44,7 +42,7 @@ class SharesDetailSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Share
-        fields = ["url", "id", "user", "note", "note_id", "permissions"]
+        fields = ["url", "id", "user", "note", "note_id", "role"]
 
     def validate(self, attrs: Any) -> Any:
         """

@@ -18,7 +18,7 @@ class NotePermissions(permissions.BasePermission):
 
         Implements following access control:
         - Ensures that owner of the `Note` object has full access.
-        - Verifies permissions of request's user according to request method (`GET`, `PATCH`, etc).
+        - Verifies roles of request's user according to request method (`GET`, `PATCH`, etc).
         """
         # Owner always has full access
         if request.user == obj.owner:
@@ -30,16 +30,12 @@ class NotePermissions(permissions.BasePermission):
         except Share.DoesNotExist:
             return False
 
-        # Verify specific permissions per request method
-        method_perm_map = {
-            "GET": "read",
-            "PATCH": "write",
-            "PUT": "write",
-            "DELETE": "delete",
+        # Verify specific role per request method
+        method_mapping = {
+            "GET": ["viewer", "editor"],
+            "PUT": ["editor"],
+            "PATCH": ["editor"],
         }
-        method = request.method
-        if method:
-            perm = method_perm_map.get(method)
-            if perm:
-                return share.has_perm(perm)
+        if request.method in method_mapping:
+            return share.role in method_mapping[request.method]
         return False

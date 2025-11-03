@@ -33,13 +33,13 @@ class TestNotesEndpoints:
         assert response.status_code == expected_status
 
     @pytest.mark.parametrize(
-        "search, ownership, permissions",
+        "search, ownership, role",
         [
             (["Shopping"], None, None),
             (["Shopping"], ["private"], None),
             (None, ["with_shares"], None),
-            (None, None, ["read"]),
-            (["Meeting"], ["shared"], ["write"]),
+            (None, None, ["viewer"]),
+            (["Meeting"], ["shared"], ["editor"]),
         ],
     )
     def test_list_filters(
@@ -48,7 +48,7 @@ class TestNotesEndpoints:
         prepare_notes_env: PrepareNotesEnv,
         search: list[str] | None,
         ownership: list[str] | None,
-        permissions: list[str] | None,
+        role: list[str] | None,
         get_notes_url: GetNotesUrl,
     ) -> None:
         client = authenticate(prepare_notes_env["user1"])
@@ -59,9 +59,9 @@ class TestNotesEndpoints:
         if ownership is not None:
             for o in ownership:
                 query.append(("ownership", o))
-        if permissions is not None:
-            for p in permissions:
-                query.append(("permissions", p))
+        if role is not None:
+            for p in role:
+                query.append(("role", p))
 
         response = client.get(get_notes_url(), query)
 
@@ -179,7 +179,6 @@ class TestNotesEndpoints:
         "auth_user, note_id, expected_status",
         [
             pytest.param("user1", 0, 204, id="success"),
-            pytest.param("user2", 0, 204, id="success"),
             pytest.param("user2", 1, 403, id="unauthorized"),
             pytest.param(None, 0, 401, id="unauthenticated"),
         ],

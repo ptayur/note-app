@@ -1,32 +1,6 @@
 import pytest
-from model_bakery import baker
-from notes.models import NotePermission
 from .annotations import *
 from .factories import *
-
-
-@pytest.fixture
-def note_permissions() -> dict[str, NotePermission]:
-    """
-    Get possible note permissions.
-
-    Args:
-        None
-
-    Returns:
-        A dict containing permission code as key and `NotePermission` instance as value.
-
-        Example: `{"read": <NotePermission: [read]>, ...}`
-    """
-    permissions = ["read", "write", "delete"]
-    note_permissions = {}
-    for perm in permissions:
-        note_permissions[perm] = baker.make(
-            NotePermission,
-            code=perm,
-            description=f"Can {perm} note",
-        )
-    return note_permissions
 
 
 @pytest.fixture
@@ -34,7 +8,6 @@ def prepare_notes_env(
     user_factory_batch: UserFactoryBatch,
     note_factory: NoteFactory,
     share_factory: ShareFactory,
-    note_permissions: dict[str, NotePermission],
 ) -> PrepareNotesEnv:
     user1, user2 = user_factory_batch(2)
 
@@ -51,9 +24,9 @@ def prepare_notes_env(
         notes.append(note)
 
     shares_data = [
-        {"note": notes[0], "user": user2, "permissions": [note_permissions["read"], note_permissions["delete"]]},
-        {"note": notes[1], "user": user2, "permissions": [note_permissions["read"], note_permissions["write"]]},
-        {"note": notes[3], "user": user1, "permissions": [note_permissions["read"]]},
+        {"note": notes[0], "user": user2, "role": "viewer"},
+        {"note": notes[1], "user": user2, "role": "editor"},
+        {"note": notes[3], "user": user1, "role": "viewer"},
     ]
     shares = []
     for share_data in shares_data:
@@ -68,12 +41,11 @@ def prepare_shares_env(
     user_factory_batch: UserFactoryBatch,
     note_factory: NoteFactory,
     share_factory: ShareFactory,
-    note_permissions: dict[str, NotePermission],
 ) -> PrepareSharesEnv:
-    owner, user_norights, user_read = user_factory_batch(3)
+    owner, user_norights, viewer = user_factory_batch(3)
     note = note_factory(owner=owner)
-    share = share_factory(note=note, user=user_read, permissions=[note_permissions["read"]])
-    return {"owner": owner, "user_norights": user_norights, "user_read": user_read, "note": note, "share": share}
+    share = share_factory(note=note, user=viewer, role="viewer")
+    return {"owner": owner, "user_norights": user_norights, "viewer": viewer, "note": note, "share": share}
 
 
 @pytest.fixture

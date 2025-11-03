@@ -16,7 +16,7 @@ class TestSharesEndpoints:
         [
             pytest.param("owner", "user_norights", 201, id="success"),
             pytest.param("owner", "owner", 400, id="self_share"),
-            pytest.param("owner", "user_read", 400, id="existing_share"),
+            pytest.param("owner", "viewer", 400, id="existing_share"),
             pytest.param("user_norights", "user_norights", 403, id="unauthorized"),
             pytest.param(None, "user_norights", 401, id="unauthenticated"),
         ],
@@ -33,7 +33,7 @@ class TestSharesEndpoints:
         client = authenticate(prepare_shares_env[auth_user]) if auth_user else APIClient()
         payload = {
             "user": prepare_shares_env[grant_to_user].username,
-            "permissions": ["read"],
+            "role": "viewer",
         }
         note = prepare_shares_env["note"]
 
@@ -109,7 +109,7 @@ class TestSharesEndpoints:
         expected_status: int,
     ) -> None:
         client = authenticate(prepare_shares_env[auth_user]) if auth_user else APIClient()
-        payload = {"permissions": ["read", "write"]}
+        payload = {"role": "editor"}
         share = prepare_shares_env["share"]
         note = prepare_shares_env["note"]
 

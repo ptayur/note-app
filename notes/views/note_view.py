@@ -22,7 +22,7 @@ class NotesListView(APIView):
         # Get filtering params
         search = request.query_params.getlist("search")
         ownership_type = request.query_params.getlist("ownership")
-        shared_permissions = request.query_params.getlist("permissions")
+        roles = request.query_params.getlist("role")
 
         # Get all user's notes first
         notes = Note.objects.filter(Q(owner=request.user) | Q(shares__user=request.user))
@@ -46,11 +46,11 @@ class NotesListView(APIView):
             notes = notes.filter(ownership_q)
 
         # Shared permissions filters
-        if len(shared_permissions) > 0:
-            perm_q = Q()
-            for perm in shared_permissions:
-                perm_q &= Q(shares__permissions__code=perm)
-            notes = notes.filter(perm_q)
+        if len(roles) > 0:
+            role_q = Q()
+            for role in roles:
+                role_q |= Q(shares__role=role)
+            notes = notes.filter(role_q, shares__user=request.user)
 
         notes = notes.distinct()  # Prevent duplicates
         serializer = NotesListSerializer(notes, context={"request": request}, many=True)

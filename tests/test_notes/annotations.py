@@ -38,6 +38,6 @@ class PrepareNotesEnv(TypedDict):
 class PrepareSharesEnv(TypedDict):
     owner: CustomUser
     user_norights: CustomUser
-    user_read: CustomUser
+    viewer: CustomUser
     note: Note
     share: Share
