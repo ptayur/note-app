@@ -1,91 +1,96 @@
 export class ModalManager {
-    static #instance = null;
+  static #instance = null;
 
-    #modal;
-    #modalWindow;
-    #modalHeader;
-    #modalMain;
-    #modalFooter;
+  #modal;
+  #modalWindow;
+  #modalHeader;
+  #modalMain;
+  #modalFooter;
 
-    constructor() {
-        // Prevent new instance from init
-        if (ModalManager.#instance) {
-            ModalManager.#instance.close();
-            return ModalManager.#instance;
-        }
-
-        // Init base modal structure
-        this.#modal = document.createElement("div");
-        this.#modal.classList.add("modal");
-
-        this.#modalWindow = document.createElement("div");
-        this.#modalWindow.classList.add("modal__window");
-
-        // Init modal window structure
-        this.#modalHeader = document.createElement("div");
-        this.#modalHeader.classList.add("modal__header");
-
-        this.#modalMain = document.createElement("div");
-        this.#modalMain.classList.add("modal__main");
-
-        this.#modalFooter = document.createElement("div");
-        this.#modalFooter.classList.add("modal__footer");
-
-        this.#modalWindow.append(
-            this.#modalHeader,
-            this.#modalMain,
-            this.#modalFooter
-        );
-        this.#modal.appendChild(this.#modalWindow);
-        document.body.appendChild(this.#modal);
-
-        ModalManager.#instance = this;
+  constructor() {
+    // Prevent new instance from init
+    if (ModalManager.#instance) {
+      ModalManager.#instance.close();
+      return ModalManager.#instance;
     }
 
-    static getInstance() {
-        if (!ModalManager.#instance) {
-            ModalManager.#instance = new ModalManager();
-        }
+    // Init base modal structure
+    this.#modal = document.createElement("div");
+    this.#modal.classList.add("modal");
 
-        return ModalManager.#instance;
+    this.#modalWindow = document.createElement("div");
+    this.#modalWindow.classList.add("modal__window");
+
+    // Init modal window structure
+    this.#modalHeader = document.createElement("div");
+    this.#modalHeader.classList.add("modal__header");
+
+    this.#modalMain = document.createElement("div");
+    this.#modalMain.classList.add("modal__main");
+
+    this.#modalFooter = document.createElement("div");
+    this.#modalFooter.classList.add("modal__footer");
+
+    this.#modalWindow.append(this.#modalHeader, this.#modalMain, this.#modalFooter);
+    this.#modal.appendChild(this.#modalWindow);
+    document.body.appendChild(this.#modal);
+
+    ModalManager.#instance = this;
+  }
+
+  static getInstance() {
+    if (!ModalManager.#instance) {
+      ModalManager.#instance = new ModalManager();
     }
 
-    #toNodeArray(value) {
-        if (Array.isArray(value)) return value;
-        return value ? [value] : [];
-    }
+    return ModalManager.#instance;
+  }
 
-    show() {
-        this.#modal.classList.add("modal--open");
-    }
+  #toNodeArray(value) {
+    if (Array.isArray(value)) return value;
+    return value ? [value] : [];
+  }
 
-    close() {
-        this.#modal.classList = "modal";
-        this.#modalWindow.classList = "modal__window";
-        this.#modalHeader.classList = "modal__header";
-        this.#modalMain.classList = "modal__main";
-        this.#modalFooter.classList = "modal__footer";
+  #toNode(value) {
+    if (typeof value == "string") {
+      const temp = document.createElement("div");
+      temp.innerHTML = value.trim();
+      return Array.from(temp.childNodes);
     }
+    return value;
+  }
 
-    setContent({ header, main, footer }) {
-        this.#modalHeader.replaceChildren(...this.#toNodeArray(header));
-        this.#modalMain.replaceChildren(...this.#toNodeArray(main));
-        this.#modalFooter.replaceChildren(...this.#toNodeArray(footer));
-    }
+  show() {
+    this.#modal.classList.add("modal--open");
+  }
 
-    setClass({ modal, modalWindow, header, main, footer }) {
-        this.#modal.classList.add(...this.#toNodeArray(modal));
-        this.#modalWindow.classList.add(...this.#toNodeArray(modalWindow));
-        this.#modalHeader.classList.add(...this.#toNodeArray(header));
-        this.#modalMain.classList.add(...this.#toNodeArray(main));
-        this.#modalFooter.classList.add(...this.#toNodeArray(footer));
-    }
+  close() {
+    this.#modal.classList = "modal";
+    this.#modalWindow.classList = "modal__window";
+    this.#modalHeader.classList = "modal__header";
+    this.#modalMain.classList = "modal__main";
+    this.#modalFooter.classList = "modal__footer";
+  }
 
-    removeClass({ modal, modalWindow, header, main, footer }) {
-        this.#modal.classList.remove(...this.#toNodeArray(modal));
-        this.#modalWindow.classList.remove(...this.#toNodeArray(modalWindow));
-        this.#modalHeader.classList.remove(...this.#toNodeArray(header));
-        this.#modalMain.classList.remove(...this.#toNodeArray(main));
-        this.#modalFooter.classList.remove(...this.#toNodeArray(footer));
-    }
+  setContent({ header, main, footer }) {
+    this.#modalHeader.replaceChildren(...this.#toNodeArray(header).flatMap((v) => this.#toNode(v)));
+    this.#modalMain.replaceChildren(...this.#toNodeArray(main).flatMap((v) => this.#toNode(v)));
+    this.#modalFooter.replaceChildren(...this.#toNodeArray(footer).flatMap((v) => this.#toNode(v)));
+  }
+
+  setClass({ modal, modalWindow, header, main, footer }) {
+    this.#modal.classList.add(...this.#toNodeArray(modal));
+    this.#modalWindow.classList.add(...this.#toNodeArray(modalWindow));
+    this.#modalHeader.classList.add(...this.#toNodeArray(header));
+    this.#modalMain.classList.add(...this.#toNodeArray(main));
+    this.#modalFooter.classList.add(...this.#toNodeArray(footer));
+  }
+
+  removeClass({ modal, modalWindow, header, main, footer }) {
+    this.#modal.classList.remove(...this.#toNodeArray(modal));
+    this.#modalWindow.classList.remove(...this.#toNodeArray(modalWindow));
+    this.#modalHeader.classList.remove(...this.#toNodeArray(header));
+    this.#modalMain.classList.remove(...this.#toNodeArray(main));
+    this.#modalFooter.classList.remove(...this.#toNodeArray(footer));
+  }
 }
