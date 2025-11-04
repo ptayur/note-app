@@ -1,12 +1,4 @@
-//
-// Imports
-//
-
 import { jwtRequest, AppError } from "/static/js/utils.js";
-
-//
-// CRUD Functions
-//
 
 async function checkResponse(response, errorTitle) {
   if (!response.ok) {
@@ -14,6 +6,10 @@ async function checkResponse(response, errorTitle) {
   }
   return response.data;
 }
+
+// ------------------
+// Notes API Requests
+// ------------------
 
 export async function createNote(data) {
   const response = await jwtRequest("/api/v1/notes/", {
@@ -64,11 +60,43 @@ export async function deleteNote(noteId) {
   return await checkResponse(response, "Delete request error");
 }
 
-export async function shareNote(data) {
-  const response = await jwtRequest("/api/v1/notes/shares", {
+// -------------------
+// Shares API Requests
+// -------------------
+
+export async function createNoteShare(noteId, data) {
+  const response = await jwtRequest(`/api/v1/notes/${noteId}/shares/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
+  });
+
+  return await checkResponse(response);
+}
+
+export async function getNoteShares(noteId) {
+  const response = await jwtRequest(`/api/v1/notes/${noteId}/shares/`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  return await checkResponse(response);
+}
+
+export async function updateNoteShare(noteId, shareId, data) {
+  const response = await jwtRequest(`/api/v1/notes/${noteId}/shares/${shareId}/`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  return await checkResponse(response);
+}
+
+export async function deleteNoteShare(noteId, shareId) {
+  const response = await jwtRequest(`/api/v1/notes/${noteId}/shares/${shareId}/`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
   });
 
   return await checkResponse(response);
