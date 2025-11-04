@@ -39,7 +39,11 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
       if (!refreshTokenPromise) {
         refreshTokenPromise = (async () => {
           const res = await fetch("/api/v1/users/refresh/", { method: "POST" });
-          if (!res.ok) throw new Error("Refresh token expired");
+          if (!res.ok) {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("IsLoggedIn");
+            throw new AppError("Refresh token expired", "Authentication needed");
+          }
 
           const data = await res.json();
           localStorage.setItem("access_token", data.access_token);
