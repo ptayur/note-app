@@ -15,6 +15,7 @@ class UsernameValidationView(APIView):
     Supports `GET` method.
     """
 
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
@@ -25,7 +26,7 @@ class UsernameValidationView(APIView):
             raise ValidationError(
                 "Username is already associated with an account.", code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class EmailValidationView(APIView):
@@ -35,6 +36,7 @@ class EmailValidationView(APIView):
     Supports `POST` method.
     """
 
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -51,7 +53,7 @@ class EmailValidationView(APIView):
             raise ValidationError(
                 "Email is already associated with an account.", code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PasswordValidationView(APIView):
@@ -61,6 +63,7 @@ class PasswordValidationView(APIView):
     Supports `POST` method.
     """
 
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -72,4 +75,4 @@ class PasswordValidationView(APIView):
             validate_password(password=password)
         except DjangoValidationError as error:
             raise ValidationError(error.messages, code=status.HTTP_422_UNPROCESSABLE_ENTITY)
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)

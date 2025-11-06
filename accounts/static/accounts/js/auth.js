@@ -35,7 +35,7 @@ const loginError = document.getElementById("login-error");
 const debouncedValidateUsername = debounce(async () => {
   const result = await validateField({
     field: usernameField,
-    url: "/api/v1/users/validation/username/",
+    url: "/api/v1/users/validate-username/",
     method: "GET",
     paramName: "username",
   });
@@ -49,7 +49,7 @@ const debouncedValidateUsername = debounce(async () => {
 const debouncedValidateEmail = debounce(async () => {
   const result = await validateField({
     field: emailFieldBack,
-    url: "/api/v1/users/validation/email/",
+    url: "/api/v1/users/validate-email/",
     paramName: "email",
   });
   if (!result.ok) {
@@ -62,7 +62,7 @@ const debouncedValidateEmail = debounce(async () => {
 const debouncedValidatePassword = debounce(async () => {
   const result = await validateField({
     field: passwordField,
-    url: "/api/v1/users/validation/password/",
+    url: "/api/v1/users/validate-password/",
     paramName: "password",
   });
   if (!result.ok) {

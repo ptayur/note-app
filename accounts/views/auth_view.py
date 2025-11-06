@@ -17,6 +17,7 @@ class LoginView(APIView):
     Supports `POST` method.
     """
 
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -127,6 +128,7 @@ class RegisterView(APIView):
     Supports `POST` method.
     """
 
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
