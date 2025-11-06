@@ -2,7 +2,7 @@
 .toast-container {
     display: flex;
     position: fixed;
-    z-index: 3000;
+    z-index: 4000;
     height: 100%;
     width: 50%;
     pointer-events: none;

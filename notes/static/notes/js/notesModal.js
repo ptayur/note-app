@@ -1,6 +1,6 @@
 import { ModalManager } from "/static/components/modal/modalManager.js";
-import { createNoteShare, getNoteShares, updateNoteShare, deleteNoteShare } from "./notesAPI.js";
-import { AppError } from "../../../../static/js/utils.js";
+import { createNoteShare, updateNoteShare, getNoteShares, deleteNoteShare } from "./notesAPI.js";
+import { ToastContainer } from "/static/components/toasts/toastContainer.js";
 
 export function noteInfoModal(noteData) {
   // Init elements
@@ -10,7 +10,6 @@ export function noteInfoModal(noteData) {
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "Close";
   closeBtn.classList = "generic-button";
-  closeBtn.addEventListener(() => modal.close());
 
   const fields = {
     owner: "Owner",
@@ -32,7 +31,6 @@ export function noteInfoModal(noteData) {
   const okBtn = document.createElement("button");
   okBtn.textContent = "Ok";
   okBtn.classList = "generic-button";
-  okBtn.addEventListener(() => modal.close());
 
   //Modal setup
   const modal = new ModalManager();
@@ -46,6 +44,10 @@ export function noteInfoModal(noteData) {
     modal: "modal--generic",
     modalWindow: "modal__window--generic",
   });
+
+  // Modal events
+  closeBtn.addEventListener("click", () => modal.close());
+  okBtn.addEventListener("click", () => modal.close());
 
   modal.show();
 }
@@ -94,9 +96,37 @@ export function deleteNoteModal(noteTitle) {
   });
 }
 
-export function shareNoteModal(noteData) {
+export async function shareNoteModal(noteData) {
+  const toastContainer = new ToastContainer();
+
   // Hardcoded roles
   const roles = ["viewer", "editor"];
+
+  // Helper function
+  function renderExistingShare(share) {
+    const row = document.createElement("div");
+    row.classList = "share-list__row";
+    row.dataset.id = share.id;
+
+    const pUsername = document.createElement("p");
+    pUsername.textContent = share.user;
+
+    const roleSelect = document.createElement("select");
+    roles.forEach((role) => {
+      const option = document.createElement("option");
+      option.value = role;
+      option.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+      if (role == share.role) option.selected = true;
+      roleSelect.appendChild(option);
+    });
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "Remove";
+    removeBtn.classList = "generic-button";
+
+    row.append(pUsername, roleSelect, removeBtn);
+    shareListBlock.appendChild(row);
+  }
 
   // Init elements
   // Init header
@@ -116,50 +146,27 @@ export function shareNoteModal(noteData) {
   userInput.placeholder = "Enter username...";
   userInput.classList = "new-share__input";
 
-  const roleSelect = document.createElement("select");
+  const newRoleSelect = document.createElement("select");
   roles.forEach((role) => {
     const option = document.createElement("option");
     option.value = role;
-    option.textContent = role.toUpperCase();
-    roleSelect.appendChild(option);
+    option.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+    newRoleSelect.appendChild(option);
   });
 
   const addShareBtn = document.createElement("button");
   addShareBtn.textContent = "Add";
   addShareBtn.classList = "generic-button";
 
-  newShareBlock.append(userInput, roleSelect, addShareBtn);
+  newShareBlock.append(userInput, newRoleSelect, addShareBtn);
 
   // Init display existing shares block
   const shareListBlock = document.createElement("div");
   shareListBlock.classList = "share-list";
 
-  const renderExistingShare = (share) => {
-    const row = document.createElement("div");
-    row.classList = "share-list__row";
-    row.dataset.id = share.id;
+  const response = await getNoteShares(noteData.id);
 
-    const pUsername = document.createElement("p");
-    pUsername.textContent = share.username;
-
-    const roleSelect = document.createElement("select");
-    roles.forEach((role) => {
-      const option = document.createElement("option");
-      option.value = role;
-      option.textContent = role.toUpperCase();
-      if (role == share.role) option.selected = true;
-      roleSelect.appendChild(option);
-    });
-
-    const removeBtn = document.createElement("button");
-    removeBtn.textContent = "Remove";
-    removeBtn.classList = "generic-button";
-
-    row.append(pUsername, roleSelect, removeBtn);
-    shareListBlock.appendChild(row);
-  };
-
-  noteData.shares.forEach(renderExistingShare);
+  response.data.forEach(renderExistingShare);
 
   // Init footer
   const cancelBtn = document.createElement("button");
@@ -183,56 +190,41 @@ export function shareNoteModal(noteData) {
     modalWindow: "modal__window--generic",
   });
 
-  modal.show();
-
-  // Changes tracking
-  const created = [];
-  const removed = new Set();
-  const updated = new Map();
-
   // Modal events
   addShareBtn.addEventListener("click", async () => {
     const username = userInput.value.trim();
     if (!username) return;
 
-    const role = roleSelect.value;
-    response = await createNoteShare(noteData.id, { user: username, role: role });
-    renderExistingShare(response.data);
-
-    userInput.value = "";
-  });
-
-  shareListBlock.addEventListener("click", (event) => {
-    const row = event.target.closest(".share-list__row");
-    if (!row) return;
-
-    const id = row.dataset.id;
-
-    if (event.target.tagName === "BUTTON") {
-      row.remove();
-      if (typeof id !== "string") removed.add(id);
+    const role = newRoleSelect.value;
+    const response = await createNoteShare(noteData.id, { user: username, role: role });
+    if (response.ok) {
+      renderExistingShare(response.data);
+      userInput.value = "";
       return;
     }
-
-    if (event.target.tagName === "SELECT") {
-      updated.set(id, event.target.value);
-    }
+    toastContainer.addErrorToast("Share has not been created!", response.data);
   });
 
-  // Resolve promise
-  return new Promise((resolve) => {
-    const close = (result) => {
-      modal.close();
-      resolve(result);
-    };
-    cancelBtn.addEventListener("click", () => close(null));
-    closeBtn.addEventListener("click", () => close(null));
-    saveBtn.addEventListener("click", () => {
-      close({
-        created,
-        updated: Array.from(updated, ([id, role]) => ({ id, role })),
-        removed: Array.from(removed),
-      });
+  shareListBlock.querySelectorAll("button").forEach((removeBtn) => {
+    removeBtn.addEventListener("click", async (event) => {
+      const row = event.target.closest(".share-list__row");
+      const response = await deleteNoteShare(noteData.id, row.dataset.id);
+      if (response.ok) {
+        row.remove();
+      }
+      return;
     });
   });
+
+  shareListBlock.querySelectorAll("select").forEach((roleSelect) => {
+    roleSelect.addEventListener("change", async (event) => {
+      const row = event.target.closest(".share-list__row");
+      const response = await updateNoteShare(noteData.id, row.dataset.id, { role: roleSelect.value });
+    });
+  });
+
+  closeBtn.addEventListener("click", () => modal.close());
+  cancelBtn.addEventListener("click", () => modal.close());
+
+  modal.show();
 }
