@@ -1,8 +1,9 @@
 import { FiltersManager } from "./filtersManager.js";
 import { NotesManager } from "./notesManager.js";
-import { deleteNoteModal, noteInfoModal, shareNoteModal } from "./notesModal.js";
+import { deleteNoteModal, noteInfoModal } from "./notesModal.js";
 import { ToastContainer } from "/static/components/toasts/toastContainer.js";
 import { AppError } from "/static/js/utils.js";
+import { shareModal } from "../components/shares/shareModal.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   // ----------------
@@ -157,7 +158,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const shareBtn = notePanel.querySelector("#share-button");
   bindAction(shareBtn, "click", async () => {
     const noteData = notesManager.getData();
-    await shareNoteModal(noteData);
+    await shareModal(noteData);
   });
 
   // Note selecting flow
