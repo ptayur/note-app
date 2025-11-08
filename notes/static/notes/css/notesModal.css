@@ -1,58 +1,40 @@
 @import "/static/components/modal/modal.css";
 
-.modal--generic {
-    background-color: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(3px);
-
-    transition: display 0.3s ease;
-}
-
-.modal__window--generic {
-    padding: 15px;
-    background-color: var(--anti-flash-white);
-    border: 1px solid var(--eerie-black);
-    box-shadow: 2px 2px 0px var(--french-light-gray);
-}
-
-.modal__header > p {
-    margin: 0;
-}
-
 /* Info Modal */
 
 .modal__list {
-    list-style: none;
-    padding: 5px;
-    background-color: var(--onyx);
+  list-style: none;
+  padding: 5px;
+  background-color: var(--onyx);
 }
 
 .modal__list > li {
-    display: grid;
-    grid-template-columns: 0.35fr 0.65fr;
-    padding: 5px;
-    gap: 10px;
+  display: grid;
+  grid-template-columns: 0.35fr 0.65fr;
+  padding: 5px;
+  gap: 10px;
 }
 
 .list__label {
-    padding-left: 10px;
-    background-color: var(--outer-space);
-    color: var(--platinum);
-    border: 1px solid var(--french-light-gray);
-    box-shadow: 2px 2px 0px var(--french-gray);
+  padding-left: 10px;
+  background-color: var(--outer-space);
+  color: var(--platinum);
+  border: 1px solid var(--french-light-gray);
+  box-shadow: 2px 2px 0px var(--french-gray);
 }
 
 .list__key {
-    padding-left: 10px;
-    background-color: var(--french-light-gray);
-    color: var(--eerie-black);
-    border: 1px solid var(--eerie-black);
-    box-shadow: 2px 2px 0px var(--anti-flash-white);
+  padding-left: 10px;
+  background-color: var(--french-light-gray);
+  color: var(--eerie-black);
+  border: 1px solid var(--eerie-black);
+  box-shadow: 2px 2px 0px var(--anti-flash-white);
 }
 
 /* Delete Modal */
 
 .modal__button--delete {
-    color: var(--auburn);
-    border: 1px solid var(--falu-red);
-    box-shadow: 0 2px 0 var(--osewood);
+  color: var(--auburn);
+  border: 1px solid var(--falu-red);
+  box-shadow: 0 2px 0 var(--osewood);
 }

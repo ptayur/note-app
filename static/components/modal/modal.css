@@ -1,41 +1,107 @@
 /* Base modal box style */
 
 .modal {
-    display: flex;
-    position: fixed;
-    z-index: 3000;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
+  display: flex;
+  position: fixed;
+  z-index: 3000;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
 
-    opacity: 0;
-    visibility: hidden;
+  opacity: 0;
+  visibility: hidden;
 
-    justify-content: center;
-    align-items: center;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(3px);
+
+  transition: display 0.3s ease;
 }
 
 .modal--open {
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
 
 .modal__window {
-    background: #fff;
-    width: 400px;
-    max-width: 90%;
-    position: relative;
+  display: grid;
+  padding: 15px;
+  gap: 15px;
+  background-color: var(--anti-flash-white);
+  border: 1px solid var(--eerie-black);
+  box-shadow: 2px 2px 0px var(--french-light-gray);
+  width: 400px;
+  max-width: 90%;
+  position: relative;
 }
+
+/* Modal header styles */
 
 .modal__header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 
+.modal__header__section {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: space-between;
+
+  border-bottom: 1px solid var(--french-gray);
+  box-shadow: 2px 2px 0 var(--eerie-black);
+}
+
+.modal__header__section > span {
+  padding: 1px 5px;
+  background-color: var(--onyx);
+  color: var(--seasalt);
+  border: 1px solid var(--french-gray);
+}
+
+.modal__header__section > button {
+  padding: 0 5px;
+  border: 1px solid var(--french-gray);
+}
+
+/* Modal main styles */
+
+.modal__main {
+  display: grid;
+  gap: 15px;
+}
+
+.modal__main__section {
+  background-color: var(--french-gray);
+  box-shadow: 2px 2px 0 var(--outer-space);
+  border: 1px solid var(--eerie-black);
+}
+
+.modal__main__section > span {
+  display: block;
+  padding: 5px 5px 0 5px;
+}
+
+/* Modal footer styles */
+
 .modal__footer {
-    display: flex;
-    justify-content: right;
+  display: flex;
+  justify-content: center;
+}
+
+.modal__footer__section {
+  display: flex;
+  flex: 1;
+  justify-content: right;
+  border-top: 1px solid var(--french-gray);
+  box-shadow: 2px -2px 0 var(--eerie-black);
+}
+
+.modal__footer__section > button {
+  border: 1px solid var(--french-gray);
 }

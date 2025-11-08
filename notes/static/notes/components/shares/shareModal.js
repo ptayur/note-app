@@ -1,26 +1,39 @@
-import { shareNew } from "./shareNew.js";
-import { shareRow } from "./shareRow.js";
-import { createNoteShare, getNoteShares, updateNoteShare, deleteNoteShare } from "../../js/notesAPI.js";
+import { createShareForm } from "./createShareForm.js";
+import { createShareList, createShareRow } from "./createShareList.js";
+import {
+  createNoteShare,
+  getNoteShares,
+  updateNoteShare,
+  deleteNoteShare,
+} from "../../js/notesAPI.js";
 import { ModalManager } from "/static/components/modal/modalManager.js";
 import { ToastContainer } from "/static/components/toasts/toastContainer.js";
 
-function attachRowListeners({ rootEl, usernameEl, selectEl, buttonEl }, noteID, toast) {
-  selectEl.addEventListener("change", async () => {
-    const response = await updateNoteShare(noteID, rootEl.dataset.id, { role: selectEl.value });
+function attachRowListeners({ root, username, select, button }, noteID, toast) {
+  select.addEventListener("change", async () => {
+    const response = await updateNoteShare(noteID, root.dataset.id, {
+      role: select.value,
+    });
     if (!response.ok) {
       toast.addErrorToast("Share has not been updated!", response.data);
       return;
     }
-    toast.addSuccessToast("Share has been updated!", `${usernameEl.textContent}'s role changed to ${selectEl.value}.`);
+    toast.addSuccessToast(
+      "Share has been updated!",
+      `${username.textContent}'s role changed to ${select.value}.`
+    );
   });
-  buttonEl.addEventListener("click", async () => {
-    const response = await deleteNoteShare(noteID, rootEl.dataset.id);
+  button.addEventListener("click", async () => {
+    const response = await deleteNoteShare(noteID, root.dataset.id);
     if (!response.ok) {
       toast.addErrorToast("Share has not been deleted!", response.data);
       return;
     }
-    rootEl.remove();
-    toast.addSuccessToast("Share has been deleted!", `Share for ${usernameEl.textContent} deleted.`);
+    root.remove();
+    toast.addSuccessToast(
+      "Share has been deleted!",
+      `Share for ${username.textContent} deleted.`
+    );
   });
 }
 
@@ -33,90 +46,116 @@ export async function shareModal(noteData) {
   // Init UI
   // -------
 
-  const titleEl = document.createElement("p");
-  titleEl.textContent = `Manage shares for "${noteData.title}"`;
+  // Init Header
+  const headerEl = document.createElement("div");
+  headerEl.classList.add("modal__header__section");
+
+  const titleEl = document.createElement("span");
+  titleEl.textContent = `Manage shares for "${noteData.title}" note`;
 
   const closeBtnEl = document.createElement("button");
-  closeBtnEl.textContent = "Close";
-  closeBtnEl.classList = "generic-button";
+  closeBtnEl.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20">
+    <path fill=currentColor d="M10 8.586L2.929 1.515L1.515 2.929L8.586 10l-7.071 7.071l1.414 1.414L10 11.414l7.071 7.071l1.414-1.414L11.414 10l7.071-7.071l-1.414-1.414L10 8.586z"/>
+    </svg>
+  `;
+  closeBtnEl.classList.add("flat-button");
 
-  // Create share block
-  const createShareEl = document.createElement("div");
-  createShareEl.classList.add("create-share");
+  headerEl.append(titleEl, closeBtnEl);
 
-  const createTitleEl = document.createElement("p");
+  // Init create block
+  const createBlockEl = document.createElement("div");
+  createBlockEl.classList.add("modal__main__section");
+
+  const createTitleEl = document.createElement("span");
   createTitleEl.textContent = "Create a new share";
 
-  const newShare = shareNew(roles);
+  const shareFormEl = createShareForm(roles);
 
-  createShareEl.append(createTitleEl, newShare.rootEl);
+  createBlockEl.append(createTitleEl, shareFormEl.root);
 
-  // shares list block
-  const sharesEl = document.createElement("div");
-  sharesEl.classList.add("shares");
+  // Init list block
+  const listBlockEl = document.createElement("div");
+  listBlockEl.classList.add("modal__main__section");
 
-  const sharesTitleEl = document.createElement("p");
-  sharesTitleEl.textContent = "Shares list";
+  const listTitleEl = document.createElement("span");
+  listTitleEl.textContent = "Shares list";
 
-  const shareListEl = document.createElement("div");
-  shareListEl.classList.add("share-list");
+  const shareListEl = createShareList();
 
-  sharesEl.append(sharesTitleEl, shareListEl);
+  listBlockEl.append(listTitleEl, shareListEl);
 
   const response = await getNoteShares(noteData.id);
   if (!response.ok) {
     toast.addErrorToast("Cannot load note shares data!", response.data);
   } else {
     response.data.forEach((share) => {
-      const row = shareRow(roles, share);
+      const row = createShareRow(roles, share);
       attachRowListeners(row, noteData.id, toast);
-      shareListEl.appendChild(row.rootEl);
+      shareListEl.appendChild(row.root);
     });
   }
 
-  const okBtnEl = document.createElement("button");
-  okBtnEl.textContent = "Ok";
-  okBtnEl.classList = "modal__button--confirm generic-button";
+  // Init Footer
+
+  const footerEl = document.createElement("div");
+  footerEl.classList.add("modal__footer__section");
+
+  const doneBtnEl = document.createElement("button");
+  doneBtnEl.textContent = "Done";
+  doneBtnEl.classList.add("flat-button");
+
+  footerEl.appendChild(doneBtnEl);
 
   // ---------------
   // Event Listeners
   // ---------------
 
-  newShare.buttonEl.addEventListener("click", async () => {
-    const username = newShare.inputEl.value.trim();
+  shareFormEl.button.addEventListener("click", async () => {
+    const username = shareFormEl.input.value.trim();
     if (!username) {
-      newShare.inputEl.classList.add("input--error");
+      shareFormEl.input.classList.add("input--error");
       return;
     }
-    const role = newShare.selectEl.value;
-    const response = await createNoteShare(noteData.id, { user: username, role: role });
+    const role = shareFormEl.select.value;
+    const response = await createNoteShare(noteData.id, {
+      user: username,
+      role: role,
+    });
     if (!response.ok) {
-      toast.addErrorToast("Share has not been created!", response.data);
+      toast.addErrorToast(
+        "Share has not been created!",
+        Object.values(response.data)[0]
+      );
       return;
     }
-    const row = shareRow(roles, response.data);
+    const row = createShareRow(roles, response.data);
     attachRowListeners(row, noteData.id, toast);
-    shareListEl.appendChild(row.rootEl);
-    newShare.inputEl.value = "";
-    toast.addSuccessToast("Share has been created!", `Share for ${username} created.`);
+    shareListEl.appendChild(row.root);
+    shareFormEl.input.value = "";
+    toast.addSuccessToast(
+      "Share has been created!",
+      `Share for ${username} created.`
+    );
+  });
+
+  shareFormEl.input.addEventListener("input", () => {
+    if (shareFormEl.input.classList.contains("input--error")) {
+      shareFormEl.input.classList.remove("input--error");
+    }
   });
 
   closeBtnEl.addEventListener("click", () => modal.close());
-  okBtnEl.addEventListener("click", () => modal.close());
+  doneBtnEl.addEventListener("click", () => modal.close());
 
   // -----------
   // Setup Modal
   // -----------
 
   modal.setContent({
-    header: [titleEl, closeBtnEl],
-    main: [createShareEl, sharesEl],
-    footer: [okBtnEl],
-  });
-
-  modal.setClass({
-    modal: "modal--generic",
-    modalWindow: "modal__window--generic",
+    header: headerEl,
+    main: [createBlockEl, listBlockEl],
+    footer: footerEl,
   });
 
   modal.show();

@@ -3,77 +3,87 @@
 /* Navigation button */
 
 .nav-button {
-    background-color: var(--eerie-black);
-    border: none;
-    border-left: 2px solid transparent;
-    color: var(--platinum);
+  background-color: var(--eerie-black);
+  border: none;
+  border-left: 2px solid transparent;
+  color: var(--platinum);
 
-    transition: border-left 0.3s ease;
+  transition: border-left 0.3s ease;
 }
 
 .nav-button:hover {
-    border-left: 2px solid var(--platinum);
+  border-left: 2px solid var(--platinum);
 }
 
 .nav-button > * {
-    transition: transform 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .nav-button:hover > * {
-    transform: translateX(3px);
+  transform: translateX(3px);
 }
 
 /* Link as a button style */
 
 .nav-link {
-    background-color: var(--eerie-black);
-    color: var(--platinum);
-    text-decoration: none;
-    border: none;
-    border-left: 2px solid transparent;
+  background-color: var(--eerie-black);
+  color: var(--platinum);
+  text-decoration: none;
+  border: none;
+  border-left: 2px solid transparent;
 
-    padding: 1px 6px;
+  padding: 1px 6px;
 
-    transition: border-left 0.3s ease;
+  transition: border-left 0.3s ease;
 }
 
 .nav-link:hover {
-    border-left: 2px solid var(--platinum);
+  border-left: 2px solid var(--platinum);
 }
 
 .nav-link > * {
-    display: block;
-    transition: transform 0.3s ease;
+  display: block;
+  transition: transform 0.3s ease;
 }
 
 .nav-link:hover > * {
-    transform: translateX(3px);
+  transform: translateX(3px);
 }
 
 /* Generic button */
 .generic-button {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    background-color: var(--eerie-black);
-    border-radius: 5px;
-    border: 1px solid var(--slate-gray);
-    box-shadow: 0 2px 0 var(--french-gray);
-    color: var(--french-light-gray);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background-color: var(--eerie-black);
+  border-radius: 5px;
+  border: 1px solid var(--slate-gray);
+  box-shadow: 0 2px 0 var(--french-gray);
+  color: var(--french-light-gray);
 
-    transition: transform 0.3s ease-in-out,
-                box-shadow 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
 .generic-button:disabled {
-    filter: brightness(50%);
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: 0 2px 0 var(--french-gray) !important;
+  filter: brightness(50%);
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: 0 2px 0 var(--french-gray) !important;
 }
 
 .generic-button:active {
-    transform: translateY(2px);
-    box-shadow: none;
-    transition: none;
+  transform: translateY(2px);
+  box-shadow: none;
+  transition: none;
+}
+
+/* Flat Button */
+.flat-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background-color: var(--onyx);
+  border: none;
+  color: var(--seasalt);
 }
