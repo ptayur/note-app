@@ -1,4 +1,4 @@
-import { createDropdownUI } from "./dropdownUI";
+import { createDropdownUI } from "./dropdownUI.js";
 
 export class Dropdown {
   static #initialized = false;
@@ -19,16 +19,13 @@ export class Dropdown {
 
   static #setupGlobalListener(event) {
     const open = Dropdown.openDropdown;
-    if (open && !open.contentEl.contains(event.target) && event.target !== open.buttonEl) {
+    if (open && !open.rootEl.contains(event.target)) {
       open.close();
     }
   }
 
   #setupListeners() {
     this.buttonEl.addEventListener("click", () => {
-      if (Dropdown.openDropdown && Dropdown.openDropdown !== this) {
-        Dropdown.openDropdown.close();
-      }
       this.toggle();
     });
   }

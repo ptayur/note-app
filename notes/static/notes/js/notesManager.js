@@ -35,14 +35,14 @@ export class NotesManager {
   #renderNote(data) {
     this.titleInput.value = data?.title ?? "";
     this.contentInput.value = data?.content ?? "";
-    this.contentInput.disabled = false;
+    this.contentInput.readOnly = false;
     this.notePanel.querySelectorAll("button").forEach((btn) => (btn.disabled = false));
   }
 
   #clearPanel() {
     this.titleInput.value = "";
     this.contentInput.value = "";
-    this.contentInput.disabled = true;
+    this.contentInput.readOnly = true;
     this.notePanel.querySelectorAll("button").forEach((btn) => (btn.disabled = true));
   }
 

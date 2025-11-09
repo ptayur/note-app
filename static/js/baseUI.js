@@ -1,40 +1,49 @@
-//
-// Imports
-//
-
-import { logout, getCurrentUser } from "/static/accounts/js/authCore.js"
-
-// Functions
+import { logout, getCurrentUser } from "/static/accounts/js/authCore.js";
+import { Dropdown } from "/static/components/dropdown/index.js";
 
 export async function renderNavBar() {
-    const nav = document.querySelector("nav");
-    // Render left side of navigation bar
-    const leftTemplate = document.querySelector("#left-template");
-    const leftClone = leftTemplate.content.cloneNode(true);
+  const nav = document.querySelector("nav");
+  // Render left side of navigation bar
+  const leftTemplate = document.querySelector("#left-template");
+  const leftClone = leftTemplate.content.cloneNode(true);
 
-    nav.appendChild(leftClone);
+  nav.appendChild(leftClone);
 
-    // Render right side of navigation bar
-    if (localStorage.getItem("IsLoggedIn")) {
-        const response = await getCurrentUser();
-        if (response.ok) {
-            const loggedInTemplate = document.querySelector("#right-logged-in-template");
-            const loggedInClone = loggedInTemplate.content.cloneNode(true);
+  // Render right side of navigation bar
+  if (localStorage.getItem("IsLoggedIn")) {
+    const response = await getCurrentUser();
+    if (response.ok) {
+      const dropdown = new Dropdown();
 
-            loggedInClone.querySelector("#username").textContent = response.data.user.username;
+      const dropdownBtnEl = dropdown.buttonEl;
+      dropdownBtnEl.innerHTML = `
+      <span>${response.data.user.username}</span>
+      `;
+      dropdownBtnEl.classList.add("nav-button");
 
-            // Set logout handler for logout button
-            loggedInClone.querySelector("#logout-button").
-                addEventListener("click", async () => {
-                    await logout();
-            })
-            
-            nav.appendChild(loggedInClone);
-        }
-    } else {
-        const loggedOutTemplate = document.querySelector("#right-logged-out-template");
-        const loggedOutClone = loggedOutTemplate.content.cloneNode(true);
+      const dropdownContentTemplate = document.querySelector(
+        "#logged-in-dropdown-template"
+      );
+      const dropdownContentClone =
+        dropdownContentTemplate.content.cloneNode(true);
 
-        nav.appendChild(loggedOutClone);
+      const logoutBtnEl = dropdownContentClone.querySelector("#logout-button");
+      logoutBtnEl.addEventListener("click", () => {
+        logout();
+      });
+
+      const dropdownContentEl = dropdown.contentEl;
+      dropdownContentEl.classList.add("dropdown__content--nav");
+      dropdownContentEl.append(dropdownContentClone);
+
+      nav.appendChild(dropdown.rootEl);
     }
+  } else {
+    const loggedOutTemplate = document.querySelector(
+      "#right-logged-out-template"
+    );
+    const loggedOutClone = loggedOutTemplate.content.cloneNode(true);
+
+    nav.appendChild(loggedOutClone);
+  }
 }

@@ -1,33 +1,34 @@
 /* Base dropdown style */
 
 .dropdown {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .dropdown__button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .dropdown__content {
-    position: absolute;
-    display: none;
-    top: 100%;
-    z-index: 2000;
+  position: absolute;
+  display: none;
+  top: 100%;
+  z-index: 2000;
 
-    width: max-content;
-    min-width: 100%;
-    padding: 0;
-    margin: 0;
+  width: max-content;
+  min-width: 100%;
+  padding: 0;
+  margin: 0;
+  gap: 5px;
 
-    list-style: none;
-    background: white;
+  list-style: none;
+  background: white;
 }
 
 .dropdown__content:not(.hidden) {
-    display: block;
+  display: grid;
 }

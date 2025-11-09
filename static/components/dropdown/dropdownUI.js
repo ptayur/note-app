@@ -1,5 +1,3 @@
-import "./dropdown.css";
-
 export function createDropdownUI() {
   const rootEl = document.createElement("div");
   rootEl.classList.add("dropdown");

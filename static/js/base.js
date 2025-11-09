@@ -3,7 +3,6 @@
 //
 
 import { renderNavBar } from "./baseUI.js";
-import { initDropdowns } from "../components/dropdown/dropdown.js";
 
 //
 // Global Variables & DOM Elements
@@ -14,6 +13,5 @@ import { initDropdowns } from "../components/dropdown/dropdown.js";
 //
 
 document.addEventListener("DOMContentLoaded", async () => {
-    await renderNavBar();
-    initDropdowns();
-})
+  await renderNavBar();
+});
