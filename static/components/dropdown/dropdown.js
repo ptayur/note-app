@@ -1,40 +1,56 @@
-// Dropdowns handler
-export function initDropdowns() {
-    const dropdowns = document.querySelectorAll(".dropdown");
+import { createDropdownUI } from "./dropdownUI";
 
-    dropdowns.forEach(dropdown => {
-        dropdown.addEventListener("click", event => {
-            const dropdownBtn = dropdown.querySelector(".dropdown__button");
-            const dropdownMenu = dropdown.querySelector(".dropdown__menu");
+export class Dropdown {
+  static #initialized = false;
+  static openDropdown = null;
 
-            if (dropdownBtn.contains(event.target)) {
-                // Check is clicked inside this dropdown
-                const isOpen = dropdownMenu.classList.contains("dropdown__menu--open");
-                if (!isOpen) {
-                    // Close open dropdown first
-                    closeOpenDropdown(event.target);
-                }
-                dropdownMenu.classList.toggle("dropdown__menu--open");
-                dropdownBtn.setAttribute("aria-expanded", String(!isOpen));
-            }
-        });
-    });
+  constructor() {
+    const dropdown = createDropdownUI();
+    this.rootEl = dropdown.root;
+    this.buttonEl = dropdown.button;
+    this.contentEl = dropdown.content;
 
-    // Global listener to close dropdown when clicked outside of it
-    document.addEventListener("click", event => {
-        closeOpenDropdown(event.target);
-    })
-
-    function closeOpenDropdown(eventTarget) {
-        const openDropdown = document.querySelector(".dropdown__menu--open");
-        if (openDropdown) {
-            const dropdown = openDropdown.closest(".dropdown");
-            if (!dropdown.contains(eventTarget)) {
-                openDropdown.classList.remove("dropdown__menu--open");
-                dropdown.querySelector(".dropdown__button")
-                    .setAttribute("aria-expanded", "false");
-            }
-        }
+    this.#setupListeners();
+    if (!Dropdown.#initialized) {
+      document.addEventListener("click", Dropdown.#setupGlobalListener);
+      Dropdown.#initialized = true;
     }
-}
+  }
 
+  static #setupGlobalListener(event) {
+    const open = Dropdown.openDropdown;
+    if (open && !open.contentEl.contains(event.target) && event.target !== open.buttonEl) {
+      open.close();
+    }
+  }
+
+  #setupListeners() {
+    this.buttonEl.addEventListener("click", () => {
+      if (Dropdown.openDropdown && Dropdown.openDropdown !== this) {
+        Dropdown.openDropdown.close();
+      }
+      this.toggle();
+    });
+  }
+
+  open() {
+    if (Dropdown.openDropdown && Dropdown.openDropdown !== this) {
+      Dropdown.openDropdown.close();
+    }
+    this.contentEl.classList.remove("hidden");
+    Dropdown.openDropdown = this;
+  }
+
+  close() {
+    this.contentEl.classList.add("hidden");
+    if (Dropdown.openDropdown === this) Dropdown.openDropdown = null;
+  }
+
+  toggle() {
+    if (Dropdown.openDropdown && Dropdown.openDropdown !== this) {
+      Dropdown.openDropdown.close();
+    }
+    const isHidden = this.contentEl.classList.toggle("hidden");
+    Dropdown.openDropdown = isHidden ? null : this;
+  }
+}
