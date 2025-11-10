@@ -2,7 +2,7 @@
 // Imports
 //
 
-import { debounce } from "/static/js/utils.js";
+import { debounce } from "/static/utils/utils.js";
 
 export class FiltersManager {
   #dropdownFilter = null;

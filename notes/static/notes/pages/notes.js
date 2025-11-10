@@ -1,9 +1,8 @@
-import { FiltersManager } from "./filtersManager.js";
-import { NotesManager } from "./notesManager.js";
-import { deleteNoteModal, noteInfoModal } from "./notesModal.js";
+import { FiltersManager } from "../components/notes/filtersManager.js";
+import { NotesManager } from "../components/notes/notesManager.js";
+import { deleteModal, infoModal, shareModal } from "../components/modals/index.js";
 import { ToastContainer } from "/static/components/toasts/toastContainer.js";
-import { AppError } from "/static/js/utils.js";
-import { shareModal } from "../components/shares/shareModal.js";
+import { AppError } from "/static/utils/utils.js";
 import { Dropdown } from "/static/components/dropdown/index.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -161,14 +160,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const infoBtn = notePanel.querySelector("#info-button");
   bindAction(infoBtn, "click", async () => {
     const noteData = notesManager.getData();
-    noteInfoModal(noteData);
+    infoModal(noteData);
   });
 
   // Delete note button
   const deleteBtn = notePanel.querySelector("#delete-button");
   bindAction(deleteBtn, "click", async () => {
     const noteData = notesManager.getData();
-    const confirmed = await deleteNoteModal(noteData.title);
+    const confirmed = await deleteModal(noteData.title);
     if (confirmed) {
       await notesManager.delete();
       toastContainer.addSuccessToast("Delete success", "Note has been deleted!");

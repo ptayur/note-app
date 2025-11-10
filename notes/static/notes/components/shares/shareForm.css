@@ -1,0 +1,17 @@
+/* Share form styles */
+
+.share-form {
+  display: grid;
+  grid-template-columns: 3fr 2fr 1.5fr;
+
+  padding: 0 5px 5px 5px;
+  gap: 10px;
+}
+
+.share-form > input {
+  min-width: 0;
+}
+
+.input--error {
+  border: 2px solid var(--auburn);
+}

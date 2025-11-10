@@ -52,8 +52,14 @@
   flex: 1;
   flex-direction: row;
   justify-content: space-between;
+  overflow: hidden;
 
   border-bottom: 1px solid var(--french-gray);
+  box-shadow: 2px 2px 0 var(--eerie-black);
+}
+
+.modal__header__section > * {
+  border: 1px solid var(--french-gray);
   box-shadow: 2px 2px 0 var(--eerie-black);
 }
 
@@ -61,12 +67,10 @@
   padding: 1px 5px;
   background-color: var(--onyx);
   color: var(--seasalt);
-  border: 1px solid var(--french-gray);
 }
 
 .modal__header__section > button {
   padding: 0 5px;
-  border: 1px solid var(--french-gray);
 }
 
 /* Modal main styles */
@@ -97,11 +101,14 @@
 .modal__footer__section {
   display: flex;
   flex: 1;
+  gap: 5px;
   justify-content: right;
+  overflow: hidden;
   border-top: 1px solid var(--french-gray);
   box-shadow: 2px -2px 0 var(--eerie-black);
 }
 
-.modal__footer__section > button {
+.modal__footer__section > * {
   border: 1px solid var(--french-gray);
+  box-shadow: 2px -2px 0 var(--eerie-black);
 }

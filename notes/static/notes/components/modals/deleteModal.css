@@ -1,0 +1,6 @@
+/* Delete Modal */
+
+.modal__button--delete {
+  color: var(--auburn);
+  border: 1px solid var(--auburn) !important;
+}

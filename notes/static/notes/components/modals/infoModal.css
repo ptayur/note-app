@@ -1,0 +1,29 @@
+/* Info Modal */
+
+.modal__list {
+  list-style: none;
+  padding: 5px;
+}
+
+.modal__list > li {
+  display: grid;
+  grid-template-columns: 0.35fr 0.65fr;
+  padding: 5px;
+  gap: 10px;
+}
+
+.list__label {
+  padding-left: 10px;
+  background-color: var(--onyx);
+  color: var(--seasalt);
+  border: 1px solid var(--outer-space);
+  box-shadow: 2px 2px 0px var(--eerie-black);
+}
+
+.list__key {
+  padding-left: 10px;
+  background-color: var(--outer-space);
+  color: var(--seasalt);
+  border: 1px solid var(--slate-gray);
+  box-shadow: 2px 2px 0px var(--eerie-black);
+}

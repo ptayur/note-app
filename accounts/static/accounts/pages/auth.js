@@ -2,9 +2,9 @@
 // Imports
 //
 
-import { login, register, validateField, validateRepeatPassword } from "./authCore.js";
-import { debounce } from "../../../../static/js/utils.js";
-import { showFieldError } from "./errors.js";
+import { login, register, validateField, validateRepeatPassword } from "../api/authAPI.js";
+import { debounce } from "/static/utils/utils.js";
+import { showFieldError } from "../utils/errors.js";
 
 //
 // Global Variables & DOM Elements

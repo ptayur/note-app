@@ -1,11 +1,6 @@
-import { createShareForm } from "./createShareForm.js";
-import { createShareList, createShareRow } from "./createShareList.js";
-import {
-  createNoteShare,
-  getNoteShares,
-  updateNoteShare,
-  deleteNoteShare,
-} from "../../js/notesAPI.js";
+import { shareForm } from "../shares/shareForm.js";
+import { shareList, shareRow } from "../shares/shareList.js";
+import { createNoteShare, getNoteShares, updateNoteShare, deleteNoteShare } from "../../api/sharesAPI.js";
 import { ModalManager } from "/static/components/modal/modalManager.js";
 import { ToastContainer } from "/static/components/toasts/toastContainer.js";
 
@@ -18,10 +13,7 @@ function attachRowListeners({ root, username, select, button }, noteID, toast) {
       toast.addErrorToast("Share has not been updated!", response.data);
       return;
     }
-    toast.addSuccessToast(
-      "Share has been updated!",
-      `${username.textContent}'s role changed to ${select.value}.`
-    );
+    toast.addSuccessToast("Share has been updated!", `${username.textContent}'s role changed to ${select.value}.`);
   });
   button.addEventListener("click", async () => {
     const response = await deleteNoteShare(noteID, root.dataset.id);
@@ -30,10 +22,7 @@ function attachRowListeners({ root, username, select, button }, noteID, toast) {
       return;
     }
     root.remove();
-    toast.addSuccessToast(
-      "Share has been deleted!",
-      `Share for ${username.textContent} deleted.`
-    );
+    toast.addSuccessToast("Share has been deleted!", `Share for ${username.textContent} deleted.`);
   });
 }
 
@@ -70,7 +59,7 @@ export async function shareModal(noteData) {
   const createTitleEl = document.createElement("span");
   createTitleEl.textContent = "Create a new share";
 
-  const shareFormEl = createShareForm(roles);
+  const shareFormEl = shareForm(roles);
 
   createBlockEl.append(createTitleEl, shareFormEl.root);
 
@@ -81,7 +70,7 @@ export async function shareModal(noteData) {
   const listTitleEl = document.createElement("span");
   listTitleEl.textContent = "Shares list";
 
-  const shareListEl = createShareList();
+  const shareListEl = shareList();
 
   listBlockEl.append(listTitleEl, shareListEl);
 
@@ -90,7 +79,7 @@ export async function shareModal(noteData) {
     toast.addErrorToast("Cannot load note shares data!", response.data);
   } else {
     response.data.forEach((share) => {
-      const row = createShareRow(roles, share);
+      const row = shareRow(roles, share);
       attachRowListeners(row, noteData.id, toast);
       shareListEl.appendChild(row.root);
     });
@@ -123,20 +112,14 @@ export async function shareModal(noteData) {
       role: role,
     });
     if (!response.ok) {
-      toast.addErrorToast(
-        "Share has not been created!",
-        Object.values(response.data)[0]
-      );
+      toast.addErrorToast("Share has not been created!", Object.values(response.data)[0]);
       return;
     }
-    const row = createShareRow(roles, response.data);
+    const row = shareRow(roles, response.data);
     attachRowListeners(row, noteData.id, toast);
     shareListEl.appendChild(row.root);
     shareFormEl.input.value = "";
-    toast.addSuccessToast(
-      "Share has been created!",
-      `Share for ${username} created.`
-    );
+    toast.addSuccessToast("Share has been created!", `Share for ${username} created.`);
   });
 
   shareFormEl.input.addEventListener("input", () => {

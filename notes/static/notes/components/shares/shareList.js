@@ -1,4 +1,4 @@
-export function createShareList() {
+export function shareList() {
   const rootEl = document.createElement("div");
   rootEl.classList.add("share-list");
 
@@ -18,7 +18,7 @@ export function createShareList() {
   return rootEl;
 }
 
-export function createShareRow(roles, shareData) {
+export function shareRow(roles, shareData) {
   const rootEl = document.createElement("div");
   rootEl.classList = "share-list__row";
   rootEl.dataset.id = shareData.id;

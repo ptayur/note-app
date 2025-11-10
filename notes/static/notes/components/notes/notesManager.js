@@ -1,4 +1,4 @@
-import { createNote, deleteNote, updateNote, getNoteList, getNoteDetails } from "./notesAPI.js";
+import { createNote, deleteNote, updateNote, getNoteList, getNoteDetails } from "../../api/notesAPI.js";
 
 export class NotesManager {
   notePanel;

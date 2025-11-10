@@ -1,7 +1,7 @@
-import { logout, getCurrentUser } from "/static/accounts/js/authCore.js";
+import { logout, getCurrentUser } from "/static/accounts/api/authAPI.js";
 import { Dropdown } from "/static/components/dropdown/index.js";
 
-export async function renderNavBar() {
+document.addEventListener("DOMContentLoaded", async () => {
   const nav = document.querySelector("nav");
   // Render left side of navigation bar
   const leftTemplate = document.querySelector("#left-template");
@@ -21,11 +21,8 @@ export async function renderNavBar() {
       `;
       dropdownBtnEl.classList.add("nav-button");
 
-      const dropdownContentTemplate = document.querySelector(
-        "#logged-in-dropdown-template"
-      );
-      const dropdownContentClone =
-        dropdownContentTemplate.content.cloneNode(true);
+      const dropdownContentTemplate = document.querySelector("#logged-in-dropdown-template");
+      const dropdownContentClone = dropdownContentTemplate.content.cloneNode(true);
 
       const logoutBtnEl = dropdownContentClone.querySelector("#logout-button");
       logoutBtnEl.addEventListener("click", () => {
@@ -39,11 +36,9 @@ export async function renderNavBar() {
       nav.appendChild(dropdown.rootEl);
     }
   } else {
-    const loggedOutTemplate = document.querySelector(
-      "#right-logged-out-template"
-    );
+    const loggedOutTemplate = document.querySelector("#right-logged-out-template");
     const loggedOutClone = loggedOutTemplate.content.cloneNode(true);
 
     nav.appendChild(loggedOutClone);
   }
-}
+});

@@ -2,7 +2,7 @@
 // Imports
 //
 
-import { jwtRequest } from "../../../../static/js/utils.js";
+import { jwtRequest } from "/static/utils/utils.js";
 
 //
 // Validation Functions

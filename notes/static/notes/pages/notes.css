@@ -1,6 +1,9 @@
-@import "notesModal.css";
 @import "/static/components/toasts/toast.css";
-@import "../components/shares/shares.css";
+@import "/static/components/modal/modal.css";
+@import "../components/modals/deleteModal.css";
+@import "../components/modals/infoModal.css";
+@import "../components/shares/shareForm.css";
+@import "../components/shares/shareList.css";
 
 /* Global layout */
 .container {

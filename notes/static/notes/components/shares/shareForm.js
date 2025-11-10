@@ -1,4 +1,4 @@
-export function createShareForm(roles) {
+export function shareForm(roles) {
   const rootEl = document.createElement("div");
   rootEl.classList.add("share-form");
 
