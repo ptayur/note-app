@@ -1,0 +1,85 @@
+@import "/static/css/components/toast.css";
+@import "/static/css/components/modal.css";
+@import "./components/deleteModal.css";
+@import "./components/infoModal.css";
+@import "./components/shareForm.css";
+@import "./components/shareList.css";
+
+/* Global layout */
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex: 1;
+}
+
+.note-panel {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 50px 1fr;
+  width: 100%;
+}
+
+/* Note view style */
+
+.note-panel__controls {
+  grid-row: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--slate-gray);
+  padding: 5px;
+  z-index: 100;
+
+  border-bottom: 2px solid var(--seasalt);
+  box-shadow: 2px 2px 5px var(--eerie-black);
+}
+
+.note-panel__name {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 10px 10px 20px;
+  border: 2px solid var(--onyx);
+  border-radius: 10px;
+  box-shadow: 1px 1px 1px var(--french-light-gray);
+}
+
+.note-panel__title {
+  background: transparent;
+  color: var(--eerie-black);
+  border: none;
+  outline: none;
+}
+
+.note-panel__title:focus {
+  border-bottom: 2px solid var(--eerie-black);
+}
+
+.note-panel__actions {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.note-panel textarea {
+  padding: 15px;
+  grid-row: 2;
+  background-color: var(--slate-gray);
+  color: var(--eerie-black);
+  outline: none;
+  border: none;
+  resize: none;
+}
+
+.note-panel textarea::placeholder {
+  color: var(--eerie-black);
+}
+
+.note-panel textarea:focus {
+  border: none;
+  outline: none;
+}

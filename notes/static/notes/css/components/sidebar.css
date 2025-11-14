@@ -1,0 +1,41 @@
+.sidebar {
+  grid-column: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  min-height: 0;
+  padding: 15px;
+  gap: 10px;
+  z-index: 200;
+  background-color: var(--onyx);
+  box-shadow: 2px 0 25px var(--french-gray);
+
+  transition: width 0.5s ease;
+}
+
+.sidebar__header {
+  display: flex;
+  justify-content: right;
+}
+
+.sidebar__btn__icon {
+  flex-shrink: 0;
+}
+
+.sidebar__btn__text {
+  opacity: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  min-width: 0;
+
+  transition: opacity 0.3s ease-in-out;
+}
+
+.sidebar.closed {
+  width: 34px;
+}
+
+.sidebar.closed .sidebar__btn__text {
+  opacity: 0;
+}

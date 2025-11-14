@@ -1,0 +1,27 @@
+{% extends "components/sidebar.html" %}
+
+{% block sidebar-content %}
+  <div class="sidebar__menu">
+    <button class="generic-button" id="create-button" type="button" title="Create note">
+      <svg class="sidebar__btn__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5v2H5v14h14v-5h2z" />
+        <path fill="currentColor" d="M21 7h-4V3h-2v4h-4v2h4v4h2V9h4z" />
+      </svg>
+      <span class="sidebar__btn__text">Create note</span>
+    </button>
+  </div>
+  <div class="notes">
+    <div class="notes__header">
+      <b><span>Notes</span></b>
+      {% include "notes/components/filter-dropdown.html" %}
+    </div>
+    <div class="notes-list">
+      <template id="note-item">
+        <div class="note-item">
+          <span class="note-title"></span>
+          {% include "notes/components/note-dropdown.html" %}
+        </div>
+      </template>
+    </div>
+  </div>
+{% endblock %}

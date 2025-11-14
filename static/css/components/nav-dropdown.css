@@ -1,0 +1,43 @@
+@import "./dropdown.css";
+
+.dropdown__content--nav {
+  background-color: var(--onyx);
+  right: 0;
+  top: 160%;
+
+  padding: 5px;
+}
+
+.dropdown__content--nav > * {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0px 8px;
+  gap: 6px;
+
+  color: var(--platinum);
+  background: transparent;
+  cursor: pointer;
+
+  transition: background-color 0.3s ease-in-out, color 0.3s ease;
+
+  /* <a> style */
+  text-decoration: none;
+
+  /* <button> style */
+  border: none;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.dropdown__content--nav > *:hover {
+  background-color: var(--slate-gray);
+  color: var(--seasalt);
+}
+
+.dropdown__content__icon {
+  width: 13px;
+  height: 13px;
+  vertical-align: middle;
+}

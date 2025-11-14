@@ -1,0 +1,119 @@
+.sidebar__menu {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  justify-content: left;
+  margin-bottom: 15px;
+}
+
+/* Filters dropdown style */
+
+.dropdown__button--filter[aria-expanded="true"] {
+  background-color: var(--denim);
+}
+
+.dropdown__content--filter {
+  border-radius: 8px;
+  top: 160%;
+
+  background-color: var(--platinum);
+  box-shadow: 2px 2px 5px var(--eerie-black);
+}
+
+.dropdown__content--filter > div {
+  border-radius: 5px;
+  padding: 3px;
+  margin: 5px;
+
+  background-color: var(--eerie-black);
+  color: var(--seasalt);
+}
+
+.dropdown__content--filter > div > label {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.dropdown__content--filter > div > input[type="text"] {
+  background-color: var(--platinum);
+  border-radius: 5px;
+  outline: none;
+  border: none;
+}
+
+/* Notes style */
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 10px;
+}
+
+.notes__header {
+  display: flex;
+  opacity: 1;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  transition: opacity 0.3s ease-in-out;
+}
+
+.notes__header > b > span {
+  color: var(--seasalt);
+}
+
+.sidebar.closed .notes__header {
+  opacity: 0;
+}
+
+.notes-list {
+  display: flex;
+  opacity: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  transition: opacity 0.3s ease-in-out;
+}
+
+.sidebar.closed .notes-list {
+  opacity: 0;
+}
+
+/* Note style */
+
+.note-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 5px;
+  background-color: var(--eerie-black);
+  border: 2px solid var(--slate-gray);
+  color: var(--french-gray);
+  box-shadow: 2px 2px 0 var(--eerie-black);
+  cursor: pointer;
+
+  transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.note-item:hover {
+  transform: translateX(-5px);
+  z-index: 1000;
+}
+
+.note--selected {
+  background-color: var(--platinum);
+  color: var(--eerie-black);
+}
+
+.note-title {
+  white-space: nowrap;
+  overflow: hidden;
+  margin: 0;
+}

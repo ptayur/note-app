@@ -1,0 +1,49 @@
+@import "./components/nav-dropdown.css";
+@import "variables.css";
+@import "button.css";
+
+/* Global layout */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  z-index: 1000;
+  background: var(--eerie-black);
+  box-shadow: 0px 1px 25px var(--slate-gray);
+}
+
+main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+footer {
+  background: var(--eerie-black);
+  color: #fff;
+  text-align: center;
+  z-index: 1000;
+
+  box-shadow: 1px 0 25px var(--slate-gray);
+}
+
+/* Navigation layout and style */
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+}

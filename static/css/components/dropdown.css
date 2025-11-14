@@ -1,0 +1,49 @@
+/* Base dropdown style */
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.dropdown__btn__text {
+  margin-right: 5px;
+}
+
+.dropdown__btn__icon {
+  width: 10px;
+  transform: rotateZ(-90deg);
+
+  transition: transform 0.3s ease;
+}
+
+.dropdown__btn[aria-expanded="true"] .dropdown__btn__icon {
+  transform: rotateZ(0deg);
+}
+
+.dropdown__content {
+  position: absolute;
+  display: none;
+  top: 100%;
+  z-index: 2000;
+
+  width: max-content;
+  min-width: 100%;
+  padding: 0;
+  margin: 0;
+  gap: 5px;
+
+  list-style: none;
+  background: white;
+}
+
+.dropdown__content:not(.hidden) {
+  display: grid;
+}

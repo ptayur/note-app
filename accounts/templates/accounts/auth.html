@@ -1,60 +1,73 @@
-{% extends 'base.html' %} {% block title %}Authentication - NoteApp{% endblock %} {% load static %} {% block head %}
-<link rel="stylesheet" href="{% static 'accounts/pages/auth.css' %}" />
-<script src="{% static 'accounts/pages/auth.js' %}" type="module"></script>
-{% endblock %} {% block content %}
-<div class="auth-container">
-  <div class="card" id="auth-card">
-    <!-- Front (Sign In) -->
-    <div class="card-face card-front">
-      <form id="sign-in">
-        <h2>Sign In</h2>
-        <div class="input-container">
-          <input type="email" id="email-front" name="email" placeholder="Email" required />
-        </div>
+{% extends 'base.html' %}
 
-        <div class="input-container">
-          <input type="password" id="password-front" name="password" placeholder="Password" required />
-        </div>
-        <button type="submit">Login</button>
-        <div class="error-message" id="login-error"></div>
-        <p>
-          No account?
-          <button type="button" id="flip-to-signup" class="link-btn">Sign Up</button>
-        </p>
-      </form>
-    </div>
+{% load static %}
 
-    <!-- Back (Sign Up) -->
-    <div class="card-face card-back">
-      <form id="sign-up">
-        <h2>Sign Up</h2>
-        <div class="input-container">
-          <input type="text" id="username" name="username" placeholder="Username" required />
-          <div class="error-message" id="username-error"></div>
-        </div>
+{% block title %}Authentication - NoteApp{% endblock %}
 
-        <div class="input-container">
-          <input type="email" id="email-back" name="email" placeholder="Email" required />
-          <div class="error-message" id="email-error"></div>
-        </div>
+{% block styles %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}" />
+{% endblock %}
 
-        <div class="input-container">
-          <input type="password" id="password-back" name="password" placeholder="Password" required />
-          <div class="error-message" id="password-error"></div>
-        </div>
+{% block content %}
+  <div class="auth-container">
+    <div class="card" id="auth-card">
+      <!-- Front (Sign In) -->
+      <div class="card-face card-front">
+        <form id="sign-in">
+          <h2>Sign In</h2>
+          <div class="input-container">
+            <input type="email" id="email-front" name="email" placeholder="Email" required />
+          </div>
 
-        <div class="input-container">
-          <input type="password" id="repeat-password" name="repeat-password" placeholder="Repeat password" required />
-          <div class="error-message" id="repeat-password-error"></div>
-        </div>
-        <button type="submit">Register</button>
-        <div class="error-message" id="register-error"></div>
-        <p>
-          Already have an account?
-          <button type="button" id="flip-to-signin" class="link-btn">Sign In</button>
-        </p>
-      </form>
+          <div class="input-container">
+            <input type="password" id="password-front" name="password" placeholder="Password" required />
+          </div>
+          <button type="submit">Login</button>
+          <div class="error-message" id="login-error"></div>
+          <p>
+            No account?
+            <button type="button" id="flip-to-signup" class="link-btn">Sign Up</button>
+          </p>
+        </form>
+      </div>
+
+      <!-- Back (Sign Up) -->
+      <div class="card-face card-back">
+        <form id="sign-up">
+          <h2>Sign Up</h2>
+          <div class="input-container">
+            <input type="text" id="username" name="username" placeholder="Username" required />
+            <div class="error-message" id="username-error"></div>
+          </div>
+
+          <div class="input-container">
+            <input type="email" id="email-back" name="email" placeholder="Email" required />
+            <div class="error-message" id="email-error"></div>
+          </div>
+
+          <div class="input-container">
+            <input type="password" id="password-back" name="password" placeholder="Password" required />
+            <div class="error-message" id="password-error"></div>
+          </div>
+
+          <div class="input-container">
+            <input type="password" id="repeat-password" name="repeat-password" placeholder="Repeat password" required />
+            <div class="error-message" id="repeat-password-error"></div>
+          </div>
+          <button type="submit">Register</button>
+          <div class="error-message" id="register-error"></div>
+          <p>
+            Already have an account?
+            <button type="button" id="flip-to-signin" class="link-btn">Sign In</button>
+          </p>
+        </form>
+      </div>
     </div>
   </div>
-</div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'accounts/js/auth.js' %}" type="module"></script>
 {% endblock %}
