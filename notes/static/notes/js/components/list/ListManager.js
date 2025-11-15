@@ -1,82 +1,55 @@
 export class ListManager {
-  container = null;
   items = new Map();
+  selectedItem = null;
 
-  #selectedEl = null;
-  #onSelect = null; // select callback
-  #onCreate = null; // create callback
-  #onDelete = null; // delete callback
-  #ListApi = null; // api class
-  #ListItem = null; // item class
+  #onSelect = null;
 
-  constructor(containerEl, ListApi, ListItem) {
+  constructor(containerEl, itemClass) {
     this.container = containerEl;
-    this.#ListApi = ListApi;
-    this.#ListItem = ListItem;
+    this.itemClass = itemClass;
 
     this.container.addEventListener("click", (event) => {
-      const itemEl = event.target.closest(this.#ListItem.class);
-      if (!itemEl) return;
-      this.select(itemEl);
-      if (this.#onSelect) this.#onSelect(itemEl.dataset.id);
+      const item = event.target.closest(this.itemClass);
+      if (!item) return;
+
+      const id = item.dataset.id;
+      this.select(id);
+      if (this.#onSelect) this.#onSelect(id);
     });
   }
 
-  #addItem(itemData) {
-    const itemEl = this.#ListItem.create(itemData);
-    this.container.appendChild(itemEl);
-    return itemEl;
+  addItem(item) {
+    this.items.set(item.getId(), item);
+    this.container.appendChild(item.getElement());
   }
 
-  async select(noteEl) {
+  removeItem(itemId) {
+    const item = this.items.get(itemId);
+    if (!item) return;
+    item.getElement().remove();
+    this.items.delete(itemId);
+  }
+
+  select(itemId) {
     this.unselect();
-    this.#ListItem?.select();
-    this.#selectedEl = noteEl;
+    const item = this.items.get(itemId);
+    if (!item) return;
+    item.getElement().classList.add("selected");
+    this.selectedItem = item;
   }
 
   unselect() {
-    if (!this.#selectedEl) return;
-    this.#ListItem?.unselect();
-    this.#selectedEl = null;
-  }
-
-  async delete(itemId) {
-    const response = await this.#ListApi.deleteItem(itemId);
-    if (response.ok) {
-      this.items.get(itemId).remove();
-      this.items.delete(itemId);
-      this.#selectedEl = null;
-      this.#onDelete?.();
-    } else {
-      console.error(`Note with id=${itemId} is not deleted.`);
-    }
-  }
-
-  async create() {
-    const response = await this.#ListApi.createItem(this.#ListItem.defaultData);
-    if (response.ok) {
-      const itemData = response.data;
-      const itemEl = this.#addItem(itemData);
-      this.select(itemEl);
-      this.#onCreate?.(noteId, defaultTitle);
-    } else {
-      console.error(`Note is not been created.`);
-    }
-  }
-
-  async loadList(filterParams = "") {
-    const response = await this.#ListApi.getItems(filterParams);
-    if (response.ok) {
-      this.clearList();
-      response.data.forEach((itemData) => {
-        this.#addItem(itemData);
-      });
-    } else {
-      console.log("Notes list is not loaded.");
-    }
+    if (!this.selectedItem) return;
+    this.selectedItem.getElement().classList.remove("selected");
+    this.selectedItem = null;
   }
 
   clearList() {
-    this.container.querySelectorAll(this.#ListItem.class).forEach((item) => item.remove());
+    this.container.innerHTML = "";
+    this.items.clear();
+  }
+
+  setOnSelect(callback) {
+    this.#onSelect = callback;
   }
 }

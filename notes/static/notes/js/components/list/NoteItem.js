@@ -1,3 +1,6 @@
+import { Dropdown } from "static/js/components/Dropdown.js";
+import { infoModal, shareModal, deleteModal } from "static/notes/js/components/modals/index.js";
+
 export class NoteItem {
   static cssClass = ".note-item";
 
@@ -6,6 +9,7 @@ export class NoteItem {
     this.callbacks = callbacks;
 
     this.el = this.#createDOM();
+    this.#bindEvents();
   }
 
   #createDOM() {
@@ -20,13 +24,32 @@ export class NoteItem {
     const noteTitleEl = noteEl.querySelector(".note-title");
     noteTitleEl.textContent = this.data.title;
 
+    const noteDropdownEl = noteEl.querySelector(".dropdown");
+    new Dropdown(noteDropdownEl);
+
     return noteEl;
   }
 
   #bindEvents() {
-    this.el.addEventListener("click", () => {
-      this.callbacks.onSelect?.(this.data.id);
+    this.el.querySelector(".note-info-btn").addEventListener("click", () => {
+      infoModal(this.data);
     });
-    this.el.querySelector(".");
+    this.el.querySelector(".note-share-btn").addEventListener("click", () => {
+      shareModal(this.data);
+    });
+    this.el.querySelector(".note-delete-btn").addEventListener("click", () => {
+      const confirm = deleteModal(this.data.title);
+      if (confirm) {
+        this.callbacks?.onDelete(this.data.id);
+      }
+    });
+  }
+
+  getElement() {
+    return this.el;
+  }
+
+  getId() {
+    return this.data.id;
   }
 }
