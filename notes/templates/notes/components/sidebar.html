@@ -15,13 +15,12 @@
       <b><span>Notes</span></b>
       {% include "notes/components/filter-dropdown.html" %}
     </div>
-    <div class="notes-list">
-      <template id="note-item">
-        <div class="note-item">
-          <span class="note-title"></span>
-          {% include "notes/components/note-dropdown.html" %}
-        </div>
-      </template>
-    </div>
+    <template id="note-item">
+      <div class="note-item">
+        <span class="note-title"></span>
+        {% include "notes/components/note-dropdown.html" %}
+      </div>
+    </template>
+    <div class="notes-list"></div>
   </div>
 {% endblock %}

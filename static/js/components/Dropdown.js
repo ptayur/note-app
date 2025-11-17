@@ -22,7 +22,15 @@ export class Dropdown {
   }
 
   #setupListeners() {
-    this.buttonEl.addEventListener("click", (event) => this.toggle());
+    this.buttonEl.addEventListener("click", (event) => {
+      event.stopPropagation();
+
+      const rect = this.buttonEl.getBoundingClientRect();
+      this.contentEl.style.top = rect.bottom + "px";
+      this.contentEl.style.left = rect.left + "px";
+
+      this.toggle();
+    });
   }
 
   open() {

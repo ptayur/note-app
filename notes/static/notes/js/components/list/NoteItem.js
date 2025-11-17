@@ -1,5 +1,5 @@
-import { Dropdown } from "static/js/components/Dropdown.js";
-import { infoModal, shareModal, deleteModal } from "static/notes/js/components/modals/index.js";
+import { Dropdown } from "/static/js/components/Dropdown.js";
+import { infoModal, shareModal, deleteModal } from "/static/notes/js/components/modals/index.js";
 
 export class NoteItem {
   static cssClass = ".note-item";
@@ -18,7 +18,8 @@ export class NoteItem {
       console.warn(`Template for '${NoteItem.cssClass}' wasn't found.`);
       return;
     }
-    const noteEl = noteTemplate.content.cloneNode(true);
+    const fragment = noteTemplate.content.cloneNode(true);
+    const noteEl = fragment.querySelector(".note-item");
     noteEl.dataset.id = this.data.id;
 
     const noteTitleEl = noteEl.querySelector(".note-title");

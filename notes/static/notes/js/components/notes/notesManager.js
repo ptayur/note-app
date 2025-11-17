@@ -15,7 +15,7 @@ export class NotesManager {
     this.notesList = notesList;
 
     this.titleInput = notePanel.querySelector(".note-panel__title");
-    this.contentInput = notePanel.querySelector("textarea");
+    this.contentInput = notePanel.querySelector(".note-panel__content");
 
     this.#clearPanel();
   }
@@ -34,14 +34,14 @@ export class NotesManager {
 
   #renderNote(data) {
     this.titleInput.value = data?.title ?? "";
-    this.contentInput.value = data?.content ?? "";
+    this.contentInput.innerText = data?.content ?? "";
     this.contentInput.readOnly = false;
     this.notePanel.querySelectorAll("button").forEach((btn) => (btn.disabled = false));
   }
 
   #clearPanel() {
     this.titleInput.value = "";
-    this.contentInput.value = "";
+    this.contentInput.innerText = "";
     this.contentInput.readOnly = true;
     this.notePanel.querySelectorAll("button").forEach((btn) => (btn.disabled = true));
   }

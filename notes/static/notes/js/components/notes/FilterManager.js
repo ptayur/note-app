@@ -1,16 +1,12 @@
-//
-// Imports
-//
-
 import { debounce } from "/static/js/utils/utils.js";
 
-export class FiltersManager {
+export class FilterManager {
   #dropdownFilter = null;
   #queryParams = null;
   #sectionNames = [];
   #onChange;
 
-  constructor({ dropdownFilter, onChange }) {
+  constructor(dropdownFilter, onChange) {
     this.#dropdownFilter = dropdownFilter;
     this.#queryParams = new URLSearchParams();
     this.#getSectionNames();

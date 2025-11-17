@@ -175,4 +175,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
   });
+
+  function autoResize(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  const content = document.querySelector(".note-panel__content");
+  autoResize(content);
+  content.addEventListener("input", () => autoResize(content));
 });

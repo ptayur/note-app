@@ -1,0 +1,17 @@
+@import "/static/css/components/toast.css";
+@import "/static/css/components/modal.css";
+@import "./components/deleteModal.css";
+@import "./components/infoModal.css";
+@import "./components/shareForm.css";
+@import "./components/shareList.css";
+@import "./components/list.css";
+@import "./components/note-panel.css";
+@import "./components/sidebar.css";
+
+/* Global layout */
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex: 1;
+}

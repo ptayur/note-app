@@ -13,7 +13,11 @@ export class ListManager {
       if (!item) return;
 
       const id = item.dataset.id;
-      this.select(id);
+      if (this.selectedItem?.getElement() === item) {
+        this.unselect();
+      } else {
+        this.select(id);
+      }
       if (this.#onSelect) this.#onSelect(id);
     });
   }
@@ -24,7 +28,7 @@ export class ListManager {
   }
 
   removeItem(itemId) {
-    const item = this.items.get(itemId);
+    const item = this.items.get(parseInt(itemId));
     if (!item) return;
     item.getElement().remove();
     this.items.delete(itemId);
@@ -32,7 +36,7 @@ export class ListManager {
 
   select(itemId) {
     this.unselect();
-    const item = this.items.get(itemId);
+    const item = this.items.get(parseInt(itemId));
     if (!item) return;
     item.getElement().classList.add("selected");
     this.selectedItem = item;

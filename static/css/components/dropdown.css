@@ -29,21 +29,18 @@
 }
 
 .dropdown__content {
-  position: absolute;
+  position: fixed;
   display: none;
-  top: 100%;
   z-index: 2000;
 
   width: max-content;
-  min-width: 100%;
-  padding: 0;
-  margin: 0;
-  gap: 5px;
+  padding: 4px;
 
   list-style: none;
-  background: white;
+  background: var(--seasalt);
 }
 
 .dropdown__content:not(.hidden) {
-  display: grid;
+  display: flex;
+  flex-direction: column;
 }

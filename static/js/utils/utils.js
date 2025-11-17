@@ -1,3 +1,5 @@
+import { toastErrorWrapper, AppError } from "../errors/index.js";
+
 export function debounce(func, delay = 300) {
   let timeoutId;
   return (...args) => {
@@ -66,10 +68,8 @@ export async function jwtRequest(url, options = {}, { auth = true } = {}) {
   }
 }
 
-export class AppError extends Error {
-  constructor(title, message) {
-    super(message);
-    this.name = "AppError";
-    this.title = title;
-  }
+export function bindAction(control, action, handler) {
+  control.addEventListener(action, async (event) => {
+    await toastErrorWrapper(() => handler(event));
+  });
 }
